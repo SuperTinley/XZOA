@@ -1,0 +1,110 @@
+﻿.price-box {
+    width: 860px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid #ddd;
+    box-shadow: rgb(189, 189, 189) 0px 0px 10px;
+    background: #fff;
+    padding: 50px;
+    padding-top: 20px;
+    margin-top: 25px;
+    padding-bottom: 0px;
+}
+
+.price-title {
+    font-size: 25px;
+    text-align: center;
+    line-height: 60px;
+    font-weight: bold;
+    font-family: STKaiti;
+}
+
+
+.price-subtitle {
+    text-align: center;
+}
+
+.price-info {
+    /*margin-top: 20px;*/
+    margin-bottom: 20px;
+}
+
+    .price-info table .formTitle {
+        text-align: left;
+        width: 50px;
+        font-size: 13px;
+    }
+
+    .price-info table .formValue {
+        text-align: left;
+        font-size: 13px;
+    }
+
+        .price-info table .formValue input {
+            border-top: none;
+            border-right: none;
+            border-left: none;
+            height: 22px !important;
+            line-height: 22px !important;
+            font-size: 13px;
+        }
+
+.price-table table {
+    margin: 0px;
+    margin-top: 1px;
+    border-collapse: collapse;
+    width: 100%;
+    border-left: 1px solid #ccc;
+}
+
+    .price-table table thead tr td {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        text-overflow: ellipsis;
+        word-break: keep-all;
+        overflow: hidden;
+        font-weight: bold;
+        padding-left: 5px;
+        padding-right: 5px;
+        font-size: 13px;
+    }
+
+    .price-table table tbody tr td {
+        border-bottom: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        height: 25px;
+        line-height: 25px;
+        word-break: break-all;
+        padding-left: 5px;
+        padding-right: 5px;
+        font-size: 13px;
+    }
+
+.price-table th {
+    width: 100px;
+    height: 40px;
+    border: solid 1px;
+    text-align: center;
+    font-family: STKaiti;
+    font-size: 13px;
+}
+
+.price-info th, td {
+    font-family: STKaiti;
+    font-size: 13px;
+    height: 20px;
+    font-weight: bold;
+}
+.print-p {
+    font-weight: bold;
+    font-family: STKaiti;
+}
+    .print-p span {
+        font-weight: bold;
+        font-family: STKaiti;
+    }
+
+

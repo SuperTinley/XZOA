@@ -1,0 +1,263 @@
+﻿
+@{
+    ViewBag.Title = "ExportIndex";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    var myArray = new Array();
+    $(function () {
+        gridList();
+        laydate.render({
+            elem: '#hopeDD',
+            range: '~',
+            change: function (value, date, endDate) {
+                var dates = value.split('~');
+                $("#hopeDDBeginDate").val(dates[0]);
+                $("#hopeDDEndDate").val(dates[1]);
+            },
+            done: function (value, date, endDate) {
+                if (value == "") {
+                    $("#hopeDDBeginDate").val("");
+                    $("#hopeDDEndDate").val("");
+                }
+            }
+        }); 
+    });
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/TemplateManage/Template/GetTempExportList",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "主键", name: "TEM_ID", hidden: true, key: true },
+                {
+                    label: "操作", name: "TEM_ID", width: 66, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = '<a id="template_details" onclick=btn_details("' + cellvalue + '")>查看</a>';
+                        if ((rowObject.DRAWING != null && rowObject.DRAWING != "") || (rowObject.TEM_IMG != null && rowObject.TEM_IMG != "")) {
+                            str += '&nbsp;&nbsp;<a id="template_download"  data-toggle="modal" data-target="#myModal" onclick=btn_download("' + cellvalue + '")>下载</a>';
+                        }
+                        if (rowObject.PRT_IMG == 'T') {
+                            str += "<span class='download' style='display:none;'>" + cellvalue + "</span>";
+                        }
+                        return str;
+                    }
+                },
+                {
+                    label: '样板名称', name: 'TEM_NAME', width: 55, align: 'left'
+                },
+                {
+                    label: '客户', name: 'CUSTOMER', width: 35, align: 'left'
+                },
+                {
+                    label: '样板类型', name: 'TEM_TYPE', width: 55, align: 'left'
+                },
+                {
+                    label: '套数', name: 'TEM_NUM', width: 35, align: 'left'
+                },
+                {
+                    label: "材料要求", name: "MAT_REQ", width: 60, align: "left"
+                },
+                {
+                    label: "完工日期", name: "NOTICE_DATE", width: 70, align: "left",
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: "打样部门", name: "TEM_DEP", width: 100, align: 'left'
+                },
+                {
+                    label: "组别", name: "GROUP_NAME", width: 50, align: 'left',
+                },
+                {
+                    label: "申请部门", name: "APP_DEP", width: 60, align: "left"
+                },
+                {
+                    label: "负责人", name: "TEM_CHARGE", width: 60, align: "left",
+                },
+                {
+                    label: "申请人", name: "CREATE_USER", width: 60, align: "left",
+                },
+                {
+                    label: "材料费用", name: "MAT_FEE", width: 50, align: 'left',
+                },
+                {
+                    label: "制造成本", name: "MDDE_FEE", width: 50, align: 'left',
+                },
+                {
+                    label: "重量(KG)", name: "WEIGHT", width: 50, align: 'left',
+                },
+                {
+                    label: "工时", name: "WORK_TIME", width: 45, align: 'left',
+                }
+            ],
+            pager: "#gridPager",
+            sortname: 'date desc',
+            rowNum: 20,
+            rowList: [10, 20, 30],
+            viewrecords: true,
+            loadComplete: function () {
+                ChangeColor();
+            }
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: {
+                    finishBeginDate: $("#hopeDDBeginDate").val(),
+                    finishEndDate: $("#hopeDDEndDate").val()
+                },
+             page:1 }).trigger('reloadGrid');
+        });
+    }
+    function ChangeColor() {
+        var trs = $(".download");
+        if (trs != "") {
+            for (var i = 0; i < trs.length; i++) {
+                var id = trs.eq(i).text();
+                $("#" + id + "").css("color", "blue");
+                $("#" + id + " td a").css("color", "blue");
+            }
+        }
+
+    }
+    function btn_export() {
+        var keyValue = ".xls";
+        $.ajax({
+            url: '/TemplateManage/Template/ExportTempExcel',
+            type: "GET",
+            data: {
+                hopeDDBeginDate: $("#hopeDDBeginDate").val(),
+                hopeDDEndDate: $("#hopeDDEndDate").val()
+            },
+            contentType: 'application/octet-stream',
+            success: function (resp) {
+                var filename = resp.substr(resp.lastIndexOf('\\') + 1);
+                var doc = resp.match(/([^\\]+)(\.[^\(]+)/i);
+                var h5Down = !/Trident|MSIE/.test(navigator.userAgent); //浏览器是否支持download
+                if (h5Down) {
+                    openDownloadDialog("http://" + window.location.host + "/Excel/" + filename, filename);
+                } else {
+                    window.open("http://" + window.location.host + "/Excel/" + filename);
+                }
+            },
+            error: function () {
+                $.modalAlert("导出失败！");
+            }
+        })
+    }
+    function btn_details(keyValue) {
+        $.modalOpen({
+            id: "Details",
+            title: "查看",
+            url: "/TemplateManage/Template/Details?keyValue=" + keyValue,
+            width: "650px",
+            height: "650px",
+            btn: null,
+        });
+    }
+    function btn_download(keyValue) {
+        myArray.push(keyValue);
+        $("#" + keyValue).css('color', 'blue');
+        $("#" + keyValue + " a").css('color', 'blue');
+        $.ajax({
+            url: "/TemplateManage/Template/GetFormDownload",
+            data: { keyValue: keyValue },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                if (data != null) {
+                    var trs = '';
+                    if (data.TEM_IMG != null && data.TEM_IMG != "") {
+                        var TEM_IMG = data.TEM_IMG;
+                        var address = "http://" + window.location.host + "/Uploads/" + TEM_IMG;
+                        trs += "<a onclick=downloadFile('" + TEM_IMG + "') >" + TEM_IMG + "</a><br/>";
+                    }
+                    if (data.DRAWING != null && data.DRAWING != "") {
+                        var DRAWING = data.DRAWING.split("/");
+                        for (var i = 0; i < DRAWING.length; i++) {
+                            if (DRAWING[i] != "") {
+                                address = "http://" + window.location.host + "/Uploads/" + DRAWING[i];
+                                trs += "<a onclick=downloadFile('" + DRAWING[i] + "') >" + DRAWING[i] + "</a><br/>";
+                            }
+                        }
+                    }
+                    $("#myForm").html("");
+                    $("#myForm").append(trs);
+                }
+            },
+            error: function () {
+
+            }
+        });
+    }
+    function downloadFile(keyValue) {
+        $.download("/TemplateManage/Template/DownloadTemplate", "keyValue=" + keyValue, 'post');
+    }
+    function openDownloadDialog(url, saveName) {
+        if (typeof url == 'object' && url instanceof Blob) {
+            url = URL.createObjectURL(url); // 创建blob地址
+        }
+        var aLink = document.createElement('a');
+        aLink.href = url;
+        aLink.download = saveName || '';
+        var event;
+        event = document.createEvent('MouseEvents');
+        event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        aLink.dispatchEvent(event);
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="template_export" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_export()">导出</a>
+        </div>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <form class="form-inline" role="form">
+                        <div class="form-group">
+                            <label for="daterange-hopeDD">完工日期:</label>
+                            <div class="input-group">
+                                <input id="hopeDDBeginDate" type="hidden" />
+                                <input id="hopeDDEndDate" type="hidden" />
+                                <input type="text" id="hopeDD" placeholder="请选择日期" class="form-control" style="width:200px;" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">下载</h4>
+            </div>
+            <div class="modal-body">
+                <form name="form" id="myForm" enctype="multipart/form-data" method="post">
+                    <a></a>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>

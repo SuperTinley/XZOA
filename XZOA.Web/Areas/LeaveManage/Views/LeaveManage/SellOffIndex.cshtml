@@ -1,0 +1,216 @@
+﻿@{
+    // ViewBag.Title = "SellOffIndex";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        gridList();
+        selloffList();
+    })
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/LeaveManage/LeaveManage/GetSellOffList",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "主键", name: "F_Id", hidden: true, key: true },
+                {
+                    label: "操作", name: "F_Id", width: 50, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        var func = "btn_details('" + rowObject.F_Id + "')";
+                        return "<a class='btn bt-lg' onClick=" + func + ">销假</a>";
+                    }
+                },
+                {
+                    label: '员工姓名', name: 'F_UserName', width: 60, align: 'left'
+                },
+                {
+                    label: '工号', name: 'F_Account', width: 70, align: 'left'
+                },
+                {
+                    label: '填写日期', name: 'F_CreateTime', width: 75, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: '开始日期', name: 'F_BeginTime', width: 120, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d h:i:s', newformat: 'Y-m-d H:i:s' }
+                },
+                {
+                    label: '结束日期', name: 'F_EndTime', width: 120, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d h:i:s', newformat: 'Y-m-d H:i:s' }
+                },
+                {
+                    label: "时长", name: "F_TimeLength_Day", width: 120, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        return "<span>" + cellvalue + "天" + rowObject.F_TimeLength_Hour + "时" + rowObject.F_TimeLength_Minute + "分</span>";
+                    }
+                },
+                {
+                    label: "假期类别", name: "F_VacationTypeId", width: 60, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.dataItems["vacationtype"] == null ? "" : top.clients.dataItems["vacationtype"][parseInt(cellvalue)];
+                    }
+                },
+                {
+                    label: '请假类别', name: 'F_LeaveTypeId', width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.dataItems["leavetype"] == null ? "" : top.clients.dataItems["leavetype"][parseInt(cellvalue)];
+                    }
+                },
+                {
+                    label: '附件', name: 'F_FileId', width: 120, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                         if (cellvalue != null) {
+                             return "<a onclick=btn_download('" + rowObject.F_FileName + "') >" + rowObject.F_FileName + "</a>"
+                        }
+                        return "";
+                    }
+                }
+            ]
+        });
+    }
+    function btn_download(keyValue) {
+        $.download("/ProposalManage/ProposalManage/DownloadProposal", "keyValue=" + keyValue, 'post');
+    }
+    function selloffList() {
+        var $gridList = $("#selloffList");
+        $gridList.dataGrid({
+            url: "/LeaveManage/LeaveManage/GetSellOffHistoryList",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "主键", name: "F_Id", hidden: true, key: true },
+                {
+                    label: '员工姓名', name: 'F_UserName', width: 60, align: 'left'
+                },
+                {
+                    label: '工号', name: 'F_Account', width: 60, align: 'left'
+                },
+                {
+                    label: '填写日期', name: 'F_CreateTime', width: 75, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: '开始日期', name: 'F_BeginTime', width: 120, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d h:i:s', newformat: 'Y-m-d H:i:s' }
+                },
+                {
+                    label: '结束日期', name: 'F_EndTime', width: 120, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d h:i:s', newformat: 'Y-m-d H:i:s' }
+                },
+                {
+                    label: "时长", name: "F_TimeLength_Day", width: 90, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        return "<span>" + cellvalue + "天" + rowObject.F_TimeLength_Hour + "时" + rowObject.F_TimeLength_Minute + "分</span>";
+                    }
+                },
+                {
+                    label: "假期类别", name: "F_VacationTypeId", width: 50, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.dataItems["vacationtype"] == null ? "" : top.clients.dataItems["vacationtype"][parseInt(cellvalue)];
+                    }
+                },
+                {
+                    label: '请假类别', name: 'F_LeaveTypeId', width: 50, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.dataItems["leavetype"] == null ? "" : top.clients.dataItems["leavetype"][parseInt(cellvalue)];
+                    }
+                },
+                {
+                    label: "状态", name: "F_LeaveStatus", width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.dataItems["leavestatus"] == null ? "" : top.clients.dataItems["leavestatus"][cellvalue];
+                    }
+                },
+                {
+                    label: "是否销假", name: "F_IsSellOff", width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!cellvalue) {
+                            return "<span>否</span>";
+                        }
+                        return "<span>是</span>";
+                    }
+                },
+                {
+                    label: "销假日期", name: "F_ResumptionLeaveTime", width: 120, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d h:i:s', newformat: 'Y-m-d H:i:s' }
+                },
+                {
+                    label: "销假时长", name: "F_SellOffTimeLength_Day", width: 100, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return "<span>" + cellvalue + "天" + rowObject.F_SellOffTimeLength_Hour + "时" + rowObject.F_SellOffTimeLength_Minute + "分</span>";
+                    }
+                },
+                {
+                    label: '附件', name: 'F_FileId', width: 80, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != null) {
+                            return "<a target='_blank' href='http://" + window.location.host + "/Uploads/" + rowObject.F_FileId + rowObject.F_SuffixName + "'>" + rowObject.F_FileName + "</a>"
+                        }
+                        return "";
+                    }
+                }
+                //{
+                //    label: "销假申请", name: "F_Remark", width: 120, align: "left",
+                //    formatter: function (cellvalue, options, rowObject) {
+                //        var func = "btn_details('" + rowObject.F_Id + "')";
+                //        return "<a class='btn bt-lg' onClick=" + func + ">销假申请</a>";
+                //    }
+                //}
+            ]
+        });
+    }
+
+    function btn_details(keyValue) {
+        $.modalOpen({
+            id: "Form",
+            title: "审批",
+            url: "/LeaveManage/LeaveManage/SellOffForm?keyValue=" + keyValue,
+            width: "550px",
+            height: "400px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+
+</script>
+<div class="wrapper">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#a" data-toggle="tab">销假申请</a></li>
+        <li class=""><a href="#b" data-toggle="tab">销假历史记录</a></li>
+    </ul>
+    <div class="tab-content" style="padding-top: 5px;">
+        <div id="a" class="tab-pane active" style="padding: 15px;">
+            @*<div class="topPanel">
+                <div class="toolbar">
+                    <div class="btn-group">
+                        <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+                    </div>
+                    <div class="btn-group">
+
+                    </div>
+                    <div class="operate">
+                        <ul class="nav nav-pills">
+                            <li class="first">已选中<span>1</span>项</li>
+                            <li><a id="leave_delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+                            <li><a id="leave_details" authorize="yes" onclick="btn_details()"><i class="fa fa-search-plus"></i>查看</a></li>
+                        </ul>
+                        <a href="javascript:;" class="close"></a>
+                    </div>
+                    <script>$('.toolbar').authorizeButton()</script>
+                </div>
+
+            </div>*@
+            <div class="gridPanel">
+                <table id="gridList"></table>
+            </div>
+        </div>
+        <div id="b" class="tab-pane" style="padding: 15px;">
+            <div class="gridPanel">
+                <table id="selloffList"></table>
+            </div>
+            </div>
+    </div>
+  </div>

@@ -1,0 +1,149 @@
+﻿
+@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<style>
+    .form .formTitle {
+        padding-right: unset;
+        width: 10%;
+    }
+</style>
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initDate();
+        initSelect();
+        if (!!keyValue) {
+            $.ajax({
+                url: '/ProposalManage/ProposalManage/GetForm',
+                type: 'GET',
+                data: { "keyValue": keyValue },
+                async: false,
+                dataType: "json",
+                success: function (data) {
+                    initSelect(); 
+                    $("#form1").formSerialize(data);
+                    $("#pro_dep").val(data.pro_dep);
+                },
+                error: function () { }
+            });
+        }
+    });
+    function submitForm() {
+        if (!$("#form1").formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/ProposalManage/ProposalManage/SubmitEditForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+       
+    }
+    function initDate() {
+        laydate.render({
+            elem: '#plan_finish_date',
+        });
+    }
+    function initSelect() {
+        $.ajax({
+            url: "/ProposalManage/ProposalManage/GetTreeJson",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                var str = '';
+                for (var i = 0; i < data.length; i++) {
+                    str += "<option value='" + data[i].text + "'>" + data[i].text + "</option>";
+                }
+                $("#pro_dep").html(str);
+            },
+            error: function () { }
+        });
+        $.ajax({
+            url: "/ProposalManage/ProposalManage/GetTreeJson",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                var str = '';
+                for (var i = 0; i < data.length; i++) {
+                    str += "<option value='" + data[i].text + "'>" + data[i].text + "</option>";
+                }
+                $("#pro_send_dep").html(str);
+            },
+            error: function () { }
+        });
+    }
+</script>
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">提案标题</th>
+                <td class="formValue">
+                    <input id="Role" type="hidden" />
+                    <input id="pro_title" name="pro_title" class="form-control" readonly="readonly">
+                </td>
+                <th class="formTitle">编号</th>
+                <td class="formValue">
+                    <input id="pro_id" name="pro_id" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">提案者</th>
+                <td class="formValue">
+                    <input id="pro_man" name="pro_man" type="text" class="form-control" readonly="readonly"/>
+                </td>
+                <th class="formTitle">日期</th>
+                <td class="formValue">
+                    <input id="pro_date" name="pro_date" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">提案部门</th>
+                <td class="formValue">
+                    <select id="pro_dep" name="pro_dep" class="form-control required" style="width: 100%;" disabled="disabled"></select>
+                </td>
+                <th class="formTitle">发往部门</th> 
+                <td class="formValue">
+                    <select id="pro_send_dep" name="pro_send_dep" class="form-control required"  style="width: 100%;"></select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">是否同意</th>
+                <td class="formValue">
+                    <div class="radio-inline">
+                        <label class="checkbox"><input id="is_pass" name="is_pass" type="radio" value="Y">同意</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="checkbox"><input id="is_pass" name="is_pass" type="radio" value="N">不同意</label>
+                    </div>
+                </td>
+                <th class="formTitle">
+                    接受部门意见
+                </th>
+                <td class="formValue">
+                    <input type="text" class="form-control revice" id="reasons" name="reasons" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">实施负责人</th>
+                <td class="formValue">
+                    <input type="text" class="form-control revice" id="imp_man" name="imp_man" />
+                </td>
+                <th class="formTitle">计划完成日期</th>
+                <td class="formValue">
+                    <input id="plan_finish_date" name="plan_finish_date" type="text" class="form-control revice" />
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+
+
+

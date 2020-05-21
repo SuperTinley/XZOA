@@ -1,0 +1,254 @@
+﻿
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<link href="~/Content/js/steps/css/element.min.css" rel="stylesheet" />
+<script src="~/Content/js/steps/js/vue.min.js"></script>
+<script src="~/Content/js/steps/js/element.min.js"></script>
+<style>
+    .el-step__icon.is-icon {
+        width:100px;
+    }
+    .divv {
+        display: -webkit-flex;
+        display: flex;
+    }
+    input[type=radio] {
+        float: left;
+        margin-top: 0px;
+    }
+    .form .formValue {
+        padding:3px;
+    }
+</style>
+<script>
+    var keyValue = $.request("keyValue");
+    Date.prototype.Format = function (fmt) { //author: meizz
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+
+    $(function () {
+        
+        if (!!keyValue) {
+            init(keyValue);
+        }
+    });
+    function init(key) {
+        $.ajax({
+            url: "/TemplateManage/Template/GetFormDetail",
+            data: { keyValue: key },
+            dataType: "json",
+            async: false,
+            success: function (json) {
+                var data = json.data;
+                var list = json.list;
+                if (data != null) {
+                    var element = $("#form1");
+                    if (data.AUDIT_TAG == "T") {
+                        data.AUDIT_TAG = "已审核";
+                    } else { data.AUDIT_TAG = "待审核"; }
+                    if (data.TEM_ACCEPT == "T") {
+                        data.TEM_ACCEPT = "已接收";
+                    } else if (data.TEM_ACCEPT == "F") {
+                        data.TEM_ACCEPT = "已拒收";
+                    }
+                    else { data.TEM_ACCEPT = "待接收"; }
+                    if (data.BACK_TAG == "T") {
+                        data.BACK_TAG = "已退回";
+                    } else { data.BACK_TAG = "未退回"; }
+                    if (data.CLOSE_ID == "T") {
+                        data.CLOSE_ID = "已结案";
+                    } else { data.CLOSE_ID = "未结案"; }
+                    if (data.NOTICE_GET == "T") {
+                        data.NOTICE_GET = "已通知";
+                    } else { data.NOTICE_GET = "待通知"; }
+                    for (var key in data) {
+                        var $id = element.find('#' + key);
+                        var value = $.trim(data[key]).replace(/&nbsp;/g, '');
+                        $id.html(value);
+                    }
+                    var HOPE_DD = new Date(parseInt(data.HOPE_DD.replace("/Date(", "").replace(")/", ""), 10));
+                     HOPE_DD = HOPE_DD.Format("yyyy-MM-dd")//ChangeDateFormat(data.HOPE_DD);
+                    $("#HOPE_DD").html(HOPE_DD);
+                    if (data.AUDIT_DATE != null) {
+                        var AUDIT_DATE = new Date(parseInt(data.AUDIT_DATE.replace("/Date(", "").replace(")/", ""), 10));
+                        AUDIT_DATE = AUDIT_DATE.Format("yyyy-MM-dd hh:mm:ss")
+                        $("#AUDIT_DATE").html(AUDIT_DATE);
+                    }
+                    if (data.FINISH_DATE != null) {
+                        var FINISH_DATE = new Date(parseInt(data.FINISH_DATE.replace("/Date(", "").replace(")/", ""), 10));
+                        FINISH_DATE = FINISH_DATE.Format("yyyy-MM-dd hh:mm:ss")
+                        $("#FINISH_DATE").html(FINISH_DATE);
+                    }
+                    var str = '<el-steps :active="stepVal1" align-center>';
+                    for (var i = 0; i < list.length; i++) {
+                        str += '<div style="float: left;">';
+                        str += '<div class="divv" style="padding-left: 45%; padding-bottom: 7px;"><input name="process" type="radio" value="' + list[i].id + '"/>'+(i+1)+'</div>';
+                        str += '<el-step icon="el-icon-success" description="' + list[i].text + '"></el-step>';
+                        str += '</div>';
+                    }
+                    str += '</el-step>';
+                    $("#myVue").html(str);
+                    new Vue({
+                        el: '#myVue',
+                        data: {
+                            stepVal1: list.length,
+                        }
+                    });
+                    $(".el-step.is-horizontal.is-center").css("max-width","100%");
+                    $("input[type='radio'][value='" + data.TEM_ID+"']").attr("checked", true);
+                }
+
+            },
+            error: function () {
+
+            }
+        });
+        $("input[name=process]").click(function () {
+            var value = $("input[name=process]:checked").val();
+            init(value);
+        });
+    }
+    
+</script>
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">样板名称</th>
+                <td class="formValue">
+                    <label id="TEM_NAME"></label>
+                </td>
+                <th class="formTitle">客户</th>
+                <td class="formValue" id="CUSTOMER"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">打样编号</th>
+                <td class="formValue" id="TEM_NO"></td>
+                <th class="formTitle">是否下载</th>
+                <td class="formValue" id="mat"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">样板类型</th>
+                <td class="formValue" id="TEM_TYPE"></td>
+                <th class="formTitle">套数</th>
+                <td class="formValue" id="TEM_NUM"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">材料要求</th>
+                <td class="formValue" id="MAT_REQ" colspan="3"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">期望交期</th>
+                <td class="formValue" id="HOPE_DD"></td>
+                <th class="formTitle">图纸</th>
+                <td class="formValue" id="DRAWING"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">图纸别名</th>
+                <td class="formValue" id="DRAWING_ALIAS"></td>
+                <th class="formTitle">图片</th>
+                <td class="formValue" rowspan="3" id="TEM_IMG"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">申购部门</th>
+                <td class="formValue" id="APP_DEP"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">打样部门</th>
+                <td class="formValue" id="TEM_DEP"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">关键尺寸</th>
+                <td class="formValue" colspan="3" id="SIZE"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">申请人</th>
+                <td class="formValue" id="CREATE_USER"></td>
+                <th class="formTitle">负责人</th>
+                <td class="formValue" id="TEM_CHARGE"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">审核人</th>
+                <td class="formValue" id="AUDIT_MAN"></td>
+                <th class="formTitle">是否审核</th>
+                <td class="formValue" id="AUDIT_TAG"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">审核时间</th>
+                <td class="formValue" id="AUDIT_DATE"></td>
+                <th class="formTitle">是否接收</th>
+                <td class="formValue" id="TEM_ACCEPT"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">主工艺</th>
+                <td class="formValue" colspan="3" id="PROCESS"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">工艺序号</th>
+                <td class="formValue" id="PROCESS_STEP_NUM"></td>
+                <th class="formTitle">通知领用</th>
+                <td class="formValue" id="NOTICE_GET"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">是否退回</th>
+                <td class="formValue" id="BACK_TAG"></td>
+                <th class="formTitle">通知人</th>
+                <td class="formValue" id="NOTICE_MAN"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">退回原因</th>
+                <td class="formValue" colspan="3" id="BACK_REA"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">是否结案</th>
+                <td class="formValue" id="CLOSE_ID"></td>
+                <th class="formTitle">结案时间</th>
+                <td class="formValue" id="FINISH_DATE"></td>
+            <tr>
+                <th class="formTitle">备注</th>
+                <td class="formValue" colspan="3" id="TEM_REMARK"></td>
+            <tr>
+                <th class="formTitle">材料费用</th>
+                <td class="formValue" id="MAT_FEE"></td>
+                <th class="formTitle">制造费用</th>
+                <td class="formValue" id="MDDE_FEE"></td>
+            <tr>
+                <th class="formTitle">完工套数</th>
+                <td class="formValue" id="FINISH_NUM"></td>
+                <th class="formTitle">取样日期</th>
+                <td class="formValue" id="purSpc"></td>
+            <tr>
+                <th class="formTitle">重量（KG）</th>
+                <td class="formValue" id="WEIGHT"></td>
+                <th class="formTitle">材质</th>
+                <td class="formValue" id="MATERIAL"></td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <div id="myVue" style="margin-top:10px;">
+                        <el-steps :active="stepVal1" align-center>
+                            <el-step title="步骤 1" icon="el-icon-success" description="这是一段很长很长很长的描述性文字"></el-step>
+                            <el-step title="步骤 2" icon="el-icon-success" description="这是一段很长很长很长的描述性文字"></el-step>
+                        </el-steps>
+                    </div>
+                </td>
+
+            </tr>
+        </table>
+    </div>
+</form>
+

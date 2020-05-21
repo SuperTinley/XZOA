@@ -1,0 +1,306 @@
+﻿
+@{
+    ViewBag.Title = "RegistrationIndex";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<style>
+    .chkF {
+        color:darkorange;
+    }
+</style>
+<script>
+    $(function () {
+        gridList();
+        laydate.render({
+            elem: '#date',
+            range: '~',
+            change: function (value, date, endDate) {
+                var dates = value.split('~');
+                $("#dateBeginDate").val(dates[0]);
+                $("#dateEndDate").val(dates[1]);
+            },
+            done: function (value, date, endDate) {
+                if (value == "") {
+                    $("#dateBeginDate").val("");
+                    $("#dateEndDate").val("");
+                }
+            }
+        });
+    });
+    function ChangeColor() {
+        var trs = $(".chkF");
+        var tr1s = $(".preMoney");
+        if (trs != "") {
+            for (var i = 0; i < trs.length; i++) {
+                var id = trs.eq(i).text();
+                $("#" + id + "").css("color", "red");
+                $("#" + id + " a").css("color", "red");
+            }
+        }
+        if (tr1s != "") {
+            for (var i = 0; i < tr1s.length; i++) {
+                tr1s.eq(i).parent().css('background-color', '#00CACA');
+            }
+        }
+    }
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PurchaseManage/Bill/GetRegistrationList",
+            height: $(window).height() - 128,
+            colModel: [
+                {
+                    label: "主键", name: "id", hidden: true, key: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.chkTag == "T") {
+                            return '<span class="chkF">' + cellvalue + '</span>';
+                        }
+                        return cellvalue;
+                    }
+                },
+                {
+                    label: '单据类型', name: 'billType', width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == "C") {
+                            return "进货";
+                        } else { return "进货退回" }
+                    }
+                },
+                {
+                    label: '单据日期', name: 'chkDate', width: 65, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: '报价单号', name: 'priNO', width: 80, align: 'left'
+                },
+                {
+                    label: "申购名称", name: "prdName", width: 120, align: "left"
+                },
+                {
+                    label: '申购牌号', name: 'orderNo', width: 60, align: 'left'
+                },
+                {
+                    label: "申购规格", name: "spc", width: 120, align: 'left'
+                },
+                {
+                    label: "供应商", name: "purSup", width: 44, align: "left"
+                },
+                {
+                    label: '采购名称', name: 'purName', width: 120, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.isPreMoney == "Y") {
+                            return '<span class="preMoney">' + cellvalue + '</span>';
+                        }
+                        return cellvalue;
+                    }
+                },
+                {
+                    label: "采购牌号", name: "purOrderNo", width: 60, align: 'left'
+                },
+                {
+                    label: '采购规格', name: 'purSpc', width: 100, align: 'left'
+                },
+                {
+                    label: '数量', name: 'num', width: 45, align: 'left'
+                },
+                {
+                    label: '单位', name: 'unit', width: 45, align: 'left'
+                },
+                {
+                    label: '采购单价', name: 'purPrice', width: 44, align: 'left'
+                },
+                {
+                    label: "报价备注", name: "priceRem", width: 60, align: "left"
+                },
+                {
+                    label: '进货备注', name: 'billRem', width: 60, align: 'left'
+                },
+                {
+                    label: "采购员", name: "purMan", width: 50, align: 'left'
+                },
+                {
+                    label: '进货单号', name: 'billNo', width: 80, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.isPreMoney == "Y") {
+                            return '<span class="preMoney">' + cellvalue + '</span>'; 
+                        }
+                        return cellvalue;
+                    }
+                },
+                {
+                    label: '申购部门', name: 'appDep', width: 60, align: 'left'
+                },
+                {
+                    label: "申购备注", name: "appRemark", width: 60, align: "left"
+                },
+                {
+                    label: '状态', name: 'prtTag', width: 50, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == "D") {
+                            return '已交单';
+                        }
+                        else {
+                            return '未交单';
+                        }
+                    }
+                },
+                {
+                    label: "打印日期", name: "prtDate", width: 65, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: "副数量", name: "viceNum", width: 45, align: "left"
+                },
+                {
+                    label: "副单位", name: "viceUnit", width: 45, align: "left"
+                },
+                {
+                    label: "报价单位", name: "priceUnit", width: 50, align: 'left'
+                },
+                {
+                    label: "使用组别", name: "useGroup", width: 44, align: "left"
+                },
+                {
+                    label: "报价审核", name: "chkTag", width: 50, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == "T") {
+                            return '未审核';
+                        }
+                        else {
+                            return '已审核';
+                        }
+                    }
+                },
+                {
+                    label: "是否预付", name: "isPreMoney", width: 45, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == "N") {
+                            return '未预付';
+                        }
+                        else {
+                            return '已预付';
+                        }
+                    }
+                },
+                {
+                    label: "收单日期", name: "FINBILLDATE", width: 100, align: "left"
+                }
+            ],
+            pager: "#gridPager",
+            sortname: 'date desc',
+            multiselect: true,
+            rowNum: 20,
+            rowList: [10, 20, 30],
+            viewrecords: true,
+            loadComplete: function () {
+                ChangeColor();
+            }  
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: {
+                    keyword: $("#txt_keyword").val(),
+                    dateBeginDate: $("#dateBeginDate").val(),
+                    dateEndDate: $("#dateEndDate").val()
+                },
+             page:1 }).trigger('reloadGrid');
+        });
+    }
+
+    function btn_receipt() {
+        var keyValue = $("#gridList").jqGrid('getGridParam', 'selarrrow');
+        keyValue = keyValue.join(",");
+        $.submitForm({
+            url: "/PurchaseManage/Bill/RegistrationBill",
+            param: { keyValue: keyValue },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        });
+
+    }
+
+    function btn_export() {
+        var keyValue = ".xls";
+        $.ajax({
+            url: '/PurchaseManage/Purchase/ExportBillExcel',
+            type: "GET",
+            data: { keyword: $("#txt_keyword").val(), dateBeginDate: $("#dateBeginDate").val(), dateEndDate: $("#dateEndDate").val(), purWay: $("#purWay").val(), purIsTem: $("#purIsTem").val()},
+            contentType: 'application/octet-stream',
+            success: function (resp) {
+                var filename = resp.substr(resp.lastIndexOf('\\') + 1);
+                var doc = resp.match(/([^\\]+)(\.[^\(]+)/i);
+                var h5Down = !/Trident|MSIE/.test(navigator.userAgent); //浏览器是否支持download
+                if (h5Down) {
+                    openDownloadDialog("http://" + window.location.host + "/Excel/" + filename, filename);
+                } else {
+                    window.open("http://" + window.location.host + "/Excel/" + filename);
+                }
+            },
+            error: function () {
+                $.modalAlert("导出失败！");
+            }
+        })
+    }
+
+    function openDownloadDialog(url, saveName) {
+        if (typeof url == 'object' && url instanceof Blob) {
+            url = URL.createObjectURL(url); // 创建blob地址
+        }
+        var aLink = document.createElement('a');
+        aLink.href = url;
+        aLink.download = saveName || '';
+        var event;
+        event = document.createEvent('MouseEvents');
+        event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        aLink.dispatchEvent(event);
+    }
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="bill_receipt" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_receipt()">收单</a>
+        </div>
+        <div class="btn-group">
+            <a id="bill_export" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_export()">导出</a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <form class="form-inline" role="form">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input id="txt_keyword" type="text" class="form-control" placeholder="进货单号/采购员/供应商" style="width: 200px;">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="daterange-date">单据日期:</label>
+                            <div class="input-group">
+                                <input id="dateBeginDate" type="hidden" />
+                                <input id="dateEndDate" type="hidden" />
+                                <input type="text" id="date" placeholder="请选择日期" class="form-control" style="width:200px;" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

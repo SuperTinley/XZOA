@@ -1,0 +1,72 @@
+﻿
+@{
+    ViewBag.Title = "ReciveForm";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        laydate.render({
+            elem: '#plan_finish_date'
+        });
+    });
+    function submitForm() {
+       
+
+        if ($("input[name='is_pass']:checked").val() == "N") {
+            if ($("#reasons").val() == "") {
+                $.modalMsg('请填写简述理由', 'error');
+                return false;
+            }
+        } else {
+            if (!$("#form1").formValid()) {
+                return false;
+            }
+        }
+
+        $.submitForm({
+            url: '/ProposalManage/ProposalManage/SubmitReviceForm?keyValue=' + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        });
+
+    }
+</script>
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">接收部门意见</th>
+                <td class="formValue">
+                    <div class="radio-inline">
+                        <label class="checkbox"><input id="is_pass" name="is_pass" type="radio" value="Y" checked="checked">同意</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="checkbox"><input id="is_pass" name="is_pass" type="radio" value="N">不同意</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">
+                    简述理由
+                </th>
+                <td class="formValue" colspan="3">
+                    <input type="text" class="form-control" id="reasons" name="reasons" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">实施负责人</th>
+                <td class="formValue">
+                    <input type="text" class="form-control required" id="imp_man" name="imp_man" />
+                </td>
+                <th class="formTitle">计划完成日期</th>
+                <td class="formValue">
+                    <input id="plan_finish_date" name="plan_finish_date" type="text" class="form-control required" />
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>

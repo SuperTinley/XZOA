@@ -1,0 +1,217 @@
+﻿
+@{
+    ViewBag.Title = "ConfirmForm";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initSelect();
+        laydate.render({
+            elem: '#HOPE_DD'
+        });
+        if (!!keyValue) {
+            $.ajax({
+                url: "/TemplateManage/Template/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                    var inputs = $(".form .formValue .form-control");
+                    for (var i = 0; i < inputs.length; i++) {
+                        inputs.eq(i).attr('disabled', 'disabled');
+                    }
+                }
+            });
+        }
+        $("input[name=CLOSE_ID]").change(function () {
+            var close = $("input[name=CLOSE_ID]:checked").val();
+            var inputs = $(".form .formValue .form-control");
+            if (close == "F") {
+                for (var i = 0; i < inputs.length; i++) {
+                    inputs.eq(i).removeAttr('disabled');
+                }
+            } else {
+                for (var i = 0; i < inputs.length; i++) {
+                    inputs.eq(i).attr('disabled', 'disabled');
+                }
+            }
+            
+        });
+    });
+    function GetCharge(obj) {
+        var keyValue = obj.options[obj.selectedIndex].value;
+        $.ajax({
+            url: '/TemplateManage/Template/GetTempChargeForm',
+            data: { keyValue: keyValue },
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                if (data != null && data.TEM_CHARGE != null) {
+                    $("#TEM_CHARGE").val(data.TEM_CHARGE);
+                }
+            },
+            error: function () { }
+        });
+    }
+    function initSelect() {
+        $("#RATIFY_MAN").bindSelect({
+            url: "/TemplateManage/Template/GetRATIFY_MANJson",
+        });
+        $("#AUDIT_MAN").bindSelect({
+            url: "/TemplateManage/Template/GetTreeSelectJson",
+        });
+    }
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        var form = new FormData(document.getElementById("form1"));
+        if ($('[name=__RequestVerificationToken]').length > 0) {
+            form.append("__RequestVerificationToken", $('[name=__RequestVerificationToken]').val());
+        }
+        var url;
+        if ($("input[name=CLOSE_ID]:checked").val() == "F") {
+            url = "/TemplateManage/Template/SubmitConfirmForm?type=F&&keyValue=" + keyValue;
+        } else {
+            url = "/TemplateManage/Template/SubmitConfirmForm?keyValue=" + keyValue;
+        }
+        $.ajax({
+            url: url,
+            type: "post",
+            data: form,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function (data) {
+                var icon = "";
+                if (data.state == "success") {
+                    icon = "fa-check-circle";
+                    top.layer.msg(data.message, { icon: icon, time: 4000, shift: 5 });
+                    top.$(".layui-layer-msg").find('i.' + icon).parents('.layui-layer-msg').addClass('layui-layer-msg-' + data.state);
+                } else {
+                    top.layer.msg(data.message);
+                }
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                var index = top.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                top.layer.close(index);//关闭弹框
+
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.loading(false);
+                $.modalMsg(errorThrown, "error");
+            }
+        });
+
+    }
+    </script>
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">申请人</th>
+                <td class="formValue">
+                    <input id="CREATE_USER" name="CREATE_USER" class="form-control" readonly="readonly">
+                </td>
+                <th class="formTitle">申请部门</th>
+                <td class="formValue">
+                    <input id="APP_DEP" name="APP_DEP" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">样板名称</th>
+                <td class="formValue">
+                    <input id="TEM_NAME" name="TEM_NAME" type="text" class="form-control required" />
+                </td>
+                <th class="formTitle">客户</th>
+                <td class="formValue">
+                    <input id="CUSTOMER" name="CUSTOMER" type="text" class="form-control required" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">样板类型</th>
+                <td class="formValue">
+                    <input id="TEM_TYPE" name="TEM_TYPE" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">套数</th>
+                <td class="formValue">
+                    <input id="TEM_NUM" name="TEM_NUM" type="text" class="form-control required" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">材料要求</th>
+                <td class="formValue" colspan="3">
+                    <input id="MAT_REQ" name="MAT_REQ" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">审核人</th>
+                <td class="formValue">
+                    <select id="AUDIT_MAN" name="AUDIT_MAN" type="text" class="form-control"></select>
+                </td>
+                <th class="formTitle">主工艺</th>
+                <td class="formValue">
+                    <select name="PROCESS" id="PROCESS" class="form-control required">
+                        <option value=""></option>
+                        <option value="机加工">机加工</option>
+                        <option value="焊接">焊接</option>
+                        <option value="抛光">抛光</option>
+                        <option value="喷漆">喷漆</option>
+                        <option value="玻璃加工">玻璃加工</option>
+                        <option value="表面处理">表面处理</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">期望交期</th>
+                <td class="formValue">
+                    <input id="HOPE_DD" name="HOPE_DD" type="text" class="form-control required" />
+                </td>
+                <th class="formTitle">图纸</th>
+                <td class="formValue">
+                    <input id="DRAWING0" name="DRAWING0" type="file" class="form-control" multiple="multiple"/>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">打样部门</th>
+                <td class="formValue">
+                    <select name="RATIFY_MAN" id="RATIFY_MAN" class="form-control" onchange="GetCharge(this)"></select>
+                </td>
+                <th class="formTitle">负责人</th>
+                <td class="formValue">
+                    <input id="TEM_CHARGE" name="TEM_CHARGE" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">关键尺寸</th>
+                <td class="formValue" colspan="3">
+                    <input type="text" class="form-control" id="SIZE" name="SIZE" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">
+                    备注
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea class="form-control" id="TEM_REMARK" name="TEM_REMARK"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">
+                    是否完工
+                </th>
+                <td class="formValue" colspan="3">
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="CLOSE_ID" value="T" checked="checked"/>已完工</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="CLOSE_ID" value="F" />未完工</label>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+

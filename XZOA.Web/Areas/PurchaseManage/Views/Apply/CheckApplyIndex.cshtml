@@ -1,0 +1,142 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PurchaseManage/Apply/GetApplyCheckList",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "主键", name: "ID", hidden: true, key: true },
+                {
+                    label: "审核类型", name: "appExaTag", width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == "D") {
+                            return "首次审核";
+                        } else {
+                            return "重新审核";
+                        }
+                    }
+                },
+                {
+                    label: '申购日期', name: 'date', width: 75, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: "初审人", name: "FirstExaMan", width: 50, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == null) {
+                            return "——";
+                        } else {
+                            return cellvalue;
+                        }
+                    }
+                },
+                {
+                    label: '名称', name: 'prdName', width: 100, align: 'left'
+                },
+                {
+                    label: '牌号', name: 'orderNo', width: 60, align: 'left'
+                },
+                {
+                    label: '规格', name: 'spc', width: 80, align: 'left'
+                },
+                {
+                    label: '材料要求', name: 'mat', width: 60, align: 'left'
+                },
+                {
+                    label: "期望交期", name: "hopeDD", width: 75, align: "left",
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: "数量", name: "appNum", width: 35, align: "left"
+                },
+                {
+                    label: '单位', name: 'appUnit', width: 35, align: 'left'
+                },
+                {
+                    label: "用途", name: "rem", width: 60, align: "left"
+                },
+                {
+                    label: "申购部门", name: "appDep", width: 60, align: "left",
+                },
+                {
+                    label: "申购人", name: "appMan", width: 60, align: "left"
+                },
+                {
+                    label: "预计金额", name: "prePrice", width: 60, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != null) {
+                            var price = parseFloat(cellvalue) * parseFloat(rowObject.appNum);
+                            return "￥" + price.toFixed(2);
+                        } else {
+                            return "";
+                        }
+
+                    }
+                }
+            ],
+            multiselect: true,  
+            pager: "#gridPager",
+            sortname: 'date desc',
+            rowNum: 20,
+            rowList: [10, 20, 30],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: {
+                    keyword: $("#txt_keyword").val(),
+                    dateBeginTime: $("#dateBeginDate").val(),
+                    dateEndTime: $("#dateEndDate").val(),
+                    hopeDDBeginTime: $("#hopeDDBeginDate").val(),
+                    hopeDDEndTime: $("#hopeDDEndDate").val()
+                },
+             page:1 }).trigger('reloadGrid');
+        });
+    }
+    function btn_check() {
+        var str = $("#gridList").jqGrid('getGridParam', 'selarrrow');
+        btn_details(str);
+    }
+    function btn_details(keyValue) {
+        $.modalOpen({
+            id: "Details",
+            title: "审核",
+            url: "/PurchaseManage/Apply/CheckApplyForm?keyValue=" + keyValue,
+            width: "550px",
+            height: "300px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="applyCheck_add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_check()"><i class="fa fa-plus"></i>审核</a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>

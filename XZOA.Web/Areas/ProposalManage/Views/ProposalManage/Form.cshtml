@@ -1,0 +1,235 @@
+﻿
+@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<style>
+    .form .formTitle {
+        padding-right: unset;
+        width: 10%;
+    }
+</style>
+<script>
+    var keyValue = $.request("keyValue");
+    Date.prototype.Format = function (fmt) {
+        var o = {
+            "M+": this.getMonth() + 1, //月份 
+            "d+": this.getDate(), //日 
+            "h+": this.getHours(), //小时 
+            "m+": this.getMinutes(), //分 
+            "s+": this.getSeconds(), //秒 
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+            "S": this.getMilliseconds() //毫秒 
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+    $(function () {
+        initSelect();
+        if (!!keyValue) {
+            $.ajax({
+                url: '/ProposalManage/ProposalManage/GetForm',
+                type: 'GET',
+                data: { "keyValue": keyValue },
+                async: false,
+                dataType: "json",
+                success: function (data) {
+                    initSelect(); 
+                    $("#form1").formSerialize(data);
+                    $("#pro_dep").val(data.pro_dep);
+                },
+                error: function () { }
+            });
+        } else {
+            var date = new Date();
+            $("#pro_date").val(date.Format("yyyy-MM-dd"));
+            $.ajax({
+                url: '/ProposalManage/ProposalManage/GetMaxProId',
+                type: 'GET',
+                async: false,
+                success: function (data) {
+                    $("#pro_id").val(data);
+                },
+                error: function () {  }
+            });
+            $.ajax({
+                url: '/ProposalManage/ProposalManage/GetUser',
+                type: 'GET',
+                dataType:'json',
+                success: function (data) {
+                    $("#pro_man").val(data.userName);
+                    $("#pro_dep").val(data.departName);
+                },
+                error: function () {
+
+                }
+            });
+        }
+    });
+
+    //function initInput() {
+    //    $.ajax({
+    //        url: '/ProposalManage/ProposalManage/GetUserRoleRight',
+    //        type: 'GET',
+    //        data: { "keyValue": keyValue },
+    //        async: false,
+    //        success: function (data) {
+    //            if (data == "none") {
+    //                var ies = $("input.ie");
+    //                for (var i = 0; i < ies.length; i++) {
+    //                    ies.eq(i).attr('readonly', 'readonly');
+    //                }
+    //                var revice = $("input.revice");
+    //                for (var i = 0; i < revice.length; i++) {
+    //                    revice.eq(i).attr('readonly', 'readonly');
+    //                }
+    //            } else if (data == "ie") {
+    //                var revice = $("input.revice");
+    //                for (var i = 0; i < revice.length; i++) {
+    //                    revice.eq(i).attr('readonly', 'readonly');
+    //                }
+    //            } else if (data == "revice") {
+    //                var ies = $("input.ie");
+    //                for (var i = 0; i < ies.length; i++) {
+    //                    ies.eq(i).attr('readonly', 'readonly');
+    //                }
+    //            }
+    //            $("#Role").val(data);
+    //        },
+    //        error: function () { }
+    //    });
+    //}
+
+    function submitForm() {
+        if (!$("#form1").formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/ProposalManage/ProposalManage/SubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+       
+    }
+
+    function initSelect() {
+        $.ajax({
+            url: "/ProposalManage/ProposalManage/GetTreeJson",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                var str = '';
+                for (var i = 0; i < data.length; i++) {
+                    str += "<option value='" + data[i].text + "'>" + data[i].text + "</option>";
+                }
+                $("#pro_dep").html(str);
+            },
+            error: function () { }
+        });
+        $.ajax({
+            url: "/ProposalManage/ProposalManage/GetTreeJson",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                var str = '';
+                for (var i = 0; i < data.length; i++) {
+                    str += "<option value='" + data[i].text + "'>" + data[i].text + "</option>";
+                }
+                $("#pro_send_dep").html(str);
+            },
+            error: function () { }
+        });
+    }
+</script>
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">提案标题</th>
+                <td class="formValue">
+                    <input id="Role" type="hidden" />
+                    <input id="pro_title" name="pro_title" class="form-control required">
+                </td>
+                <th class="formTitle">编号</th>
+                <td class="formValue">
+                    <input id="pro_id" name="pro_id" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">提案者</th>
+                <td class="formValue">
+                    <input id="pro_man" name="pro_man" type="text" class="form-control required" />
+                </td>
+                <th class="formTitle">日期</th>
+                <td class="formValue">
+                    <input id="pro_date" name="pro_date" type="text" class="form-control required" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">提案部门</th>
+                <td class="formValue">
+                    <select id="pro_dep" name="pro_dep" class="form-control required" style="width: 100%;"></select>
+                </td>
+                <th class="formTitle">发往部门</th> 
+                <td class="formValue">
+                    <select id="pro_send_dep" name="pro_send_dep" class="form-control required"  style="width: 100%;"></select>
+                </td>
+            </tr>
+            @*<tr>
+                <th class="formTitle">接收部门意见</th>
+                <td class="formValue" colspan="2">
+                    <div class="radio-inline">
+                        <label class="checkbox"><input id="is_pass" name="is_pass" type="radio" value="true">同意</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="checkbox"><input id="is_pass" name="is_pass" type="radio" value="false">不同意</label>
+                    </div>
+                </td>
+                <th class="formTitle">
+                    简述理由
+                </th>
+                <td class="formValue" colspan="2">
+                    <input type="text" class="form-control revice" id="reasons" name="reasons" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">实施负责人</th>
+                <td class="formValue" colspan="2">
+                    <input type="text" class="form-control revice" id="imp_man" name="imp_man" />
+                </td>
+                <th class="formTitle">计划完成日期</th>
+                <td class="formValue" colspan="2">
+                    <input id="plan_finish_date" name="plan_finish_date" type="text" class="form-control revice" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">效果验证完成日期</th>
+                <td class="formValue">
+                    <input id="plan_che_date" name="plan_che_date" type="text" class="form-control required ie" />
+                </td>
+                <th class="formTitle">奖励</th>
+                <td class="formValue" colspan="3">
+                    <input id="reward" name="reward" type="text" class="form-control ie" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">附件</th>
+                <td class="formValue" colspan="3" id="annexTd"></td>
+                <th class="formTitle">日期</th>
+                <td class="formValue">
+                    <input id="annex_date" name="annex_date" class="form-control ie" type="text" />
+                </td>
+            </tr>*@
+        </table>
+    </div>
+</form>
+
+
+

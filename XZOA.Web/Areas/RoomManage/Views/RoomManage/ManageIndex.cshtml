@@ -1,0 +1,154 @@
+﻿
+@{
+    ViewBag.Title = "ManageIndex";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    var UserName;
+    $(function () {
+        UserName = GetName();
+        gridList();
+    });
+    function GetName() {
+        var CurrentUser = top.$.cookie('CurrentUser');
+        if (!!CurrentUser) {
+            var user = eval("(" + CurrentUser + ")");
+            return user.UserName;
+        }
+    }
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/RoomManage/RoomManage/GetRoomList",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "主键", name: "ID", hidden: true, key: true },
+                {
+                    label: "操作", name: "ID", width: 60, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        return '&nbsp;<a id="room_edit" onclick=btn_edit("' + cellvalue + '")>修改</a>';
+                    }
+                },
+                {
+                    label: '会议室名称', name: 'Name', width: 100, align: 'left'
+                },
+                {
+                    label: '投影仪', name: 'HasProjector', width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue) {
+                            return "<div>√<div>";
+                        } else {
+                            return "<div>×<div>";
+                        }
+                    }
+                },
+                {
+                    label: '笔记本', name: 'HasNotebook', width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue) {
+                            return "<div>√<div>";
+                        } else {
+                            return "<div>×<div>";
+                        }
+                    }
+                },
+                {
+                    label: '电话会议', name: 'Teleconferencing', width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue) {
+                            return "<div>√<div>";
+                        } else {
+                            return "<div>×<div>";
+                        }
+                    }
+                },
+                {
+                    label: '视频会议', name: 'Videoconferencing', width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue) {
+                            return "<div>√<div>";
+                        } else {
+                            return "<div>×<div>";
+                        }
+                    }
+                },
+                {
+                    label: '位置', name: 'Location', width: 200, align: 'left'
+                },
+                {
+                    label: '容纳人数', name: 'Number', width: 110, align: 'left'
+                },
+                {
+                    label: '备注', name: 'Remark', width: 110, align: 'left'
+                }
+            ],
+            pager: "#gridPager",
+            sortname: 'date desc',
+            multiselect: true,
+            rowNum: 20,
+            rowList: [10, 20, 30],
+            viewrecords: true
+        });
+    }
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "添加",
+            url: "/RoomManage/RoomManage/AddRoomForm",
+            width: "600px",
+            height: "350px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit(keyValue) {
+        $.modalOpen({
+            id: "Form",
+            title: "修改",
+            url: "/RoomManage/RoomManage/AddRoomForm?keyValue=" + keyValue,
+            width: "600px",
+            height: "350px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_delete() {
+        var ids = $("#gridList").jqGrid('getGridParam', 'selarrrow');
+        var keyValue = ids.join(",");
+        $.deleteForm({
+            url: "/RoomManage/RoomManage/DeleteRoomForm",
+            param: { keyValue: keyValue },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="room_add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>添加</a>
+        </div>
+        <div class="btn-group">
+            <a id="room_delete" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_delete()">删除</a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+

@@ -1,0 +1,243 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/LeaveManage/LeaveManage/GetStatusList?statusEnum=0",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "主键", name: "F_Id", hidden: true, key: true },
+                {
+                    label: "操作", name: "F_Id", width: 120, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var html = "openWord('" + rowObject.F_Id + "')";
+                        var str = "<a id='leave_edit' onclick=btn_edit('" + cellvalue + "') >修改</a>";
+                        str += "&nbsp;&nbsp;<a class='btn' target='_blank' href='~/../Print?id=" + rowObject.F_Id + "'>打印请假单</a>";
+                        return str;
+                    }
+                },
+                {
+                    label: '员工姓名', name: 'F_UserName', width: 60, align: 'left'
+                },
+                {
+                    label: '工号', name: 'F_Account', width: 60, align: 'left'
+                },
+                {
+                    label: '填写日期', name: 'F_CreateTime', width: 70, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: '开始日期', name: 'F_BeginTime', width: 120, align: 'left'
+                },
+                {
+                    label: '结束日期', name: 'F_EndTime', width: 120, align: 'left'
+                },
+                {
+                    label: "时长", name: "F_TimeLength_Day", width: 90, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        return "<span>" + cellvalue + "天" + rowObject.F_TimeLength_Hour + "时" + rowObject.F_TimeLength_Minute + "分</span>";
+                    }
+                },
+                {
+                    label: "假期类别", name: "F_VacationTypeId", width: 60, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.dataItems["vacationtype"] == null ? "" : top.clients.dataItems["vacationtype"][parseInt(cellvalue)];
+                    }
+                },
+                {
+                    label: '请假类别', name: 'F_LeaveTypeId', width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.dataItems["leavetype"] == null ? "" : top.clients.dataItems["leavetype"][parseInt(cellvalue)];
+                    }
+                },
+                {
+                    label: "状态", name: "F_LeaveStatus", width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.dataItems["leavestatus"] == null ? "" : top.clients.dataItems["leavestatus"][parseInt(cellvalue)];
+                    }
+                },
+                {
+                    label: "审核人", name: "F_CheckUserName", width: 45, align: 'left'
+                },
+                {
+                    label: "批准人", name: "F_ApprovalUserName", width: 45, align: 'left'
+                },
+                {
+                    label: '附件', name: 'F_FileId', width: 100, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != null) {
+                            return "<a onclick=btn_download('" + rowObject.F_FileName + "') >" + rowObject.F_FileName + "</a>"
+                        }
+                        return "";
+                    }
+                }
+            ],
+            pager: "#gridPager",
+            sortname: 'date desc',
+            multiselect: true,
+            rowNum: 20,
+            rowList: [10, 20, 30],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#txt_keyword").val() },
+             page:1 }).trigger('reloadGrid');
+        });
+    }
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新增申请",
+            url: "/LeaveManage/LeaveManage/Form",
+            width: "600px",
+            height: "550px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit(keyValue) {
+        $.modalOpen({
+            id: "Form",
+            title: "修改",
+            url: "/LeaveManage/LeaveManage/Form?keyValue=" + keyValue,
+            width: "550px",
+            height: "550px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_delete() {
+        var ids = $("#gridList").jqGrid('getGridParam', 'selarrrow');
+        if (ids == "") {
+            return false;
+        }
+        var keyValue = ids.join(",");
+        $.deleteForm({
+            url: "/LeaveManage/LeaveManage/DeleteForm",
+            param: { keyValue: keyValue },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+    function btn_details(keyValue) {
+        $.modalOpen({
+            id: "Details",
+            title: "查看",
+            url: "/LeaveManage/LeaveManage/Form?keyValue=" + keyValue,
+            width: "550px",
+            height: "550px",
+            btn: null,
+        });
+    }
+    function selectOnchang(obj) {
+        var $gridList = $("#gridList");
+        $gridList.jqGrid('setGridParam', {
+            postData: { keyword: obj.options[obj.selectedIndex].value },
+         page:1 }).trigger('reloadGrid');
+    }
+    function ConvertToWord() {
+        var id = $("#Id").val();
+        var printName = $("#F_PrintName option:selected").val();
+        $.ajax({
+            url: "/LeaveManage/LeaveManage/ConvertToWord",
+            type: "GET",
+            async: false,
+            data: { id: id, printName: printName },
+            success: function (data) {
+                $.modalMsg("操作成功", "success"); 
+                $("#myModal").modal('hide'); 
+            },
+            error: function () { }
+        });
+
+    }
+    function openWord(id) {
+        $.ajax({
+            url: "/LeaveManage/LeaveManage/GetLocalPrinter",
+            type: "GET",
+            async: false,
+            success: function (data) {
+                $("#Id").val(id);
+                var json = eval(data);
+                var opts = '';
+                for (var i = 0; i < json.length; i++) {
+                    //if (i == 0) {
+                    //    opts += "<option value='" + json[i] + "'>" + json[i] + "（默认）</option>";
+                    //} else {
+                        opts += "<option value='" + json[i] + "'>" + json[i] + "</option>";
+                    //}
+                   
+                }
+                $("#F_PrintName").html(opts);
+            },
+            error: function () { }
+        });
+       
+    }
+    function btn_download(keyValue) {
+        $.download("/ProposalManage/ProposalManage/DownloadProposal", "keyValue=" + keyValue, 'post');
+    }
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="leave_add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新增申请</a>
+        </div>
+        <div class="btn-group">
+            <a id="leave_delete" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_delete()">删除申请</a>
+        </div>
+        @*<div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="leave_delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除申请</a></li>
+                <li><a id="leave_details" authorize="yes" onclick="btn_details()"><i class="fa fa-search-plus"></i>查看申请</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>*@
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">请选择打印机</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="Id"/>
+                <select class="form-control" id="F_PrintName" name="F_PrintName" style="padding:0;">
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="ConvertToWord()">打印</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>

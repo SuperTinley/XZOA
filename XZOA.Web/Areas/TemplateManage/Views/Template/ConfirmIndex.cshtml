@@ -1,0 +1,235 @@
+﻿
+@{
+    ViewBag.Title = "ConfirmIndex";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    var myArray = new Array();
+    $(function () {
+        gridList();
+        laydate.render({
+            elem: '#hopeDD',
+            range: '~',
+            change: function (value, date, endDate) {
+                var dates = value.split('~');
+                $("#hopeDDBeginDate").val(dates[0]);
+                $("#hopeDDEndDate").val(dates[1]);
+            },
+            done: function (value, date, endDate) {
+                if (value == "") {
+                    $("#hopeDDBeginDate").val("");
+                    $("#hopeDDEndDate").val("");
+                }
+            }
+        }); 
+    });
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/TemplateManage/Template/GetTempConfirmList",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "主键", name: "TEM_ID", hidden: true, key: true },
+                {
+                    label: "操作", name: "TEM_ID", width: 107, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = '<a id="template_details" onclick=btn_details("' + cellvalue + '")>查看</a>&nbsp;&nbsp;<a id="template_confirm" onclick=btn_confirm("' + cellvalue + '")>确认</a>';
+                        if ((rowObject.DRAWING != null && rowObject.DRAWING != "") || (rowObject.TEM_IMG != null && rowObject.TEM_IMG != "")) {
+                            str += '&nbsp;&nbsp;<a id="template_download"  data-toggle="modal" data-target="#myModal" onclick=btn_download("' + cellvalue + '")>下载</a>';
+                        }
+                        if (rowObject.PRT_IMG == 'T') {
+                            str += "<span class='download' style='display:none;'>" + cellvalue + "</span>";
+                        }
+                        return str;
+                    }
+                },
+                {
+                    label: '打样编号', name: 'TEM_NO', width: 80, align: 'left'
+                },
+                {
+                    label: '样板名称', name: 'TEM_NAME', width: 120, align: 'left'
+                },
+                {
+                    label: "申请日期", name: "CREATE_DATE", width: 70, align: "left",
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: '套数', name: 'TEM_NUM', width: 50, align: 'left'
+                },
+                {
+                    label: "材料要求", name: "MAT_REQ", width: 80, align: "left"
+                },
+                {
+                    label: "期望交期", name: "HOPE_DD", width: 70, align: "left",
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: "打样部门", name: "TEM_DEP", width: 60, align: 'left'
+                },
+                {
+                    label: '负责人', name: 'TEM_CHARGE', width: 40, align: 'left'
+                },
+                {
+                    label: "申请人", name: "CREATE_USER", width: 40, align: "left",
+                },
+                {
+                    label: "审核人", name: "AUDIT_MAN", width: 40, align: "left",
+                },
+                {
+                    label: '备注', name: 'TEM_REMARK', width: 60, align: 'left'
+                },
+                {
+                    label: '通知人', name: 'NOTICE_MAN', width: 50, align: 'left'
+                },
+                {
+                    label: "完成日期", name: "NOTICE_DATE", width: 70, align: "left",
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                }
+            ],
+            pager: "#gridPager",
+            sortable:true,sortorder:"asc",
+            multiselect: true,
+            rowNum: 20,
+            rowList: [10, 20, 30],
+            viewrecords: true,
+            loadComplete: function () {
+                ChangeColor();
+            }
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: {
+                    keyword: $("#txt_keyword").val()
+                },
+             page:1 }).trigger('reloadGrid');
+        });
+    }
+    function btn_confirm(keyValue) {
+        $.modalOpen({
+            id: "Form",
+            title: "确认完工",
+            url: "/TemplateManage/Template/ConfirmForm?keyValue=" + keyValue,
+            width: "660px",
+            height: "550px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function ChangeColor() {
+        var trs = $(".download");
+        if (trs != "") {
+            for (var i = 0; i < trs.length; i++) {
+                var id = trs.eq(i).text();
+                $("#" + id + "").css("color", "blue");
+                $("#" + id + " td a").css("color", "blue");
+            }
+        }
+
+    }
+    function btn_download(keyValue) {
+        myArray.push(keyValue);
+        $("#" + keyValue).css('color', 'blue');
+        $("#" + keyValue + " a").css('color', 'blue');
+        $.ajax({
+            url: "/TemplateManage/Template/GetFormJson",
+            data: { keyValue: keyValue },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                if (data != null) {
+                    var trs = '';
+                    if (data.TEM_IMG != null && data.TEM_IMG != "") {
+                        var TEM_IMG = data.TEM_IMG;
+                        var address = "http://" + window.location.host + "/Uploads/" + TEM_IMG;
+                        trs += "<a onclick=downloadFile('" + TEM_IMG + "') >" + TEM_IMG + "</a><br/>";
+                    }
+                    if (data.DRAWING != null && data.DRAWING != "") {
+                        var DRAWING = data.DRAWING.split("/");
+                        for (var i = 0; i < DRAWING.length; i++) {
+                            if (DRAWING[i] != "") {
+                                address = "http://" + window.location.host + "/Uploads/" + DRAWING[i];
+                                trs += "<a onclick=downloadFile('" + DRAWING[i] + "') >" + DRAWING[i] + "</a><br/>";
+                            }
+                        }
+                    }
+                    $("#myForm").html("");
+                    $("#myForm").append(trs);
+                }
+            },
+            error: function () {
+
+            }
+        });
+    }
+    function downloadFile(keyValue) {
+        $.download("/TemplateManage/Template/DownloadTemplate", "keyValue=" + keyValue, 'post');
+    }
+    function btn_details(keyValue) {
+        $.modalOpen({
+            id: "Details",
+            title: "查看",
+            url: "/TemplateManage/Template/Details?keyValue=" + keyValue,
+            width: "650px",
+            height: "650px",
+            btn: null,
+        });
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <form class="form-inline" role="form">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input id="txt_keyword" type="text" class="form-control" placeholder="样板名称/客户/负责人/打样编号/打样类型/样板分配" style="width: 250px;">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="daterange-hopeDD">期望交期:</label>
+                            <div class="input-group">
+                                <input id="hopeDDBeginDate" type="hidden" />
+                                <input id="hopeDDEndDate" type="hidden" />
+                                <input type="text" id="hopeDD" placeholder="请选择日期" class="form-control" style="width:200px;" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">下载</h4>
+            </div>
+            <div class="modal-body">
+                <form name="form" id="myForm" enctype="multipart/form-data" method="post">
+                    <a></a>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>

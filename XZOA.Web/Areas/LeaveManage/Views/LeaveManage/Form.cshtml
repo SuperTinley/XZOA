@@ -1,0 +1,332 @@
+﻿@{
+    //  ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<link href="~/Content/js/datepicker/bootstrap-datepicker.css" rel="stylesheet" />
+<link href="~/Content/js/datepicker/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+<script src="~/Content/js/datepicker/bootstrap-datetimepicker.min.js"></script>
+<style>
+    select.form-control {
+        min-width: 103%;
+    }
+</style>
+<script>
+    Date.prototype.Format = function (fmt) { //author: meizz
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+    var keyValue = $.request("keyValue");
+    $(function () {
+        $(".date-picker").datetimepicker({
+            format: 'yyyy-mm-dd hh:ii:00',
+            language: 'zh-CN', 
+            autoclose: true,
+            minuteStep: 1,
+            todayBtn: true
+
+        }).on("changeDate", function () {
+            var beginDate, endDate;
+            var beginTime = $("#F_BeginTime").val();
+            var endTime = $("#F_EndTime").val();
+            if (beginTime == "") {
+                return;
+            }
+            if (endTime == "") {
+                return;
+            }
+            if (beginTime == endTime) {
+                $.modalMsg("开始时间不能等于结束时间！");
+                return;
+            }
+            if (beginTime > endTime) {
+                $.modalMsg("开始时间大于结束时间！");
+                return;
+            }
+            //beginDate = new Date(Date.parse(beginTime.replace(/-/g, "/")));
+            //endDate = new Date(Date.parse(endTime.replace(/-/g, "/")));
+            //var timespan = endDate - beginDate;
+            //var day = parseInt(timespan / (1000 * 60 * 60 * 24));
+            //var hour = Math.floor((timespan % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            //var minute = Math.floor((timespan % (1000 * 60 * 60 * 24) % (1000 * 60 * 60)) / (1000 * 60));
+            //$("#F_TimeLength_Day").val(day);
+            //$("#F_TimeLength_Hour").val(hour);
+            //$("#F_TimeLength_Minute").val(minute);
+        });
+        initSelect();
+        $.ajax({
+            url: "/LeaveManage/LeaveManage/GetUserFormJson",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                var json = eval(data);
+                $("#F_UserId").val(json.F_Id);
+                $("#F_RealName").val(json.F_RealName);
+                $("#F_Account").val(json.F_Account);
+                var F_DepartmentId = top.clients.organize[json.F_DepartmentId] == null ? "" : top.clients.organize[json.F_DepartmentId].fullname;
+                $("#F_DepartmentId").val(F_DepartmentId);
+                var F_DutyId = top.clients.duty[json.F_DutyId] == null ? "" : top.clients.duty[json.F_DutyId].fullname;
+                $("#F_DutyId").val(F_DutyId);
+                var myDate = new Date().Format("yyyy-MM-dd");
+                $("#F_CreateTime").val(myDate);
+            }
+        });
+        $.ajax({
+            url: "/LeaveManage/LeaveManage/GetFormJson",
+            dataType: "json",
+            data: { keyValue: keyValue },
+            async: false,
+            success: function (data) {
+                if (data != null) {
+                    $("#form1").formSerialize(data);
+                    if (data.F_SuffixName != null) {
+                        $("#btn_file").css("display", "none");
+                        $("#F_fileId").attr("href", "javascript:window.open('http://" + window.location.host + "/Uploads/" + data.F_FileId + data.F_SuffixName + "')");
+                    }
+                    $("#F_fileId").text(data.F_FileName);
+                    $("#F_CreateTime").val(data.F_CreateTime.slice(0, 10));
+                } else { $("#btn_file").css("display", "block"); }
+
+            }
+        });
+    });
+    function initSelect() {
+        $.ajax({
+            url: "/LeaveManage/LeaveManage/GetTreeSelectJson?type=check",
+            type: 'GET',
+            dataType:'json',
+            success: function (data) {
+                if (data.length > 1) {
+                    var str = '<option value="">==请选择==</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        str += "<option value='" + data[i].id + "'>" + data[i].text + "</option>";
+                    }
+                    $("#F_CheckLeaderId").html(str);
+                } else if (data.length == 1) {
+                    $("#F_CheckLeaderId").html("<option value='" + data[0].id + "'>" + data[0].text + "</option>");
+                }
+            },
+            error: function () { }
+        });
+        $.ajax({
+            url: "/LeaveManage/LeaveManage/GetTreeSelectJson?type=approval",
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                if (data.length > 1) {
+                    var str = '<option value="">==请选择==</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        str += "<option value='" + data[i].id + "'>" + data[i].text + "</option>";
+                    }
+                    $("#F_ApprovalLeaderId").html(str);
+                } else if (data.length == 1) {
+                    $("#F_ApprovalLeaderId").html("<option value='" + data[0].id + "'>" + data[0].text + "</option>");
+                }
+            },
+            error: function () { }
+        });
+        $.ajax({
+            url: "/SystemManage/ItemsData/GetSelectJsonByType?enCode=leavetype",
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                    var str = '';
+                    for (var i = 0; i < data.length; i++) {
+                        str += "<option value='" + data[i].id + "'>" + data[i].text + "</option>";
+                    }
+                $("#F_LeaveTypeId").html(str);
+            },
+            error: function () { }
+        });
+        $.ajax({
+            url: "/SystemManage/ItemsData/GetSelectJsonByType?enCode=vacationtype",
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var str = '';
+                for (var i = 0; i < data.length; i++) {
+                    str += "<option value='" + data[i].id + "'>" + data[i].text + "</option>";
+                }
+                $("#F_VacationTypeId").html(str);
+            },
+            error: function () { }
+        });
+        //$("#F_CheckLeaderId").bindSelect({
+        //    url: "/LeaveManage/LeaveManage/GetTreeSelectJson?type=check",
+        //});
+        //$("#F_ApprovalLeaderId").bindSelect({
+        //    url: "/LeaveManage/LeaveManage/GetTreeSelectJson?type=approval",
+        //});
+        //$("#F_LeaveTypeId").bindSelect({
+        //    url: "/SystemManage/ItemsData/GetSelectJsonByType?enCode=leavetype",
+        //});
+        //$("#F_VacationTypeId").bindSelect({
+        //    url: "/SystemManage/ItemsData/GetSelectJsonByType?enCode=vacationtype",
+        //});
+
+    }
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        var beginTime = $("#F_BeginTime").val();
+        var endTime = $("#F_EndTime").val();
+        if (beginTime == "") {
+            return false;
+        }
+        if (endTime == "") {
+            return false;
+        }
+        if (beginTime == endTime) {
+            $.modalMsg("开始时间不能等于结束时间！", "error");
+            return false;
+        }
+        if (beginTime > endTime) {
+            $.modalMsg("开始时间大于结束时间！","error");
+            return false;
+        }
+        if ($("#F_CheckLeaderId").val()=="") {
+            $.modalMsg("请选择审核领导！", "error");
+            return false;
+        }
+        if (($("#F_TimeLength_Day").val() == "0" && $("#F_TimeLength_Hour").val() == "0" && $("#F_TimeLength_Minute").val() == "0") ||
+            ($("#F_TimeLength_Day").val() == "" && $("#F_TimeLength_Hour").val() == "" && $("#F_TimeLength_Minute").val() == ""))
+        {
+            $.modalMsg("请假时长不能为零！", "error");
+            return false;
+        }
+        if ($("#F_ApprovalLeaderId").val() == "") {
+            $.modalMsg("请选择批准领导！", "error");
+            return false;
+        }
+        var form = new FormData(document.getElementById("form1"));
+        if ($('[name=__RequestVerificationToken]').length > 0) {
+            form.append("__RequestVerificationToken", $('[name=__RequestVerificationToken]').val());
+        }
+        $.ajax({
+            url: "/LeaveManage/LeaveManage/SubmitForm?keyValue=" + keyValue,
+            type: "post",
+            data: form,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                var icon = "";
+                if (data.state == "success") {
+                    icon = "fa-check-circle";
+                    top.layer.msg(data.message, { icon: icon, time: 4000, shift: 5 });
+                    top.$(".layui-layer-msg").find('i.' + icon).parents('.layui-layer-msg').addClass('layui-layer-msg-' + data.state);
+                } else {
+                    top.layer.msg(data.message);
+                }
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                var index = top.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                top.layer.close(index);//关闭弹框
+
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.loading(false);
+                $.modalMsg(errorThrown, "error");
+            }
+        });
+    }
+</script>
+
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">姓名</th>
+                <td class="formValue">
+                    <input type="hidden" id="F_UserId" name="F_UserId" />
+                    <input type="text" id="F_RealName" name="F_RealName" class="form-control required" readonly="readonly" />
+                </td>
+                <th class="formTitle">工号</th>
+                <td class="formValue">
+                    <input id="F_Account" name="F_Account" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">所属部门</th>
+                <td class="formValue">
+                    <input id="F_DepartmentId" name="F_DepartmentId" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">所在职位</th>
+                <td class="formValue">
+                    <input id="F_DutyId" name="F_DutyId" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">组别</th>
+                <td class="formValue">
+                    <input id="F_GroupId" name="F_GroupId" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">填写时间</th>
+                <td class="formValue">
+                    <input id="F_CreateTime" name="F_CreateTime" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">开始时间</th>
+                <td class="formValue">
+                    <input id="F_BeginTime" name="F_BeginTime" type="text" class="form-control date-picker required" />
+                </td>
+                <th class="formTitle">结束时间</th>
+                <td class="formValue">
+                    <input id="F_EndTime" name="F_EndTime" type="text" class="form-control date-picker required" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">时长</th>
+                <td class="formValue">
+                    <input id="F_TimeLength_Day" name="F_TimeLength_Day" type="text" style="width:30px;" />天<input id="F_TimeLength_Hour" name="F_TimeLength_Hour" type="text" style="width:30px;" />时<input id="F_TimeLength_Minute" name="F_TimeLength_Minute" type="text" style="width:30px;" />分
+                </td>
+                <th class="formTitle">附件</th>
+                <td class="formValue">
+                    <input id="btn_file" name="F_FileId" type="file" class="form-control" value="选择文件" />
+                    <a id="F_fileId" href=""></a>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">假期类型</th>
+                <td class="formValue">
+                    <select class="form-control" id="F_VacationTypeId" name="F_VacationTypeId" style="padding:0;">
+                    </select>
+                </td>
+                <th class="formTitle">请假类别</th>
+                <td class="formValue">
+                    <select class="form-control" id="F_LeaveTypeId" name="F_LeaveTypeId" style="padding:0;">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">审核领导</th>
+                <td class="formValue">
+                    <select class="form-control" id="F_CheckLeaderId" name="F_CheckLeaderId" style="padding:0;"></select>
+                </td>
+                <th class="formTitle">批准领导</th>
+                <td class="formValue">
+                    <select class="form-control" id="F_ApprovalLeaderId" name="F_ApprovalLeaderId" style="padding:0;"></select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">
+                    请假原因
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea class="form-control" id="F_LeaveReason" name="F_LeaveReason"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>

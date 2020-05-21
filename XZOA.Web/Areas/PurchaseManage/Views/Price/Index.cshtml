@@ -1,0 +1,367 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+        $("#template").attr("href", 'http://' + window.location.host + '/Excel/Template/price.xls');
+        laydate.render({
+            elem: '#startDD',
+            range: '~',
+            change: function (value, date, endDate) {
+                var dates = value.split('~');
+                $("#BeginDate").val(dates[0]);
+                $("#EndDate").val(dates[1]);
+            },
+            done: function (value, date, endDate) {
+                if (value == "") {
+                    $("#BeginDate").val("");
+                    $("#EndDate").val("");
+                }
+            }
+        });
+    })
+    function btn_delete() {
+        var ids = $("#gridList").jqGrid('getGridParam', 'selarrrow');
+        var keyValue = ids.join(",");
+        $.deleteForm({
+            url: "/PurchaseManage/Price/DeleteForm",
+            param: { keyValue: keyValue },
+            success: function () {
+
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PurchaseManage/Price/GetPriceList",
+            height: $(window).height() - 128,
+            colModel: [
+                {
+                    label: "操作", name: "priNO", width: 40, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        var func = 'btn_edit("' + rowObject.priNO + '")'; 
+                        return '<a id="price_edit" onclick=' + func + '>修改</a>';
+                    }
+                },
+                {
+                    label: "审核状态", name: "chkTag", width: 60, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == "T") {
+                            return "待审核";
+                        } else {
+                            return "已审核"; 
+                        }
+                    }
+                },
+                { label: "报价单号", name: "priNO", width: 80, key: true },
+                {
+                    label: '供应商', name: 'sup', width: 45, align: 'left'
+                },
+                {
+                    label: '名称', name: 'prdName', width: 120, align: 'left'
+                },
+                {
+                    label: '牌号', name: 'orderNo', width: 40, align: 'left'
+                },
+                {
+                    label: '规格', name: 'spc', width: 100, align: 'left'
+                },
+                {
+                    label: '单价', name: 'price', width: 44, align: 'left'
+                },
+                {
+                    label: "启用日期", name: "startDD", width: 70, align: "left",
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: "截止日期", name: "endDD", width: 70, align: "left",
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: '备注', name: 'rem', width: 100, align: 'left'
+                },
+                {
+                    label: "单位", name: "unit", width: 35, align: "left"
+                },
+                {
+                    label: "税率", name: "principal", width: 35, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        var num = (cellvalue * 100);
+                        return num.toFixed(0)+"%";
+                    }
+                },
+                {
+                    label: "币别", name: "currency", width: 45, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        var key = top.clients.dataItems["currency"] == null ? "" : top.clients.dataItems["currency"][parseInt(cellvalue)];
+                        return key;
+                    }
+                },
+                {
+                    label: "报价员", name: "quoter", width: 45, align: "left"
+                }
+            ],
+            multiselect: true,
+            pager: "#gridPager",
+            sortname: 'date desc',
+            rowNum: 20,
+            rowList: [10, 20, 30],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: {
+                    keyword: $("#txt_keyword").val(),
+                    BeginDate: $("#BeginDate").val(),
+                    EndDate: $("#EndDate").val(),
+                    chkTag: $("#chkTag").val()
+                },
+             page:1 }).trigger('reloadGrid');
+        });
+    }
+    function btn_check() {
+        var ids = $("#gridList").jqGrid('getGridParam', 'selarrrow');
+        var keyValue = ids.join(","); 
+        $.submitForm({
+            url: "/PurchaseManage/Price/CheckPrice",
+            param: { keyValue: keyValue },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        });
+       
+    }
+    function btn_premoney(keyValue) {
+        $.ajax({
+            url: "/PurchaseManage/Price/PreMoneyPrice?keyValue=" + keyValue,
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                var icon = "";
+                if (data.state == "success") {
+                    icon = "fa-check-circle";
+                    top.layer.msg(data.message, { icon: icon, time: 4000, shift: 5 });
+                    top.$(".layui-layer-msg").find('i.' + icon).parents('.layui-layer-msg').addClass('layui-layer-msg-' + data.state);
+                } else {
+                    top.layer.msg(data.message);
+                }
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.loading(false);
+                $.modalMsg(errorThrown, "error");
+            }
+        });
+    }
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新增报价",
+            url: "/PurchaseManage/Price/Form",
+            width: "600px",
+            height: "500px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit(keyValue) {
+        $.modalOpen({
+            id: "Form",
+            title: "修改",
+            url: "/PurchaseManage/Price/Form?keyValue=" + keyValue,
+            width: "660px",
+            height: "530px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function openDownloadDialog(url, saveName) {
+        if (typeof url == 'object' && url instanceof Blob) {
+            url = URL.createObjectURL(url); // 创建blob地址
+        }
+        var aLink = document.createElement('a');
+        aLink.href = url;
+        aLink.download = saveName || '';
+        var event;
+        event = document.createEvent('MouseEvents');
+        event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        aLink.dispatchEvent(event);
+    }
+    function btn_export() {
+        var keyValue = ".xls";
+        $.ajax({
+            url: '/PurchaseManage/Price/ExportExcel',
+            type: "GET",
+            contentType: 'application/octet-stream',
+            data: { txt_keyword: $("#txt_keyword").val(), BeginDate: $("#BeginDate").val(), EndDate: $("#EndDate").val(), chkTag: $("#chkTag").val() },
+            success: function (resp) {
+                $("#myModal").modal('hide');
+                var filename = resp.substr(resp.lastIndexOf('\\') + 1);
+                var doc = resp.match(/([^\\]+)(\.[^\(]+)/i);
+                var h5Down = !/Trident|MSIE/.test(navigator.userAgent); //浏览器是否支持download
+                if (h5Down) {
+                    openDownloadDialog("http://" + window.location.host + "/Excel/" + filename, filename);
+                } else {
+                    window.open("http://" + window.location.host + "/Excel/" + filename);
+                }
+            },
+            error: function () {
+                $.modalAlert("导出失败！");
+            }
+        })
+    }
+    function fileUpload() {
+        var form = new FormData(document.getElementById("myForm"));
+        $.ajax({
+            url: "/PurchaseManage/Price/UploadFile",
+            type: "post",
+            data: form,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                var icon = "";
+                if (data.state == "success") {
+                    icon = "fa-check-circle";
+                    top.layer.msg(data.message, { icon: icon, time: 4000, shift: 5 });
+                    top.$(".layui-layer-msg").find('i.' + icon).parents('.layui-layer-msg').addClass('layui-layer-msg-' + data.state);
+                } else {
+                    top.layer.msg(data.message);
+                }
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                $("#myModal1").modal('hide');
+
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.loading(false);
+                $.modalMsg(errorThrown, "error");
+            }
+        });
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="price_add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()">新增</a>
+        </div>
+        <div class="btn-group">
+            <a id="price_delete" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_delete()">删除</a>
+        </div>
+        <div class="btn-group">
+            <a id="price_check" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_check()">审核</a>
+        </div>
+        <div class="btn-group">
+            <a id="price_import" authorize="yes" class="btn btn-primary dropdown-text" data-toggle="modal" data-target="#myModal1">导入</a>
+        </div>
+        <div class="btn-group">
+            <a id="price_export" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_export()">导出</a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <form class="form-inline" role="form">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input id="txt_keyword" type="text" class="form-control" placeholder="供应商/名称/规格/报价单号" style="width: 200px;">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="daterange-date">启用日期:</label>
+                            <div class="input-group">
+                                <input id="BeginDate" type="hidden" />
+                                <input id="EndDate" type="hidden" />
+                                <input type="text" id="startDD" placeholder="请选择日期" class="form-control" style="width:200px;" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="daterange-date">审核状态:</label>
+                            <div class="input-group">
+                                <select id="chkTag" class="form-control">
+                                    <option value="">全部</option>
+                                    <option value="T">待审核</option>
+                                    <option value="Y">已审核</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <span class="btn-group" style="margin-left: 6px;">
+                                <button id="btn_search" type="button" class="btn  btn-primary" style="border-radius: 0px 4px 4px 0px;"><i class="fa fa-search"></i></button>
+                            </span>
+                         </div>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+<div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">导入</h4>
+            </div>
+            <div class="modal-body">
+                <form name="form1" id="myForm" enctype="multipart/form-data" method="post">
+                    <input type="file" name="filepath" id="filepath" style="display:none;" multiple="multiple" onchange="document.form1.path.value=this.value" />
+                    <input name="path" readonly="readonly" class="form-inline">
+                    <a id="apply_import" authorize="yes" class="btn btn-primary dropdown-text" onclick="javascript:document.form1.filepath.click()">选择文件</a>
+                </form>
+                <div class="error" style="color:red;">
+                    导入注意事项：<br />
+                    <br />1.导入数据共有10列：供应商、名称、牌号、规格、单价、联系人、电话、传真、备注、报价员,其中供应商、名称、单价、单位是必填列。
+                    <br />2.EXCEL的表名称必须为Sheet1。
+                    <br /><a download="price.xls" id="template">参考模板下载</a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="fileUpload()">提交</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+@*<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">导入</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form" name="form" id="myForm" enctype="multipart/form-data" method="post">
+                        <div class="form-group">
+                            <label for="daterange-date">请选择Excel版本:</label>
+                            <div class="input-group">
+                                <select id="excelType" class="form-control">
+                                    <option value=".xlsx">2007版本</option>
+                                    <option value=".xls">2003版本</option>
+                                </select>
+                            </div>
+                          </div>
+                        </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="btn_export()">提交</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>*@

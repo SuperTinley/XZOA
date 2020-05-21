@@ -1,0 +1,157 @@
+﻿
+@{
+    ViewBag.Title = "MultiForm";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<link href="~/Content/js/layui/css/layui.css" rel="stylesheet" />
+<script src="~/Content/js/layui/layui.js"></script>
+<script>
+    var itemId = $.request("itemId");
+    layui.use('upload', function () {
+        var $ = layui.jquery
+            , upload = layui.upload;
+
+        var demoListView = $('#demoList')
+            , uploadListIns = upload.render({
+                elem: '#testList'
+                , url: "/BookManage/BookManage/SubmitMultiForm?ItemId=" + itemId
+                , accept: 'file'
+                , size:40960
+                , multiple: true
+                , auto: false
+                , bindAction: '#testListAction'
+                , choose: function (obj) {
+                    var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+                    //读取本地文件
+                    obj.preview(function (index, file, result) {
+                        var tr = $(['<tr id="upload-' + index + '">'
+                            , '<td>' + file.name + '</td>'
+                            , '<td>' + (file.size / 1014).toFixed(1) + 'kb</td>'
+                            , '<td>等待上传</td>' 
+                            , '<td>'
+                            , '<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>'
+                            , '<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+                            , '</td>'
+                            , '</tr>'].join(''));
+
+                        //单个重传
+                        tr.find('.demo-reload').on('click', function () {
+                            obj.upload(index, file);
+                        });
+
+                        //删除
+                        tr.find('.demo-delete').on('click', function () {
+                            delete files[index]; //删除对应的文件
+                            tr.remove();
+                            uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+                        });
+
+                        demoListView.append(tr);
+                    });
+                }
+                , done: function (res, index, upload) {
+                    if (res.state == "success") { //上传成功
+                        var tr = demoListView.find('tr#upload-' + index)
+                            , tds = tr.children();
+                        tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+                        tds.eq(3).html(''); //清空操作
+                        return delete this.files[index]; //删除文件队列已经上传成功的文件
+                    }
+                    this.error(index, upload);
+
+                }
+                , error: function (index, upload) {
+                    var tr = demoListView.find('tr#upload-' + index)
+                        , tds = tr.children();
+                    tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+                    tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+                }
+            });
+
+    });
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        var form = new FormData(document.getElementById("form1"));
+        if ($('[name=__RequestVerificationToken]').length > 0) {
+            form.append("__RequestVerificationToken", $('[name=__RequestVerificationToken]').val());
+        }
+        $.ajax({
+            url: "/BookManage/BookManage/SubmitMultiForm?itemId=" + itemId,
+            type: "post",
+            data: form,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function (data) {
+                var icon = "";
+                if (data.state == "success") {
+                    icon = "fa-check-circle";
+                    top.layer.msg(data.message, { icon: icon, time: 4000, shift: 5 });
+                    top.$(".layui-layer-msg").find('i.' + icon).parents('.layui-layer-msg').addClass('layui-layer-msg-' + data.state);
+                } else {
+                    top.layer.msg(data.message);
+                }
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                var index = top.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                top.layer.close(index);//关闭弹框
+
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.loading(false);
+                $.modalMsg(errorThrown, "error");
+            }
+        });
+    }
+</script>
+
+<form id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <td>
+                    <div class="layui-upload" style="padding-top: 20px; margin-left: 20px;">
+                        <button type="button" class="layui-btn layui-btn-normal" id="testList">选择多文件</button>
+                        <input class="layui-upload-file" accept="undefined" name="file" multiple="" type="file">
+                        <div class="layui-upload-list">
+                            <table class="layui-table">
+                                <thead>
+                                    <tr>
+                                        <th>文件名</th>
+                                        <th>大小</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="demoList"></tbody>
+                            </table>
+                        </div>
+                        <button type="button" class="layui-btn" id="testListAction">开始上传</button>
+                    </div>
+                </td>
+            </tr>
+            @*<tr>
+                    <th class="formTitle">上传书刊1</th>
+                    <td class="formValue">
+                        <input id="FullName1" name="FullName1" type="file" class="form-control required" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">上传书刊2</th>
+                    <td class="formValue">
+                        <input id="FullName2" name="FullName2" type="file" class="form-control" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">上传书刊3</th>
+                    <td class="formValue">
+                        <input id="FullName3" name="FullName3" type="file" class="form-control" />
+                    </td>
+                </tr>*@
+        </table>
+    </div>
+</form>
+

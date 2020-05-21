@@ -1,0 +1,1028 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.3.0.0\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props" Condition="Exists('..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.3.0.0\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props')" />
+  <Import Project="..\packages\Microsoft.NetFramework.Analyzers.3.0.0\build\Microsoft.NetFramework.Analyzers.props" Condition="Exists('..\packages\Microsoft.NetFramework.Analyzers.3.0.0\build\Microsoft.NetFramework.Analyzers.props')" />
+  <Import Project="..\packages\Microsoft.NetCore.Analyzers.3.0.0\build\Microsoft.NetCore.Analyzers.props" Condition="Exists('..\packages\Microsoft.NetCore.Analyzers.3.0.0\build\Microsoft.NetCore.Analyzers.props')" />
+  <Import Project="..\packages\Microsoft.CodeQuality.Analyzers.3.0.0\build\Microsoft.CodeQuality.Analyzers.props" Condition="Exists('..\packages\Microsoft.CodeQuality.Analyzers.3.0.0\build\Microsoft.CodeQuality.Analyzers.props')" />
+  <Import Project="..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.3.0.0\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props" Condition="Exists('..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.3.0.0\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{BEF1F2C9-1903-4AC4-93BD-08452BFA37A3}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>XZOA.Web</RootNamespace>
+    <AssemblyName>XZOA.Web</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <Use64BitIISExpress>false</Use64BitIISExpress>
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IncludeIisSettings>true</IncludeIisSettings>
+    <LegacyPublishPropertiesPageEnabled>true</LegacyPublishPropertiesPageEnabled>
+    <PublishDatabases>false</PublishDatabases>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Office.Interop.Word">
+      <HintPath>..\..\代码\新项目\2017MVC框架源码\XZOA_Fix\project\XZOA.Code\bin\Debug\Microsoft.Office.Interop.Word.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.6\lib\net45\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.6\lib\net45\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.3.2.6\lib\net45\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.6\lib\net45\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.6\lib\net45\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.6\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Net.Http">
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.4.0.20710.0\lib\net40\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+    </Reference>
+    <Reference Include="System.Web.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.4.0.20710.0\lib\net40\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.4.0.20710.0\lib\net40\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\handler\HandlerAjaxOnlyAttribute.cs" />
+    <Compile Include="App_Start\handler\HandlerCookieAttribute.cs" />
+    <Compile Include="App_Start\handler\HandlerAuthorizeAttribute.cs" />
+    <Compile Include="App_Start\handler\HandlerErrorAttribute.cs" />
+    <Compile Include="App_Start\handler\HandlerLoginAttribute.cs" />
+    <Compile Include="App_Start\handler\ControllerBase.cs" />
+    <Compile Include="Areas\BookManage\BookManage\BookManageController.cs" />
+    <Compile Include="Areas\BookManage\BookManageAreaRegistration.cs" />
+    <Compile Include="Areas\ExampleManage\Controllers\BarCodeController.cs" />
+    <Compile Include="Areas\ExampleManage\Controllers\PrintController.cs" />
+    <Compile Include="Areas\ExampleManage\Controllers\SendMailController.cs" />
+    <Compile Include="Areas\ExampleManage\Controllers\SendMessagesController.cs" />
+    <Compile Include="Areas\ExampleManage\Controllers\SignetController.cs" />
+    <Compile Include="Areas\ExampleManage\Controllers\TestController.cs" />
+    <Compile Include="Areas\ExampleManage\ExampleManageAreaRegistration.cs" />
+    <Compile Include="Areas\LeaveManage\Controllers\CheckController.cs" />
+    <Compile Include="Areas\LeaveManage\Controllers\HistoryController.cs" />
+    <Compile Include="Areas\LeaveManage\Controllers\LeaveManageController.cs" />
+    <Compile Include="Areas\LeaveManage\LeaveManageAreaRegistration.cs" />
+    <Compile Include="Areas\ProjectManage\Controllers\ProjectController.cs" />
+    <Compile Include="Areas\ProposalManage\Controllers\ProposalManageController.cs" />
+    <Compile Include="Areas\ProposalManage\ProposalManageAreaRegistration.cs" />
+    <Compile Include="Areas\PurchaseManage\Controllers\ApplyController.cs" />
+    <Compile Include="Areas\PurchaseManage\Controllers\BillController.cs" />
+    <Compile Include="Areas\PurchaseManage\Controllers\PriceController.cs" />
+    <Compile Include="Areas\PurchaseManage\Controllers\PurchaseController.cs" />
+    <Compile Include="Areas\PurchaseManage\PurchaseManageAreaRegistration.cs" />
+    <Compile Include="Areas\ReportManage\Controllers\EchartsController.cs" />
+    <Compile Include="Areas\ReportManage\Controllers\HighchartsController.cs" />
+    <Compile Include="Areas\ReportManage\ReportManageAreaRegistration.cs" />
+    <Compile Include="Areas\RoomManage\Controllers\RoomManageController.cs" />
+    <Compile Include="Areas\RoomManage\RoomManageAreaRegistration.cs" />
+    <Compile Include="Areas\SystemManage\Controllers\AreaController.cs" />
+    <Compile Include="Areas\SystemManage\Controllers\DutyController.cs" />
+    <Compile Include="Areas\SystemManage\Controllers\ItemsDataController.cs" />
+    <Compile Include="Areas\SystemManage\Controllers\ModuleButtonController.cs" />
+    <Compile Include="Areas\SystemManage\Controllers\ModuleController.cs" />
+    <Compile Include="Areas\SystemManage\Controllers\OrganizeController.cs" />
+    <Compile Include="Areas\SystemManage\Controllers\RoleAuthorizeController.cs" />
+    <Compile Include="Areas\SystemManage\Controllers\RoleController.cs" />
+    <Compile Include="Areas\SystemManage\Controllers\UserController.cs" />
+    <Compile Include="Areas\SystemManage\Controllers\ItemsTypeController.cs" />
+    <Compile Include="Areas\SystemManage\SystemManageAreaRegistration.cs" />
+    <Compile Include="Areas\SystemSecurity\Controllers\DbBackupController.cs" />
+    <Compile Include="Areas\SystemSecurity\Controllers\FilterIPController.cs" />
+    <Compile Include="Areas\SystemSecurity\Controllers\LogController.cs" />
+    <Compile Include="Areas\SystemSecurity\Controllers\ServerMonitoringController.cs" />
+    <Compile Include="Areas\SystemSecurity\SystemSecurityAreaRegistration.cs" />
+    <Compile Include="Areas\TemplateManage\Controllers\TemplateController.cs" />
+    <Compile Include="Areas\ProjectManage\ProjectManageAreaRegistration.cs" />
+    <Compile Include="Areas\TemplateManage\TemplateManageAreaRegistration.cs" />
+    <Compile Include="Controllers\ClientsDataController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Content Include="Content\css\framework-font.css" />
+    <Content Include="Content\css\framework-ui.css" />
+    <Content Include="Content\css\framework-login.css" />
+    <Content Include="Content\css\framework-theme.css" />
+    <Content Include="Content\css\framework-about.css" />
+    <Content Include="Content\fonts\fontawesome-webfont.svg" />
+    <Content Include="Content\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Content\fonts\weathericons-regular-webfont.svg" />
+    <Content Include="Content\img\77.jpg" />
+    <Content Include="Content\img\ajax-loader.gif" />
+    <Content Include="Content\img\alipay.jpg" />
+    <Content Include="Content\img\alipayimg.png" />
+    <Content Include="Content\img\button_pm_close.png" />
+    <Content Include="Content\img\cy-reward-title-bg.jpg" />
+    <Content Include="Content\img\loading.gif" />
+    <Content Include="Content\img\login1.jpg" />
+    <Content Include="Content\img\login2.jpg" />
+    <Content Include="Content\img\radio1.jpg" />
+    <Content Include="Content\img\radio2.jpg" />
+    <Content Include="Content\img\samples\angelina-300.jpg" />
+    <Content Include="Content\img\samples\emma-300.jpg" />
+    <Content Include="Content\img\samples\emma.png" />
+    <Content Include="Content\img\samples\george.png" />
+    <Content Include="Content\img\samples\head_120.png" />
+    <Content Include="Content\img\samples\jessica.jpg" />
+    <Content Include="Content\img\samples\kunis-300.jpg" />
+    <Content Include="Content\img\samples\kunis.png" />
+    <Content Include="Content\img\samples\lima-300.jpg" />
+    <Content Include="Content\img\samples\messages-photo-1.png" />
+    <Content Include="Content\img\samples\messages-photo-2.png" />
+    <Content Include="Content\img\samples\messages-photo-3.png" />
+    <Content Include="Content\img\samples\miranda-560-300.png" />
+    <Content Include="Content\img\samples\robert-300.jpg" />
+    <Content Include="Content\img\samples\robert.png" />
+    <Content Include="Content\img\samples\ryan-300.jpg" />
+    <Content Include="Content\img\samples\ryan.png" />
+    <Content Include="Content\img\samples\scarlet-159.png" />
+    <Content Include="Content\img\samples\scarlet.png" />
+    <Content Include="Content\img\samples\scarlett-300.jpg" />
+    <Content Include="Content\img\signet.gif" />
+    <Content Include="Content\img\test.jpg" />
+    <Content Include="Content\img\test1.jpg" />
+    <Content Include="Content\img\topbg.png" />
+    <Content Include="Content\img\wechat.jpg" />
+    <Content Include="Content\img\weipayimg.png" />
+    <Content Include="Content\img\weixin_nfine.png" />
+    <Content Include="Content\img\xiongyi-logo-090929.png" />
+    <Content Include="Content\js\bootstrap\bootstrap.js" />
+    <Content Include="Content\js\bootstrap\bootstrap.min.css" />
+    <Content Include="Content\js\charts\Chart.js" />
+    <Content Include="Content\js\charts\Chart.min.js" />
+    <Content Include="Content\js\cookie\jquery.cookie.js" />
+    <Content Include="Content\js\datepicker\bootstrap-datepicker.css" />
+    <Content Include="Content\js\datepicker\bootstrap-datepicker.min.js" />
+    <Content Include="Content\js\datepicker\bootstrap-datetimepicker.min.css" />
+    <Content Include="Content\js\datepicker\bootstrap-datetimepicker.min.js" />
+    <Content Include="Content\js\datepicker\calendar.js" />
+    <Content Include="Content\js\datepicker\DatePicker.js" />
+    <Content Include="Content\js\datepicker\daterangepicker.css" />
+    <Content Include="Content\js\datepicker\daterangepicker.js" />
+    <Content Include="Content\js\datepicker\jeDate-test.css" />
+    <Content Include="Content\js\datepicker\jedate.css" />
+    <Content Include="Content\js\datepicker\jedate.min.js" />
+    <Content Include="Content\js\datepicker\lang\en.js" />
+    <Content Include="Content\js\datepicker\lang\zh-cn.js" />
+    <Content Include="Content\js\datepicker\lang\zh-tw.js" />
+    <Content Include="Content\js\datepicker\moment.min.js" />
+    <Content Include="Content\js\datepicker\skin\datePicker.gif" />
+    <Content Include="Content\js\datepicker\skin\datePicker.png" />
+    <Content Include="Content\js\datepicker\skin\datepicker_icon.png" />
+    <Content Include="Content\js\datepicker\skin\default\datepicker-dev.css" />
+    <Content Include="Content\js\datepicker\skin\default\datepicker.css" />
+    <Content Include="Content\js\datepicker\skin\default\img.gif" />
+    <Content Include="Content\js\datepicker\skin\default\img.png" />
+    <Content Include="Content\js\datepicker\skin\jedate.css" />
+    <Content Include="Content\js\datepicker\skin\jedate.png" />
+    <Content Include="Content\js\datepicker\skin\jedatefont.svg" />
+    <Content Include="Content\js\datepicker\skin\WdatePicker.css" />
+    <Content Include="Content\js\datepicker\skin\whyGreen\bg.jpg" />
+    <Content Include="Content\js\datepicker\skin\whyGreen\datepicker.css" />
+    <Content Include="Content\js\datepicker\skin\whyGreen\img.gif" />
+    <Content Include="Content\js\datepicker\WdatePicker.js" />
+    <Content Include="Content\js\datepicker\开发包\lang\en.js" />
+    <Content Include="Content\js\datepicker\开发包\lang\zh-cn.js" />
+    <Content Include="Content\js\datepicker\开发包\lang\zh-tw.js" />
+    <Content Include="Content\js\datepicker\开发包\readme.txt" />
+    <Content Include="Content\js\datepicker\开发包\skin\datePicker.gif" />
+    <Content Include="Content\js\datepicker\开发包\skin\datePicker.png" />
+    <Content Include="Content\js\datepicker\开发包\skin\default\datepicker.css" />
+    <Content Include="Content\js\datepicker\开发包\skin\default\img.gif" />
+    <Content Include="Content\js\datepicker\开发包\skin\WdatePicker.css" />
+    <Content Include="Content\js\datepicker\开发包\skin\whyGreen\bg.jpg" />
+    <Content Include="Content\js\datepicker\开发包\skin\whyGreen\datepicker.css" />
+    <Content Include="Content\js\datepicker\开发包\skin\whyGreen\img.gif" />
+    <Content Include="Content\js\dialog\dialog.css" />
+    <Content Include="Content\js\dialog\dialog.js" />
+    <Content Include="Content\js\dialog\img\icon-ext.png" />
+    <Content Include="Content\js\dialog\img\icon.png" />
+    <Content Include="Content\js\dialog\img\loading-0.gif" />
+    <Content Include="Content\js\dialog\img\loading-1.gif" />
+    <Content Include="Content\js\dialog\img\loading-2.gif" />
+    <Content Include="Content\js\easyUI\demo.css" />
+    <Content Include="Content\js\easyUI\easyui.css" />
+    <Content Include="Content\js\easyUI\icon.css" />
+    <Content Include="Content\js\easyUI\icons\back.png" />
+    <Content Include="Content\js\easyUI\icons\blank.gif" />
+    <Content Include="Content\js\easyUI\icons\cancel.png" />
+    <Content Include="Content\js\easyUI\icons\clear.png" />
+    <Content Include="Content\js\easyUI\icons\cut.png" />
+    <Content Include="Content\js\easyUI\icons\edit_add.png" />
+    <Content Include="Content\js\easyUI\icons\edit_remove.png" />
+    <Content Include="Content\js\easyUI\icons\filesave.png" />
+    <Content Include="Content\js\easyUI\icons\filter.png" />
+    <Content Include="Content\js\easyUI\icons\help.png" />
+    <Content Include="Content\js\easyUI\icons\large_chart.png" />
+    <Content Include="Content\js\easyUI\icons\large_clipart.png" />
+    <Content Include="Content\js\easyUI\icons\large_picture.png" />
+    <Content Include="Content\js\easyUI\icons\large_shapes.png" />
+    <Content Include="Content\js\easyUI\icons\large_smartart.png" />
+    <Content Include="Content\js\easyUI\icons\lock.png" />
+    <Content Include="Content\js\easyUI\icons\man.png" />
+    <Content Include="Content\js\easyUI\icons\mini_add.png" />
+    <Content Include="Content\js\easyUI\icons\mini_edit.png" />
+    <Content Include="Content\js\easyUI\icons\mini_refresh.png" />
+    <Content Include="Content\js\easyUI\icons\more.png" />
+    <Content Include="Content\js\easyUI\icons\no.png" />
+    <Content Include="Content\js\easyUI\icons\ok.png" />
+    <Content Include="Content\js\easyUI\icons\pencil.png" />
+    <Content Include="Content\js\easyUI\icons\print.png" />
+    <Content Include="Content\js\easyUI\icons\redo.png" />
+    <Content Include="Content\js\easyUI\icons\reload.png" />
+    <Content Include="Content\js\easyUI\icons\search.png" />
+    <Content Include="Content\js\easyUI\icons\sum.png" />
+    <Content Include="Content\js\easyUI\icons\tip.png" />
+    <Content Include="Content\js\easyUI\icons\undo.png" />
+    <Content Include="Content\js\easyUI\images\accordion_arrows.png" />
+    <Content Include="Content\js\easyUI\images\blank.gif" />
+    <Content Include="Content\js\easyUI\images\calendar_arrows.png" />
+    <Content Include="Content\js\easyUI\images\combo_arrow.png" />
+    <Content Include="Content\js\easyUI\images\datagrid_icons.png" />
+    <Content Include="Content\js\easyUI\images\datebox_arrow.png" />
+    <Content Include="Content\js\easyUI\images\layout_arrows.png" />
+    <Content Include="Content\js\easyUI\images\linkbutton_bg.png" />
+    <Content Include="Content\js\easyUI\images\loading.gif" />
+    <Content Include="Content\js\easyUI\images\menu_arrows.png" />
+    <Content Include="Content\js\easyUI\images\messager_icons.png" />
+    <Content Include="Content\js\easyUI\images\pagination_icons.png" />
+    <Content Include="Content\js\easyUI\images\panel_tools.png" />
+    <Content Include="Content\js\easyUI\images\passwordbox_close.png" />
+    <Content Include="Content\js\easyUI\images\passwordbox_open.png" />
+    <Content Include="Content\js\easyUI\images\searchbox_button.png" />
+    <Content Include="Content\js\easyUI\images\slider_handle.png" />
+    <Content Include="Content\js\easyUI\images\spinner_arrows.png" />
+    <Content Include="Content\js\easyUI\images\tabs_icons.png" />
+    <Content Include="Content\js\easyUI\images\tagbox_icons.png" />
+    <Content Include="Content\js\easyUI\images\tree_icons.png" />
+    <Content Include="Content\js\easyUI\images\validatebox_warning.png" />
+    <Content Include="Content\js\easyUI\jquery.easyui.min.js" />
+    <Content Include="Content\js\echarts\echarts-all.js" />
+    <Content Include="Content\js\echarts\echarts.js" />
+    <Content Include="Content\js\echarts\echarts.min.js" />
+    <Content Include="Content\js\echarts\infographic.js" />
+    <Content Include="Content\js\FileSaver\FileSaver.js" />
+    <Content Include="Content\js\highcharts\adapters\mootools-adapter.js" />
+    <Content Include="Content\js\highcharts\adapters\mootools-adapter.src.js" />
+    <Content Include="Content\js\highcharts\adapters\prototype-adapter.js" />
+    <Content Include="Content\js\highcharts\adapters\prototype-adapter.src.js" />
+    <Content Include="Content\js\highcharts\adapters\standalone-framework.js" />
+    <Content Include="Content\js\highcharts\adapters\standalone-framework.src.js" />
+    <Content Include="Content\js\highcharts\highcharts-all.js" />
+    <Content Include="Content\js\highcharts\highcharts-more.js" />
+    <Content Include="Content\js\highcharts\highcharts-more.src.js" />
+    <Content Include="Content\js\highcharts\highcharts.js" />
+    <Content Include="Content\js\highcharts\highcharts.src.js" />
+    <Content Include="Content\js\highcharts\modules\canvas-tools.js" />
+    <Content Include="Content\js\highcharts\modules\canvas-tools.src.js" />
+    <Content Include="Content\js\highcharts\modules\data.js" />
+    <Content Include="Content\js\highcharts\modules\data.src.js" />
+    <Content Include="Content\js\highcharts\modules\drilldown.js" />
+    <Content Include="Content\js\highcharts\modules\drilldown.src.js" />
+    <Content Include="Content\js\highcharts\modules\exporting.js" />
+    <Content Include="Content\js\highcharts\modules\exporting.src.js" />
+    <Content Include="Content\js\highcharts\modules\funnel.js" />
+    <Content Include="Content\js\highcharts\modules\funnel.src.js" />
+    <Content Include="Content\js\highcharts\modules\no-data-to-display.js" />
+    <Content Include="Content\js\highcharts\modules\no-data-to-display.src.js" />
+    <Content Include="Content\js\highcharts\themes\dark-blue.js" />
+    <Content Include="Content\js\highcharts\themes\dark-green.js" />
+    <Content Include="Content\js\highcharts\themes\gray.js" />
+    <Content Include="Content\js\highcharts\themes\grid.js" />
+    <Content Include="Content\js\highcharts\themes\skies.js" />
+    <Content Include="Content\js\index.js" />
+    <Content Include="Content\js\indextab.js" />
+    <Content Include="Content\js\framework-ui.js" />
+    <Content Include="Content\js\jqgrid\grid.locale-cn.js" />
+    <Content Include="Content\js\jqgrid\jqgrid.css" />
+    <Content Include="Content\js\jqgrid\jqgrid.min.js" />
+    <Content Include="Content\js\jqprint\jquery-migrate-1.2.1.js" />
+    <Content Include="Content\js\jqprint\jquery.jqprint-0.3.js" />
+    <Content Include="Content\js\jqprint\jquery.jqprint.css" />
+    <Content Include="Content\js\jqprint\purchaseStyle.css" />
+    <Content Include="Content\js\jqprint\printStyle2.css" />
+    <Content Include="Content\js\jqprint\printStyle1.css" />
+    <Content Include="Content\js\jqprint\printStyle.css" />
+    <Content Include="Content\js\jquery-file-upload\css\jquery.fileupload-ui.css" />
+    <Content Include="Content\js\jquery-file-upload\css\jquery.fileupload.css" />
+    <Content Include="Content\js\jquery-file-upload\js\jquery-3.0.0.min.js" />
+    <Content Include="Content\js\jquery-file-upload\js\jquery.fileupload.js" />
+    <Content Include="Content\js\jquery-file-upload\js\jquery.iframe-transport.js" />
+    <Content Include="Content\js\jquery-file-upload\js\jquery.ui.widget.js" />
+    <Content Include="Content\js\jquery-ui\images\calendar.gif" />
+    <Content Include="Content\js\jquery-ui\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="Content\js\jquery-ui\images\ui-bg_flat_75_ffffff_40x100.png" />
+    <Content Include="Content\js\jquery-ui\images\ui-bg_glass_55_fbf9ee_1x400.png" />
+    <Content Include="Content\js\jquery-ui\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <Content Include="Content\js\jquery-ui\images\ui-bg_glass_75_dadada_1x400.png" />
+    <Content Include="Content\js\jquery-ui\images\ui-bg_glass_75_e6e6e6_1x400.png" />
+    <Content Include="Content\js\jquery-ui\images\ui-bg_glass_95_fef1ec_1x400.png" />
+    <Content Include="Content\js\jquery-ui\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+    <Content Include="Content\js\jquery-ui\images\ui-icons_222222_256x240.png" />
+    <Content Include="Content\js\jquery-ui\images\ui-icons_2e83ff_256x240.png" />
+    <Content Include="Content\js\jquery-ui\images\ui-icons_454545_256x240.png" />
+    <Content Include="Content\js\jquery-ui\images\ui-icons_888888_256x240.png" />
+    <Content Include="Content\js\jquery-ui\images\ui-icons_cd0a0a_256x240.png" />
+    <Content Include="Content\js\jquery-ui\jquery-ui.min.css" />
+    <Content Include="Content\js\jquery-ui\jquery-ui.min.js" />
+    <Content Include="Content\js\jquery\jquery-1.9.1.min.js" />
+    <Content Include="Content\js\jquery\jquery-2.1.1.min.js" />
+    <Content Include="Content\js\jquery\jquery.form.js" />
+    <Content Include="Content\js\laydate\laydate.js" />
+    <Content Include="Content\js\laydate\theme\default\font\iconfont.svg" />
+    <Content Include="Content\js\laydate\theme\default\laydate.css" />
+    <Content Include="Content\js\laydate\v1.1\laydate.js" />
+    <Content Include="Content\js\laydate\v1.1\need\laydate.css" />
+    <Content Include="Content\js\laydate\v1.1\skins\default\icon.png" />
+    <Content Include="Content\js\laydate\v1.1\skins\default\laydate.css" />
+    <Content Include="Content\js\layout\jquery.layout.js" />
+    <Content Include="Content\js\layui\css\layui.css" />
+    <Content Include="Content\js\layui\css\layui.mobile.css" />
+    <Content Include="Content\js\layui\css\modules\code.css" />
+    <Content Include="Content\js\layui\css\modules\laydate\default\laydate.css" />
+    <Content Include="Content\js\layui\css\modules\layer\default\icon-ext.png" />
+    <Content Include="Content\js\layui\css\modules\layer\default\icon.png" />
+    <Content Include="Content\js\layui\css\modules\layer\default\layer.css" />
+    <Content Include="Content\js\layui\css\modules\layer\default\loading-0.gif" />
+    <Content Include="Content\js\layui\css\modules\layer\default\loading-1.gif" />
+    <Content Include="Content\js\layui\css\modules\layer\default\loading-2.gif" />
+    <Content Include="Content\js\layui\font\iconfont.svg" />
+    <Content Include="Content\js\layui\images\face\0.gif" />
+    <Content Include="Content\js\layui\images\face\1.gif" />
+    <Content Include="Content\js\layui\images\face\10.gif" />
+    <Content Include="Content\js\layui\images\face\11.gif" />
+    <Content Include="Content\js\layui\images\face\12.gif" />
+    <Content Include="Content\js\layui\images\face\13.gif" />
+    <Content Include="Content\js\layui\images\face\14.gif" />
+    <Content Include="Content\js\layui\images\face\15.gif" />
+    <Content Include="Content\js\layui\images\face\16.gif" />
+    <Content Include="Content\js\layui\images\face\17.gif" />
+    <Content Include="Content\js\layui\images\face\18.gif" />
+    <Content Include="Content\js\layui\images\face\19.gif" />
+    <Content Include="Content\js\layui\images\face\2.gif" />
+    <Content Include="Content\js\layui\images\face\20.gif" />
+    <Content Include="Content\js\layui\images\face\21.gif" />
+    <Content Include="Content\js\layui\images\face\22.gif" />
+    <Content Include="Content\js\layui\images\face\23.gif" />
+    <Content Include="Content\js\layui\images\face\24.gif" />
+    <Content Include="Content\js\layui\images\face\25.gif" />
+    <Content Include="Content\js\layui\images\face\26.gif" />
+    <Content Include="Content\js\layui\images\face\27.gif" />
+    <Content Include="Content\js\layui\images\face\28.gif" />
+    <Content Include="Content\js\layui\images\face\29.gif" />
+    <Content Include="Content\js\layui\images\face\3.gif" />
+    <Content Include="Content\js\layui\images\face\30.gif" />
+    <Content Include="Content\js\layui\images\face\31.gif" />
+    <Content Include="Content\js\layui\images\face\32.gif" />
+    <Content Include="Content\js\layui\images\face\33.gif" />
+    <Content Include="Content\js\layui\images\face\34.gif" />
+    <Content Include="Content\js\layui\images\face\35.gif" />
+    <Content Include="Content\js\layui\images\face\36.gif" />
+    <Content Include="Content\js\layui\images\face\37.gif" />
+    <Content Include="Content\js\layui\images\face\38.gif" />
+    <Content Include="Content\js\layui\images\face\39.gif" />
+    <Content Include="Content\js\layui\images\face\4.gif" />
+    <Content Include="Content\js\layui\images\face\40.gif" />
+    <Content Include="Content\js\layui\images\face\41.gif" />
+    <Content Include="Content\js\layui\images\face\42.gif" />
+    <Content Include="Content\js\layui\images\face\43.gif" />
+    <Content Include="Content\js\layui\images\face\44.gif" />
+    <Content Include="Content\js\layui\images\face\45.gif" />
+    <Content Include="Content\js\layui\images\face\46.gif" />
+    <Content Include="Content\js\layui\images\face\47.gif" />
+    <Content Include="Content\js\layui\images\face\48.gif" />
+    <Content Include="Content\js\layui\images\face\49.gif" />
+    <Content Include="Content\js\layui\images\face\5.gif" />
+    <Content Include="Content\js\layui\images\face\50.gif" />
+    <Content Include="Content\js\layui\images\face\51.gif" />
+    <Content Include="Content\js\layui\images\face\52.gif" />
+    <Content Include="Content\js\layui\images\face\53.gif" />
+    <Content Include="Content\js\layui\images\face\54.gif" />
+    <Content Include="Content\js\layui\images\face\55.gif" />
+    <Content Include="Content\js\layui\images\face\56.gif" />
+    <Content Include="Content\js\layui\images\face\57.gif" />
+    <Content Include="Content\js\layui\images\face\58.gif" />
+    <Content Include="Content\js\layui\images\face\59.gif" />
+    <Content Include="Content\js\layui\images\face\6.gif" />
+    <Content Include="Content\js\layui\images\face\60.gif" />
+    <Content Include="Content\js\layui\images\face\61.gif" />
+    <Content Include="Content\js\layui\images\face\62.gif" />
+    <Content Include="Content\js\layui\images\face\63.gif" />
+    <Content Include="Content\js\layui\images\face\64.gif" />
+    <Content Include="Content\js\layui\images\face\65.gif" />
+    <Content Include="Content\js\layui\images\face\66.gif" />
+    <Content Include="Content\js\layui\images\face\67.gif" />
+    <Content Include="Content\js\layui\images\face\68.gif" />
+    <Content Include="Content\js\layui\images\face\69.gif" />
+    <Content Include="Content\js\layui\images\face\7.gif" />
+    <Content Include="Content\js\layui\images\face\70.gif" />
+    <Content Include="Content\js\layui\images\face\71.gif" />
+    <Content Include="Content\js\layui\images\face\8.gif" />
+    <Content Include="Content\js\layui\images\face\9.gif" />
+    <Content Include="Content\js\layui\layui.all.js" />
+    <Content Include="Content\js\layui\layui.js" />
+    <Content Include="Content\js\layui\lay\modules\carousel.js" />
+    <Content Include="Content\js\layui\lay\modules\code.js" />
+    <Content Include="Content\js\layui\lay\modules\colorpicker.js" />
+    <Content Include="Content\js\layui\lay\modules\element.js" />
+    <Content Include="Content\js\layui\lay\modules\flow.js" />
+    <Content Include="Content\js\layui\lay\modules\form.js" />
+    <Content Include="Content\js\layui\lay\modules\jquery.js" />
+    <Content Include="Content\js\layui\lay\modules\laydate.js" />
+    <Content Include="Content\js\layui\lay\modules\layedit.js" />
+    <Content Include="Content\js\layui\lay\modules\layer.js" />
+    <Content Include="Content\js\layui\lay\modules\laypage.js" />
+    <Content Include="Content\js\layui\lay\modules\laytpl.js" />
+    <Content Include="Content\js\layui\lay\modules\mobile.js" />
+    <Content Include="Content\js\layui\lay\modules\rate.js" />
+    <Content Include="Content\js\layui\lay\modules\slider.js" />
+    <Content Include="Content\js\layui\lay\modules\table.js" />
+    <Content Include="Content\js\layui\lay\modules\tree.js" />
+    <Content Include="Content\js\layui\lay\modules\upload.js" />
+    <Content Include="Content\js\layui\lay\modules\util.js" />
+    <Content Include="Content\js\loading\pace.min.js" />
+    <Content Include="Content\js\md5\jquery.md5.js" />
+    <Content Include="Content\js\qrcode\jquery.qrcode.js" />
+    <Content Include="Content\js\qrcode\qrcode.js" />
+    <Content Include="Content\js\select2\select2.min.css" />
+    <Content Include="Content\js\select2\select2.min.js" />
+    <Content Include="Content\js\simditor\css\simditor.css" />
+    <Content Include="Content\js\simditor\js\hotkeys.js" />
+    <Content Include="Content\js\simditor\js\hotkeys.min.js" />
+    <Content Include="Content\js\simditor\js\module.js" />
+    <Content Include="Content\js\simditor\js\module.min.js" />
+    <Content Include="Content\js\simditor\js\simditor.js" />
+    <Content Include="Content\js\simditor\js\simditor.min.js" />
+    <Content Include="Content\js\simditor\js\uploader.js" />
+    <Content Include="Content\js\simditor\js\uploader.min.js" />
+    <Content Include="Content\js\steps\css\element.min.css" />
+    <Content Include="Content\js\steps\js\element.min.js" />
+    <Content Include="Content\js\steps\js\vue.min.js" />
+    <Content Include="Content\js\steps\steps.css" />
+    <Content Include="Content\js\steps\steps.js" />
+    <Content Include="Content\js\validate\jquery.validate.min.js" />
+    <Content Include="Content\js\validform\Validform_v5.3.2_min.js" />
+    <Content Include="Content\js\wdtree\images\icons\add.png" />
+    <Content Include="Content\js\wdtree\images\icons\addStep.gif" />
+    <Content Include="Content\js\wdtree\images\icons\addStep_dsbl.gif" />
+    <Content Include="Content\js\wdtree\images\icons\btn-arrow.gif" />
+    <Content Include="Content\js\wdtree\images\icons\Btn.Close.gif" />
+    <Content Include="Content\js\wdtree\images\icons\Btn.Refresh.gif" />
+    <Content Include="Content\js\wdtree\images\icons\cal.gif" />
+    <Content Include="Content\js\wdtree\images\icons\checkbox_0.gif" />
+    <Content Include="Content\js\wdtree\images\icons\checkbox_0.png" />
+    <Content Include="Content\js\wdtree\images\icons\checkbox_1.gif" />
+    <Content Include="Content\js\wdtree\images\icons\checkbox_1.png" />
+    <Content Include="Content\js\wdtree\images\icons\checkbox_2.gif" />
+    <Content Include="Content\js\wdtree\images\icons\checkbox_2.png" />
+    <Content Include="Content\js\wdtree\images\icons\circle_animation.gif" />
+    <Content Include="Content\js\wdtree\images\icons\delete.png" />
+    <Content Include="Content\js\wdtree\images\icons\delItem.gif" />
+    <Content Include="Content\js\wdtree\images\icons\delItem_dsbl.gif" />
+    <Content Include="Content\js\wdtree\images\icons\edit.png" />
+    <Content Include="Content\js\wdtree\images\icons\folder_close.gif" />
+    <Content Include="Content\js\wdtree\images\icons\ico1.gif" />
+    <Content Include="Content\js\wdtree\images\icons\ico2.gif" />
+    <Content Include="Content\js\wdtree\images\icons\ico3.gif" />
+    <Content Include="Content\js\wdtree\images\icons\ico4-1-1.gif" />
+    <Content Include="Content\js\wdtree\images\icons\ico4-1.gif" />
+    <Content Include="Content\js\wdtree\images\icons\ico4-2.gif" />
+    <Content Include="Content\js\wdtree\images\icons\ico4-3.gif" />
+    <Content Include="Content\js\wdtree\images\icons\ico4-4.gif" />
+    <Content Include="Content\js\wdtree\images\icons\ico4.gif" />
+    <Content Include="Content\js\wdtree\images\icons\ico5.gif" />
+    <Content Include="Content\js\wdtree\images\icons\ico6-1.gif" />
+    <Content Include="Content\js\wdtree\images\icons\ico6-2.gif" />
+    <Content Include="Content\js\wdtree\images\icons\ico6.gif" />
+    <Content Include="Content\js\wdtree\images\icons\indicator.gif" />
+    <Content Include="Content\js\wdtree\images\icons\information.png" />
+    <Content Include="Content\js\wdtree\images\icons\Item.Add.gif" />
+    <Content Include="Content\js\wdtree\images\icons\Item.Delete.gif" />
+    <Content Include="Content\js\wdtree\images\icons\Item.Edit.gif" />
+    <Content Include="Content\js\wdtree\images\icons\Item.Input.gif" />
+    <Content Include="Content\js\wdtree\images\icons\Item.Save.gif" />
+    <Content Include="Content\js\wdtree\images\icons\Item.Search.gif" />
+    <Content Include="Content\js\wdtree\images\icons\none.gif" />
+    <Content Include="Content\js\wdtree\images\icons\note.gif" />
+    <Content Include="Content\js\wdtree\images\icons\rowdelete.png" />
+    <Content Include="Content\js\wdtree\images\icons\s.gif" />
+    <Content Include="Content\js\wdtree\images\icons\table_refresh.png" />
+    <Content Include="Content\js\wdtree\images\icons\view.png" />
+    <Content Include="Content\js\wdtree\images\tree\arrows.gif" />
+    <Content Include="Content\js\wdtree\images\tree\cbs.gif" />
+    <Content Include="Content\js\wdtree\images\tree\drop-yes.gif" />
+    <Content Include="Content\js\wdtree\images\tree\elbow-end-minus-nl.gif" />
+    <Content Include="Content\js\wdtree\images\tree\elbow-end-minus.gif" />
+    <Content Include="Content\js\wdtree\images\tree\elbow-end-plus-nl.gif" />
+    <Content Include="Content\js\wdtree\images\tree\elbow-end-plus.gif" />
+    <Content Include="Content\js\wdtree\images\tree\elbow-end.gif" />
+    <Content Include="Content\js\wdtree\images\tree\elbow-line.gif" />
+    <Content Include="Content\js\wdtree\images\tree\elbow-minus-nl.gif" />
+    <Content Include="Content\js\wdtree\images\tree\elbow-minus.gif" />
+    <Content Include="Content\js\wdtree\images\tree\elbow-plus-nl.gif" />
+    <Content Include="Content\js\wdtree\images\tree\elbow-plus.gif" />
+    <Content Include="Content\js\wdtree\images\tree\elbow.gif" />
+    <Content Include="Content\js\wdtree\images\tree\folder-open.gif" />
+    <Content Include="Content\js\wdtree\images\tree\folder.gif" />
+    <Content Include="Content\js\wdtree\images\tree\leaf.gif" />
+    <Content Include="Content\js\wdtree\images\tree\loading.gif" />
+    <Content Include="Content\js\wdtree\tree.css" />
+    <Content Include="Content\js\wdtree\tree.js" />
+    <Content Include="Content\js\wizard\wizard.css" />
+    <Content Include="Content\js\wizard\wizard.js" />
+    <Content Include="Content\js\framework-clientdata.js" />
+    <Content Include="Content\js\zsign\jquery.zsign.css" />
+    <Content Include="Content\js\zsign\jquery.zsign.js" />
+    <Content Include="Content\js\zsign\signet.gif" />
+    <Content Include="Global.asax" />
+    <Content Include="Index.htm" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Views\Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\_LayoutIndex.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Content\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="Content\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="Content\fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="Content\fonts\glyphicons-halflings-regulard41d.eot" />
+    <Content Include="Content\fonts\weathericons-regular-webfont.eot" />
+    <Content Include="Content\fonts\weathericons-regular-webfont.ttf" />
+    <Content Include="Content\fonts\weathericons-regular-webfont.woff" />
+    <Content Include="Content\fonts\weathericons-regular-webfontd41d.eot" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Home\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Login\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Configs\log4net.config" />
+    <Content Include="Configs\system.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Configs\database.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XZOA.Application\XZOA.Application.csproj">
+      <Project>{f2035ee2-b73d-4fb8-a433-cab465de6a2a}</Project>
+      <Name>XZOA.Application</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XZOA.Code\XZOA.Code.csproj">
+      <Project>{db19ce03-c307-43fe-a209-08aa4ae10e21}</Project>
+      <Name>XZOA.Code</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XZOA.Domain\XZOA.Domain.csproj">
+      <Project>{7dc886cd-b8a0-44e8-aadd-57fcb0cfecb8}</Project>
+      <Name>XZOA.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XZOA.Repository\XZOA.Repository.csproj">
+      <Project>{875233bf-ea15-49e0-9a9c-77884a897ff6}</Project>
+      <Name>XZOA.Repository</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\_Form.cshtml" />
+    <Content Include="Views\Shared\_Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\Module\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\Module\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\Module\Details.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\ModuleButton\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\ModuleButton\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\ModuleButton\CloneButton.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\ModuleButton\Details.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\Area\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\ItemsData\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\ItemsType\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\ItemsType\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\ItemsData\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\ItemsType\Details.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\ItemsData\Details.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\Organize\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\Organize\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\Organize\Details.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\Role\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\Role\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\Area\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\User\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\fonts\fontawesome-webfont.eot" />
+    <Content Include="Content\fonts\fontawesome-webfont.ttf" />
+    <Content Include="Content\fonts\fontawesome-webfont.woff" />
+    <Content Include="Content\fonts\fontawesome-webfont.woff2" />
+    <Content Include="Content\fonts\FontAwesome.otf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\User\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\User\RevisePassword.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\Duty\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\Duty\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\Duty\Details.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\Role\Details.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\User\Details.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemSecurity\Views\Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemSecurity\Views\DbBackup\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemSecurity\Views\DbBackup\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemSecurity\Views\FilterIP\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemSecurity\Views\FilterIP\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemSecurity\Views\FilterIP\Details.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemSecurity\Views\ServerMonitoring\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\ReportManage\Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Areas\ReportManage\Views\Echarts\" />
+    <Folder Include="Areas\SystemSecurity\Views\Log\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample1.cshtml" />
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample10.cshtml" />
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample11.cshtml" />
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample12.cshtml" />
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample13.cshtml" />
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample14.cshtml" />
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample15.cshtml" />
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample16.cshtml" />
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample2.cshtml" />
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample3.cshtml" />
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample4.cshtml" />
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample5.cshtml" />
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample6.cshtml" />
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample7.cshtml" />
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample8.cshtml" />
+    <Content Include="Areas\ReportManage\Views\Highcharts\Sample9.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Home\Default.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\ExampleManage\Views\Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\ExampleManage\Views\SendMail\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\js\simditor\css\editor.scss" />
+    <Content Include="Content\js\simditor\css\fonticon.scss" />
+    <Content Include="Content\js\simditor\css\simditor.scss" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\ExampleManage\Views\SendMessages\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\ExampleManage\Views\BarCode\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\ExampleManage\Views\Signet\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\ExampleManage\Views\Print\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\SystemManage\Views\User\ChangePwd.cshtml" />
+    <Content Include="Areas\ExampleManage\Views\Test\Index.cshtml" />
+    <Content Include="Areas\LeaveManage\Views\LeaveManage\Index.cshtml" />
+    <Content Include="Areas\LeaveManage\Views\Web.config" />
+    <Content Include="Areas\LeaveManage\Views\LeaveManage\Form.cshtml" />
+    <Content Include="Content\js\datepicker\skin\jedatefont.eot" />
+    <Content Include="Content\js\datepicker\skin\jedatefont.ttf" />
+    <Content Include="Content\js\datepicker\skin\jedatefont.woff" />
+    <Content Include="Content\js\datepicker\jedatefont.ttf" />
+    <Content Include="Content\js\datepicker\jedatefont.woff" />
+    <Content Include="Areas\LeaveManage\Views\LeaveManage\Print.cshtml" />
+    <Content Include="Areas\LeaveManage\Views\Check\CheckForm.cshtml" />
+    <Content Include="Areas\LeaveManage\Views\Check\CheckIndex.cshtml" />
+    <Content Include="Areas\LeaveManage\Views\History\PersonalLeaveHistoryIndex.cshtml" />
+    <Content Include="Areas\LeaveManage\Views\History\LeaveHistoryIndex.cshtml" />
+    <Content Include="Areas\LeaveManage\Views\Check\UnderLineCheckIndex.cshtml" />
+    <Content Include="Areas\LeaveManage\Views\LeaveManage\SellOffIndex.cshtml" />
+    <Content Include="Areas\LeaveManage\Views\LeaveManage\SellOffForm.cshtml" />
+    <Content Include="Areas\LeaveManage\Views\Check\SellOffCheckIndex.cshtml" />
+    <Content Include="Areas\LeaveManage\Views\Check\SellOffForm.cshtml" />
+    <Content Include="Areas\LeaveManage\Views\History\Form.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Web.config" />
+    <Content Include="Areas\PurchaseManage\Views\Apply\Index.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Apply\Form.cshtml" />
+    <Content Include="Content\js\laydate\theme\default\font\iconfont.eot" />
+    <Content Include="Content\js\laydate\theme\default\font\iconfont.ttf" />
+    <Content Include="Content\js\laydate\theme\default\font\iconfont.woff" />
+    <Content Include="Areas\PurchaseManage\Views\Apply\CheckApplyIndex.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Apply\CheckApplyForm.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Apply\ApprovalApplyIndex.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Apply\ApprovalApplyForm.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Apply\ApplyToPurchaseIndex.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Price\Index.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Price\Form.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Apply\Details.cshtml" />
+    <Content Include="Content\js\steps\css\fonts\element-icons.ttf" />
+    <Content Include="Content\js\steps\css\fonts\element-icons.woff" />
+    <Content Include="Areas\PurchaseManage\Views\Apply\ApplyConvertPurchaseForm.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Purchase\CheckPurchaseIndex.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Purchase\ApprovalPurchaseIndex.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Purchase\CheckPurchaseForm.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Purchase\ApprovalPurchaseForm.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Bill\DeliveryIndex.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Bill\InspectionForm.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Bill\TransferIndex.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Bill\TransferForm.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Bill\ReturnIndex.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Bill\ReturnForm.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Bill\PickingIndex.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Apply\ApplyHistoryIndex.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Bill\RegistrationIndex.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Purchase\PurchaseDeatailsIndex.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Bill\PrintIndex.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Bill\Print.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Purchase\PurchasePrintIndex.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Purchase\Print.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Apply\Authorize.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Apply\BackApply.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Template\Index.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Web.config" />
+    <Content Include="Areas\TemplateManage\Views\Template\Form.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Template\Details.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Template\CheckIndex.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Template\ReceiveIndex.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Template\DistribuIndex.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Template\NoticeIndex.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Template\ConfirmIndex.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Template\ReportIndex.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Template\CheckForm.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Template\NoticeForm.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Template\rejectForm.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Template\ConfirmForm.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Template\Print.cshtml" />
+    <Content Include="Areas\RoomManage\Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Areas\RoomManage\Views\RoomManage\Index.cshtml" />
+    <Content Include="Areas\RoomManage\Views\RoomManage\HandleIndex.cshtml" />
+    <Content Include="Areas\RoomManage\Views\RoomManage\FreeIndex.cshtml" />
+    <Content Include="Areas\RoomManage\Views\RoomManage\CancelIndex.cshtml" />
+    <Content Include="Areas\RoomManage\Views\RoomManage\CancelPersonIndex.cshtml" />
+    <Content Include="Areas\RoomManage\Views\RoomManage\Bookingndex.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Template\ExportIndex.cshtml" />
+    <Content Include="Areas\RoomManage\Views\RoomManage\Form.cshtml" />
+    <Content Include="Areas\RoomManage\Views\RoomManage\CheckForm.cshtml" />
+    <Content Include="Areas\RoomManage\Views\RoomManage\CancelForm.cshtml" />
+    <Content Include="Areas\RoomManage\Views\RoomManage\CancelOneForm.cshtml" />
+    <Content Include="Areas\RoomManage\Views\RoomManage\ManageIndex.cshtml" />
+    <Content Include="Areas\RoomManage\Views\RoomManage\AddRoomForm.cshtml" />
+    <Content Include="Areas\ProposalManage\Views\Web.config" />
+    <Content Include="Areas\ProposalManage\Views\ProposalManage\Index.cshtml" />
+    <Content Include="Areas\ProposalManage\Views\ProposalManage\Form.cshtml" />
+    <Content Include="Areas\ProposalManage\Views\ProposalManage\IEForm.cshtml" />
+    <Content Include="Areas\ProposalManage\Views\ProposalManage\ReciveForm.cshtml" />
+    <Content Include="Areas\BookManage\Views\Web.config" />
+    <Content Include="Areas\BookManage\Views\BookManage\Index.cshtml" />
+    <Content Include="Areas\BookManage\Views\BookManage\Form.cshtml" />
+    <Content Include="Areas\BookManage\Views\BookManage\TypeIndex.cshtml" />
+    <Content Include="Areas\BookManage\Views\BookManage\TypeForm.cshtml" />
+    <Content Include="Areas\BookManage\Views\BookManage\MultiForm.cshtml" />
+    <Content Include="Areas\BookManage\Views\BookManage\MyBookIndex.cshtml" />
+    <Content Include="Content\js\layui\font\iconfont.eot" />
+    <Content Include="Content\js\layui\font\iconfont.ttf" />
+    <Content Include="Content\js\layui\font\iconfont.woff" />
+    <Content Include="Areas\LeaveManage\Views\History\UploadForm.cshtml" />
+    <Content Include="Areas\TemplateManage\Views\Template\FreeForm.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Apply\FirstCheckApplyForm.cshtml" />
+    <Content Include="Areas\PurchaseManage\Views\Apply\FirstCheckApplyIndex.cshtml" />
+    <Content Include="Areas\ProposalManage\Views\ProposalManage\DisAgreeForm.cshtml" />
+    <Content Include="Areas\ProposalManage\Views\ProposalManage\EditForm.cshtml" />
+    <Content Include="Areas\ProjectManage\Views\Web.config" />
+    <Content Include="Areas\ProjectManage\Views\Project\Index.cshtml" />
+    <Content Include="Areas\ProjectManage\Views\Project\ProjectForm.cshtml" />
+    <Content Include="Areas\ProjectManage\Views\Project\BuyForm.cshtml" />
+    <Content Include="Areas\ProjectManage\Views\Project\Details.cshtml" />
+    <None Include="packages.config" />
+    <None Include="Properties\PublishProfiles\CustomProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.3.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.VersionCheckAnalyzer.resources.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.3.0.0\analyzers\dotnet\Microsoft.CodeAnalysis.VersionCheckAnalyzer.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeQuality.Analyzers.3.0.0\analyzers\dotnet\cs\Humanizer.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeQuality.Analyzers.3.0.0\analyzers\dotnet\cs\Microsoft.CodeQuality.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeQuality.Analyzers.3.0.0\analyzers\dotnet\cs\Microsoft.CodeQuality.CSharp.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.NetCore.Analyzers.3.0.0\analyzers\dotnet\cs\Microsoft.NetCore.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.NetCore.Analyzers.3.0.0\analyzers\dotnet\cs\Microsoft.NetCore.CSharp.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.3.0.0\analyzers\dotnet\cs\Microsoft.NetFramework.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.3.0.0\analyzers\dotnet\cs\Microsoft.NetFramework.CSharp.Analyzers.dll" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:1851/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.3.0.0\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.3.0.0\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeQuality.Analyzers.3.0.0\build\Microsoft.CodeQuality.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeQuality.Analyzers.3.0.0\build\Microsoft.CodeQuality.Analyzers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.NetCore.Analyzers.3.0.0\build\Microsoft.NetCore.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.NetCore.Analyzers.3.0.0\build\Microsoft.NetCore.Analyzers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.NetFramework.Analyzers.3.0.0\build\Microsoft.NetFramework.Analyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.NetFramework.Analyzers.3.0.0\build\Microsoft.NetFramework.Analyzers.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.3.0.0\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.3.0.0\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+</Project>

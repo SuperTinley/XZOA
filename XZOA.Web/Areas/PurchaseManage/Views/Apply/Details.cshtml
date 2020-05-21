@@ -1,0 +1,272 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<link href="~/Content/js/steps/css/element.min.css" rel="stylesheet" />
+<script src="~/Content/js/steps/js/vue.min.js"></script>
+<script src="~/Content/js/steps/js/element.min.js"></script>
+<style>
+    .el-step.is-vertical, .el-steps {
+        display:-webkit-box;
+        display:-ms-flexbox;
+    }
+    .el-steps { 
+        display:flex;
+    }
+</style>
+<script>
+    var keyValue = $.request("keyValue");
+    Date.prototype.Format = function (fmt) { //author: meizz
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+    $(function () {
+        
+        if (!!keyValue) {
+            $.ajax({
+                url: "/PurchaseManage/Apply/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    var element = $("#form1");
+                    if (!!data) {
+                        if (data.priNO != null) {
+                            $.ajax({
+                                url: "/PurchaseManage/Price/GetFormJson?keyValue=" + data.priNO,
+                                data: { keyValue: keyValue },
+                                dataType: "json",
+                                async: false,
+                                success: function (data) {
+                                    $("#purPrdName").text(data.prdName);
+                                    $("#purOrderNo").text(data.orderNo);
+                                    $("#purSpc").text(data.spc);
+                                },
+                                error: function () { }
+                            });
+                        }
+                        var str = '<el-steps :active="stepVal1" align-center>';
+                        str += '<el-step icon="el-icon-success" description="' + data.appMan + "生成申购单\n" + data.date + '"></el-step>';
+                        var icon1, icon2, tag1, tag2, stepVal1;
+                        var date1 = data.appExaDate == null ? "" : data.appExaDate;
+                        var date2 = data.appAuthDate == null ? "" : data.appAuthDate;
+                        if (data.appExaTag == 'T') {
+                            icon1 = "el-icon-success";
+                            tag1 = "通过";
+                            str += '<el-step icon="' + icon1 + '" description="' + data.appExaMan +"审核"+tag1 + "\n" + date1 + '"></el-step>';
+                            if (data.appAuthTag == 'T') {
+                                icon2 = "el-icon-success"; tag2 = "通过";
+                                str += '<el-step icon="' + icon2 + '" description="' + data.appAuthMan +"批准"+tag2 + "\n" + date2 + '"></el-step>';
+                                stepVal1 = 3;
+                                if (data.purNo != null) {
+                                    str += '<el-step icon="el-icon-success" description="' + data.purMan + "生成采购单\n" + data.purDD + '"></el-step>';
+                                    stepVal1 = 4;
+                                    if (data.purExaTag == "T") {
+                                        str += '<el-step icon="el-icon-success" description="' + data.purExaMan + "审核通过 \n" + data.purExaDate + '"></el-step>';
+                                        if (data.purAuthTag == "T") {
+                                            str += '<el-step icon="el-icon-success" description="' + data.purAuthMan + "批准通过 \n" + data.purAuthDate + '"></el-step>';
+                                            if (data.retDate != null) {
+                                                str += '<el-step icon="el-icon-success" description="已回货 \n' + data.retDate + '"></el-step>';
+                                                stepVal1 = 7;
+                                            } else {
+                                                str += '<el-step icon="el-icon-error" description="未回货"></el-step>';
+                                                stepVal1 = 7;
+                                            }
+                                        } else if (data.purAuthTag == "F") {
+                                            str += '<el-step icon="el-icon-error" description="' + data.purAuthMan + "批准不通过 \n" + data.purAuthDate + '"></el-step>';
+                                            stepVal1 = 6;
+                                        } else {
+                                            str += '<el-step icon="el-icon-error" description="' + data.purAuthMan + '未批准"></el-step>';
+                                            stepVal1 = 6;
+                                        }
+                                    } else if (data.purExaTag == "F") {
+                                        str += '<el-step icon="el-icon-error" description="' + data.purExaMan + "审核不通过 \n" + data.purExaDate + '"></el-step>';
+                                        stepVal1 = 5;
+                                    }
+                                    //else {
+                                    //    str += '<el-step icon="el-icon-error" description="' + data.purExaMan + '"未审核"></el-step>';
+                                    //    stepVal1 = 5;
+                                    //}
+                                }
+                            } else if (data.appAuthTag == 'F') {
+                                icon2 = "el-icon-error"; tag2 = "不通过";
+                                str += '<el-step icon="' + icon2 + '" description="' + data.appAuthMan + "批准" + tag2 + "\n" + date2 + '"></el-step>';
+                                stepVal1 = 3;
+                            } else {
+                                icon2 = "el-icon-error"; tag2 = "未批准";
+                                str += '<el-step icon="' + icon2 + '" description="' + data.appAuthMan + tag2 + "\n" + date2 + '"></el-step>';
+                                stepVal1 = 3;
+                            }
+                        } else if (data.appExaTag == 'F') {
+                            icon1 = "el-icon-error"; tag1 = "不通过";
+                            str += '<el-step icon="' + icon1 + '" description="' + data.appExaMan + "审核" + tag1 + "\n" + date1 + '"></el-step>';
+                            stepVal1 = 2;
+                        } else {
+                            icon1 = "el-icon-error";
+                            tag1 = "未审核"
+                            str += '<el-step icon="' + icon1 + '" description="' + data.appExaMan + tag1 + "\n" + date1 + '"></el-step>';
+                            stepVal1 = 2;
+                        }
+                        for (var i = 0; i < 7 - stepVal1; i++) {
+                            str += '<el-step icon="el-icon-error"></el-step>';
+                        }
+                        str += '</el-step>';
+                        var idea1 = data.appExaIdea == null ? "" : data.appExaIdea;
+                        var idea2 = data.appAuthIdea == null ? "" : data.appAuthIdea;
+                        $("#myVue").html(str);
+                        new Vue({
+                            el: '#myVue',
+                            data: {
+                                stepVal1: stepVal1,
+                            }
+                        });
+                        for (var key in data) {
+                            var $id = element.find('#' + key);
+                            var value = $.trim(data[key]).replace(/&nbsp;/g, '');
+                            $id.html(value);
+                        }
+                        $("#hopeDD").html(data.hopeDD.slice(0,11));
+                        if ($("#appExaTag").text() == "D") {
+                            $("#appExaTag").text("未审核");
+                        } else if ($("#appExaTag").text() == "T") {
+                            $("#appExaTag").text("通过");
+                        } else {
+                            $("#appExaTag").text("不通过");
+                        }
+                        if ($("#appAuthTag").text() == "D") {
+                            $("#appAuthTag").text("未审核");
+                        } else if ($("#appAuthTag").text() == "T") {
+                            $("#appAuthTag").text("通过");
+                        } else {
+                            $("#appAuthTag").text("不通过");
+                        }
+                        if ($("#purExaTag").text() == "D") {
+                            $("#purExaTag").text("未审核");
+                        } else if ($("#purExaTag").text() == "T") {
+                            $("#purExaTag").text("通过");
+                        } else {
+                            $("#purExaTag").text("不通过");
+                        }
+                        if ($("#purAuthTag").text() == "D") {
+                            $("#purAuthTag").text("未审核");
+                        } else if ($("#purAuthTag").text() == "T") {
+                            $("#purAuthTag").text("通过");
+                        } else {
+                            $("#purAuthTag").text("不通过");
+                        }
+                        var purWay = top.clients.dataItems["purWay"] == null ? "" : top.clients.dataItems["purWay"][parseInt(data.purWay)];
+                        var WAREWAY = top.clients.dataItems["WAREWAY"] == null ? "" : top.clients.dataItems["WAREWAY"][parseInt(data.WAREWAY)];
+
+                        $("#purWay").html(purWay);
+                        $("#WAREWAY").html(WAREWAY);
+                    };
+                }
+            });
+        }
+    });
+
+</script>
+
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">名称</th>
+                <td class="formValue">
+                    <label id="prdName"></label>
+                </td>
+                <th class="formTitle">牌号</th>
+                <td class="formValue" id="orderNo"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">规格</th>
+                <td class="formValue" id="spc"></td>
+                <th class="formTitle">材料要求</th>
+                <td class="formValue" id="mat"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">期望交期</th>
+                <td class="formValue" id="hopeDD"></td>
+                <th class="formTitle">申购日期</th>
+                <td class="formValue" id="date"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">申购数量</th>
+                <td class="formValue" id="appNum"></td>
+                <th class="formTitle">主单位</th>
+                <td class="formValue" id="appUnit"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">副数量</th>
+                <td class="formValue" id="viceNum"></td>
+                <th class="formTitle">副单位</th>
+                <td class="formValue" id="viceUnit"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">申购审核</th>
+                <td class="formValue" id="appExaTag"></td>
+                <th class="formTitle">申购审核意见</th>
+                <td class="formValue" id="appExaIdea"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">申购批准</th>
+                <td class="formValue" id="appAuthTag"></td>
+                <th class="formTitle">申购批准意见</th>
+                <td class="formValue" id="appAuthIdea"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">采购审核</th>
+                <td class="formValue" id="purExaTag"></td>
+                <th class="formTitle">采购审核意见</th>
+                <td class="formValue" id="purExaIdea"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">采购批准</th>
+                <td class="formValue" id="purAuthTag"></td>
+                <th class="formTitle">采购批准意见</th>
+                <td class="formValue" id="purAuthIdea"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">采购员</th>
+                <td class="formValue" id="purMan"></td>
+                <th class="formTitle">回货数量</th>
+                <td class="formValue" id="yiJiaoNum"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">采购单号</th>
+                <td class="formValue" id="purNo"></td>
+                <th class="formTitle">采购名称</th>
+                <td class="formValue" id="purPrdName"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">采购牌号</th>
+                <td class="formValue" id="purOrderNo"></td>
+                <th class="formTitle">采购规格</th>
+                <td class="formValue" id="purSpc"></td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <div id="myVue">
+                        <el-steps :active="stepVal1" align-center>
+                            <el-step title="步骤 1" icon="el-icon-success" description="这是一段很长很长很长的描述性文字"></el-step>
+                            <el-step title="步骤 2" icon="el-icon-success" description="这是一段很长很长很长的描述性文字"></el-step>
+                        </el-steps>
+                    </div>
+                </td>
+
+            </tr>
+        </table>
+    </div>
+</form>
+

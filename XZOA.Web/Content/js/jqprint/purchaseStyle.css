@@ -1,0 +1,117 @@
+﻿.price-box {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid #ddd;
+    box-shadow: rgb(189, 189, 189) 0px 0px 10px;
+    background: #fff;
+    padding: 50px;
+    padding-top: 20px;
+    margin-top: 25px;
+    padding-bottom: 0px;
+}
+
+.price-title {
+    font-size: 1.6em;
+    text-align: center;
+    line-height: 1.2em;
+    font-weight: normal;
+    font-family: NSimSun;
+}
+ 
+.price-subtitle {
+    text-align: center;
+}
+
+.price-info {
+    margin-bottom: 20px;
+}
+
+    .price-info table .formTitle {
+        text-align: right;
+        width: 15%;
+        font-size: 0.8em;
+        font-weight: normal;
+        font-family: NSimSun;
+    }
+
+    .price-info table .formValue {
+        text-align: left;
+        font-size: 0.8em;
+        font-weight: normal;
+        font-family: NSimSun;
+    }
+
+        .price-info table .formValue input {
+            border-top: none;
+            border-right: none;
+            border-left: none;
+            height: 22px !important;
+            line-height: 22px !important;
+            font-size: 13px;
+        }
+
+.price-table table {
+    margin: 0px;
+    margin-top: 1px;
+    border-collapse: collapse;
+    width: 100%;
+    border-left: 1px solid #ccc;
+}
+
+    .price-table table thead tr td {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        text-overflow: ellipsis;
+        word-break: keep-all;
+        overflow: hidden;
+        font-weight: bold;
+        padding-left: 2px;
+        padding-right: 2px;
+        font-size: 0.8em;
+        word-wrap: break-word;
+    }
+
+    .price-table table tbody tr td {
+        border-bottom: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        height: auto;
+        line-height: normal;
+        word-break: break-all;
+        padding-left: 2px;
+        padding-right: 2px;
+        font-size: 0.8em;
+        word-wrap: break-word;
+    }
+
+.price-table th {
+    width: 21%;
+    height: 30px;
+    border: solid 1px;
+    text-align: center;
+    font-family: NSimSun;
+    font-size: 0.8em;
+    font-weight: normal;
+    word-wrap: break-word;
+}
+
+.price-info th, td {
+    font-family: NSimSun;
+    font-size: 0.8em;
+    height: 20px;
+    font-weight: normal;
+}
+.print-p {
+    font-weight: bold;
+    font-family: NSimSun;
+}
+    .print-p span {
+        font-weight: bold;
+        font-family: NSimSun;
+    }
+.tableinfo {
+    page-break-after: always;
+}

@@ -1,0 +1,84 @@
+﻿
+@{
+    ViewBag.Title = "AddRoomForm";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        if (!!keyValue) {
+            $.ajax({
+                url: '/RoomManage/RoomManage/GetRoom',
+                type: 'GET',
+                data: { "keyValue": keyValue },
+                async: false,
+                dataType: "json",
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                },
+                error: function () { }
+            });
+        }
+    });
+    function submitForm() {
+        $.submitForm({
+            url: "/RoomManage/RoomManage/SubmitRoomForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">会议室名称</th>
+                <td class="formValue">
+                    <input type="hidden" id="ID" />
+                    <input id="Name" class="form-control required">
+                </td>
+                <th class="formTitle">可容纳人数</th>
+                <td class="formValue">
+                    <input id="Number" class="form-control required">
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">位置</th>
+                <td class="formValue" colspan="3">
+                    <input id="Location" class="form-control required">
+                </td>
+            </tr>
+
+            <tr>
+                <th class="formTitle">配套</th>
+                <td class="formValue" colspan="3">
+                    <div class="radio-inline">
+                        <label class="checkbox"><input id="HasProjector" name="HasProjector" type="checkbox" value="true">投影仪</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="checkbox"><input id="HasNotebook" name="HasNotebook" type="checkbox" value="true">笔记本</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="checkbox"><input id="Teleconferencing" name="Teleconferencing" type="checkbox" value="true">电话会议</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="checkbox"><input id="Videoconferencing" name="Videoconferencing" type="checkbox" value="true">视频会议</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="formTitle">
+                    备注：
+                </td>
+                <td class="formValue" colspan="3">
+                    <textarea id="Remark" class="form-control"></textarea>
+                </td>
+            </tr>
+
+        </table>
+    </div>
+</form>
+

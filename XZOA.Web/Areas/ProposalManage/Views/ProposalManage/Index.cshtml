@@ -1,0 +1,441 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<style>
+    .form-inline .form-group {
+        margin-left:10px;
+    }
+</style>
+<script>
+    var isIE, userName,departName;
+    $(function () {
+        GetUserRole();
+        initSelect();
+        gridList();
+        GetUser();
+        laydate.render({
+            elem: '#plan_finish_date',
+            range: '~',
+            change: function (value, date, endDate) {
+                var dates = value.split('~');
+                $("#planBeginDate").val(dates[0]);
+                $("#planEndDate").val(dates[1]);
+            },
+            done: function (value, date, endDate) {
+                if (value == "") {
+                    $("#planBeginDate").val("");
+                    $("#planEndDate").val("");
+                }
+            }
+        });
+        laydate.render({
+            elem: '#plan_che_date',
+            range: '~',
+            change: function (value, date, endDate) {
+                var dates = value.split('~');
+                $("#cheDDBeginDate").val(dates[0]);
+                $("#cheDDEndDate").val(dates[1]);
+            },
+            done: function (value, date, endDate) {
+                if (value == "") {
+                    $("#cheDDBeginDate").val("");
+                    $("#cheDDEndDate").val("");
+                }
+            }
+        });
+    })
+    function GetRoleRight(keyValue) {
+        var flag;
+        $.ajax({
+            url: '/ProposalManage/ProposalManage/GetUserRoleRight',
+            type: 'GET',
+            data: { "keyValue": keyValue },
+            async: false,
+            success: function (data) {
+                flag = data;
+            },
+            error: function () { }
+        });
+        return flag;
+    }
+    function GetUser() {
+        $.ajax({
+            url: '/ProposalManage/ProposalManage/GetUser',
+            type: 'GET',
+            dataType:'json',
+            success: function (data) {
+                userName = data.userName;
+                departName = data.departName;
+            },
+            error: function () { }
+        });
+    }
+    function GetUserRole() {
+        $.ajax({
+            url: '/ProposalManage/ProposalManage/GetUserRole',
+            type: 'GET',
+            success: function (data) {
+                isIE = data;
+            },
+            error: function () { }
+        });
+    }
+    function initSelect() {
+        $.ajax({
+            url: "/ProposalManage/ProposalManage/GetTreeJson",
+            type: 'GET',
+            dataType:'json',
+            success: function (data) {
+                var str = "<option value=''>请选择</option>";
+                for (var i = 0; i < data.length; i++) {
+                    str += "<option value='" + data[i].text + "'>" + data[i].text + "</option>";
+                }
+                $("#pro_dep").html(str);
+                $("#pro_send_dep").html(str);
+            },
+            error: function () { }
+        });
+    }
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/ProposalManage/ProposalManage/GetProposalList",
+            height: $(window).height() - 178,
+            colModel: [
+                {
+                    label: "主键", name: "ID", hidden: true, key: true
+                },
+                {
+                    label: "操作", name: "ID", width: 100, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = '';
+                        if (rowObject.is_pass != "Y" && departName == rowObject.pro_dep && userName == rowObject.pro_man) {
+                            str +="<a onclick='btn_edit(" + cellvalue + ")'>修改</a>&nbsp;&nbsp;";
+                        }
+                        if (GetRoleRight(cellvalue) && rowObject.is_pass == null) {
+                            str += "<a onclick='btn_recive(" + cellvalue + ")'>接收</a>&nbsp;&nbsp;";
+                        } 
+                        if (isIE && rowObject.is_pass=='Y') {
+                            str += "<a onclick='btn_IE(" + cellvalue + ")'>验证</a>&nbsp;&nbsp;";
+                            str += "<a onclick='btn_disagree(" + cellvalue + ")'>驳回</a>&nbsp;&nbsp;";
+                        }
+                        if (GetRoleRight(cellvalue)&&rowObject.imp_finish_date == null && rowObject.is_pass == 'Y') {
+                            str += "<a onclick='btn_confirm(" + cellvalue + ")'>确认</a>&nbsp;&nbsp;"
+                        }
+                        if (rowObject.annex != null && rowObject.annex != "") {
+                            str += "<a onclick=btn_download('" + rowObject.annex + "')>下载</a>"
+                        }
+                        return str;
+                    }
+                },
+                {
+                    label: '编号', name: 'pro_id', width: 55, align: 'left'
+                },
+                {
+                    label: '提案日期', name: 'pro_date', width: 70, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: '提案部门', name: 'pro_dep', width: 60, align: 'left'
+                },
+                {
+                    label: '提案者', name: 'pro_man', width: 50, align: 'left'
+                },
+                {
+                    label: '提案标题', name: 'pro_title', width: 130, align: 'left'
+                },
+                {
+                    label: "发往部门", name: "pro_send_dep", width: 70, align: "left"
+                },
+                {
+                    label: "接收部门意见", name: "reasons", width: 80, align: "left"
+                },
+                {
+                    label: '是否同意', name: 'is_pass', width: 50, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == "Y") {
+                            return "同意";
+                        } else if (cellvalue == "N") {
+                            return "不同意";
+                        } else {
+                            return "";
+                        }
+                        
+                    }
+                },
+                {
+                    label: "实施负责人", name: "imp_man", width: 60, align: 'left'
+                },
+                {
+                    label: '计划完成日期', name: 'plan_finish_date', width: 80, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: "实施完成日期", name: "imp_finish_date", width: 80, align: "left",
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: "效果验证日期", name: "plan_che_date", width: 80, align: "left",
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: "奖励", name: "reward", width: 35, align: "left"
+                }
+            ],
+            ondblClickRow: function (row) {
+                if(isIE){
+                    $.modalOpen({
+                        id: "Form",
+                        title: "修改提案",
+                        url: "/ProposalManage/ProposalManage/EditForm?keyValue=" + row,
+                        width: "800px",
+                        height: "500px",
+                        callBack: function (iframeId) {
+                            top.frames[iframeId].submitForm();
+                        }
+                    });
+                }
+            },
+            pager: "#gridPager",
+            sortname: 'date desc',
+            multiselect: true,
+            rowNum: 20,
+            rowList: [10, 20, 30],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: {
+                    keyword: $("#txt_keyword").val(),
+                    pro_dep: $("#pro_dep").val(),
+                    pro_send_dep: $("#pro_send_dep").val(),
+                    status: $("#status").val(),
+                    planBeginDate: $("#planBeginDate").val(),
+                    planEndDate: $("#planEndDate").val(),
+                    cheDDBeginDate: $("#cheDDBeginDate").val(),
+                    cheDDEndDate: $("#cheDDEndDate").val(),
+                    status: $("#status").val()
+                },
+             page:1 }).trigger('reloadGrid');
+        });
+    }
+    function btn_export() {
+        var keyValue = ".xls";
+        $.ajax({
+            url: '/ProposalManage/ProposalManage/ExportExcel',
+            type: "GET",
+            data: {
+                keyword: $("#txt_keyword").val(),
+                pro_dep: $("#pro_dep").val(),
+                pro_send_dep: $("#pro_send_dep").val(),
+                status: $("#status").val(),
+                planBeginDate: $("#planBeginDate").val(),
+                planEndDate: $("#planEndDate").val(),
+                cheDDBeginDate: $("#cheDDBeginDate").val(),
+                cheDDEndDate: $("#cheDDEndDate").val(),
+                status: $("#status").val()
+            },
+            contentType: 'application/octet-stream',
+            success: function (resp) {
+                var filename = resp.substr(resp.lastIndexOf('\\') + 1);
+                var doc = resp.match(/([^\\]+)(\.[^\(]+)/i);
+                var h5Down = !/Trident|MSIE/.test(navigator.userAgent); //浏览器是否支持download
+                if (h5Down) {
+                    openDownloadDialog("http://" + window.location.host + "/Excel/" + filename, filename);
+                } else {
+                    window.open("http://" + window.location.host + "/Excel/" + filename);
+                }
+            },
+            error: function () {
+                $.modalAlert("导出失败！");
+            }
+        })
+    }
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "添加提案",
+            url: "/ProposalManage/ProposalManage/Form",
+            width: "600px",
+            height: "400px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_disagree(keyValue) {
+        $.modalOpen({
+            id: "Form",
+            title: "驳回",
+            url: "/ProposalManage/ProposalManage/DisAgreeForm?keyValue=" + keyValue,
+            width: "500px",
+            height: "250px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit(keyValue) {
+        $.modalOpen({
+            id: "Form",
+            title: "修改提案",
+            url: "/ProposalManage/ProposalManage/Form?keyValue=" + keyValue,
+            width: "600px",
+            height: "400px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_confirm(keyValue) {
+        $.submitForm({
+            url: "/ProposalManage/ProposalManage/SubmitConfirmForm?keyValue=" + keyValue,
+            param: { key:"1" },
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+    function btn_delete() {
+        var ids = $("#gridList").jqGrid('getGridParam', 'selarrrow');
+        var keyValue = ids.join(",");
+        $.deleteForm({
+            url: "/ProposalManage/ProposalManage/DeleteForm",
+            param: { keyValue: keyValue },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+    function btn_recive(keyValue) {
+        $.modalOpen({
+            id: "Form",
+            title: "接收",
+            url: "/ProposalManage/ProposalManage/ReciveForm?keyValue=" + keyValue,
+            width: "600px",
+            height: "400px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_IE(keyValue) {
+        $.modalOpen({
+            id: "Form",
+            title: "验证",
+            url: "/ProposalManage/ProposalManage/IEForm?keyValue=" + keyValue,
+            width: "600px",
+            height: "400px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function openDownloadDialog(url, saveName) {
+        if (typeof url == 'object' && url instanceof Blob) {
+            url = URL.createObjectURL(url); // 创建blob地址
+        }
+        var aLink = document.createElement('a');
+        aLink.href = url;
+        aLink.download = saveName || '';
+        var event;
+        event = document.createEvent('MouseEvents');
+        event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        aLink.dispatchEvent(event);
+    }
+    function btn_download(keyValue) {
+        $.download("/ProposalManage/ProposalManage/DownloadProposal", "keyValue=" + keyValue, 'post');
+    }
+</script>
+
+<div class="topPanel" style="height:100px;">
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <form class="form-inline" role="form">
+                        <div class="form-group">
+                            <label for="pro_dep">提案部门:</label>
+                            <select id="pro_dep" class="form-control">
+                                <option value="">请选择</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="pro_send_dep">发往部门:</label>
+                            <select id="pro_send_dep" class="form-control">
+                                <option value="">请选择</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="daterange-date">状态:</label>
+                            <select id="status" class="form-control">
+                                <option value="">请选择</option>
+                                <option value="revice">待接收</option>
+                                <option value="confirm">已确认</option>
+                                <option value="finish">已完成</option>
+                                <option value="disagree">不同意</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <form class="form-inline" role="form">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input id="txt_keyword" type="text" class="form-control" placeholder="提案编号/提案者/实施负责人" style="width: 160px;">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="daterange-date">计划完成日期:</label>
+                            <div class="input-group">
+                                <input id="planBeginDate" type="hidden" />
+                                <input id="planEndDate" type="hidden" />
+                                <input type="text" id="plan_finish_date" placeholder="请选择日期" class="form-control" style="width:170px;" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="daterange-hopeDD">效果完成日期:</label>
+                            <div class="input-group">
+                                <input id="cheDDBeginDate" type="hidden" />
+                                <input id="cheDDEndDate" type="hidden" />
+                                <input type="text" id="plan_che_date" placeholder="请选择日期" class="form-control" style="width:170px;" />
+                            </div>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="proposal_add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>添加</a>
+        </div>
+        <div class="btn-group">
+            <a id="proposal_delete" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_delete()">删除</a>
+        </div>
+        <div class="btn-group">
+            <a id="proposal_export" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_export()">导出</a>
+        </div>
+        <div class="btn-group">
+            <a id="proposal_disagree" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_disagree()">不同意</a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+

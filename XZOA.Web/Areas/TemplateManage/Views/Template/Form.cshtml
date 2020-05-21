@@ -1,0 +1,359 @@
+﻿
+@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<link href="~/Content/js/layui/css/layui.css" rel="stylesheet" />
+<script src="~/Content/js/layui/layui.js"></script>
+<script>
+    Date.prototype.Format = function (fmt) {
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+    var keyValue = $.request("keyValue");
+    var url; var demoListView;
+    if (!!keyValue) {
+        url = "/TemplateManage/Template/SubmitForm?keyValue=" + keyValue;
+    } else {
+        url = '/TemplateManage/Template/SubmitForm';
+    }
+    layui.use('upload', function () {
+        var $ = layui.jquery
+            , upload = layui.upload;
+
+       demoListView = $('#demoList')
+            , uploadListIns = upload.render({
+                elem: '#testList'
+                , url: url
+                , accept: 'file'
+                , size: 40960
+                , multiple: true
+                , auto: false
+                , bindAction: '#testListAction'
+                , choose: function (obj) {
+                    $(".layui-upload-list").css("display","block");
+                    var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+                    //读取本地文件
+                    obj.preview(function (index, file, result) {
+                        var tr = $(['<tr id="upload-' + index + '">'
+                            , '<td>' + file.name + '</td>'
+                            //, '<td>' + (file.size / 1014).toFixed(1) + 'kb</td>'
+                            //, '<td>等待上传</td>'
+                            , '<td>'
+                            , '<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>'
+                            , '<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+                            , '</td>'
+                            , '</tr>'].join(''));
+
+                        //单个重传
+                        tr.find('.demo-reload').on('click', function () {
+                            obj.upload(index, file);
+                        });
+
+                        //删除
+                        tr.find('.demo-delete').on('click', function () {
+                            delete files[index]; //删除对应的文件
+                            tr.remove();
+                            uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+                        });
+
+                        demoListView.append(tr);
+                    });
+                }
+                , done: function (res, index, upload) {
+                    if (res.state == "success") { //上传成功
+                        var tr = demoListView.find('tr#upload-' + index)
+                            , tds = tr.children();
+                        tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+                        tds.eq(3).html(''); //清空操作
+                        return delete this.files[index]; //删除文件队列已经上传成功的文件
+                    }
+                    this.error(index, upload);
+                }
+                , error: function (index, upload) {
+                    var tr = demoListView.find('tr#upload-' + index)
+                        , tds = tr.children();
+                    tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+                    tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+                }
+            });
+
+    });
+    $(function () {
+        initSelect();
+        init(keyValue);
+        laydate.render({
+            elem: '#HOPE_DD',
+            trigger: 'click'
+        });
+        GetCharge(document.getElementById("RATIFY_MAN"));
+    });
+    function init() {
+        if (!!keyValue) {
+            $.ajax({
+                url: "/TemplateManage/Template/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                },
+                error: function () {
+
+                }
+            });
+        } else {
+            var CurrentUser = top.$.cookie('CurrentUser');
+            if (!!CurrentUser) {
+                var user = eval("(" + CurrentUser + ")");
+                if (!!user) {
+                    var dep = top.clients.organize[user.DepartmentId] == null ? "" : top.clients.organize[user.DepartmentId].fullname;
+                    $("#CREATE_USER").val(user.UserName);
+                    $("#APP_DEP").val(dep);
+                }
+
+            }
+
+        }
+    }
+    function GetCharge(obj) {
+        var keyValue = $("#RATIFY_MAN").val();
+        $.ajax({
+            url: '/TemplateManage/Template/GetTempChargeForm',
+            data: { keyValue: keyValue },
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                if (data != null && data.TEM_CHARGE != null) {
+                    $("#TEM_CHARGE").val(data.TEM_CHARGE);
+                }
+            },
+            error: function () { }
+        });
+    }
+    function initSelect() {
+        $.ajax({
+            url: "/TemplateManage/Template/GetRATIFY_MANJson",
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var str = '<option value="">==请选择==</option>';
+                for (var i = 0; i < data.length; i++) {
+                    str += "<option value='" + data[i].text + "'>" + data[i].text + "</option>";
+                }
+                $("#RATIFY_MAN").html(str);
+            },
+            error: function () { }
+        });
+        $.ajax({
+            url: "/TemplateManage/Template/GetTreeSelectJson",
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var str = '';
+                for (var i = 0; i < data.length; i++) {
+                    str += "<option value='" + data[i].text + "'>" + data[i].text + "</option>";
+                }
+                $("#AUDIT_MAN").html(str);
+            },
+            error: function () { }
+        });
+        //$("#RATIFY_MAN").bindSelect({
+        //    url: "/TemplateManage/Template/GetRATIFY_MANJson",
+        //});
+        //$("#AUDIT_MAN").bindSelect({
+        //    url: "/TemplateManage/Template/GetTreeSelectJson",
+        //});
+    }
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        if (isNaN($("#TEM_NUM").val())) {
+            $.modalMsg('套数应为数字', 'error');
+            return false;
+        }
+        var form = new FormData(document.getElementById("form1"));
+        if ($('[name=__RequestVerificationToken]').length > 0) {
+            form.append("__RequestVerificationToken", $('[name=__RequestVerificationToken]').val());
+        }
+
+        var url;
+        if (!!keyValue) {
+            url = "/TemplateManage/Template/SubmitForm?keyValue=" + keyValue;
+        } else {
+            url = '/TemplateManage/Template/SubmitForm';
+        }
+
+        $.ajax({
+            url: url,
+            type: "post",
+            data: form,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function (data) {
+                $("input[type=text]").val("");
+                $("#PROCESS").val("");
+                $("#TEM_REMARK").val("");
+                init("");
+                var icon = "";
+                if (data.state == "success") {
+                    icon = "fa-check-circle";
+                    top.layer.msg(data.message, { icon: icon, time: 4000, shift: 5 });
+                    top.$(".layui-layer-msg").find('i.' + icon).parents('.layui-layer-msg').addClass('layui-layer-msg-' + data.state);
+                } else {
+                    top.layer.msg(data.message);
+                }
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                //var index = top.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                //top.layer.close(index);//关闭弹框
+
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.loading(false);
+                $.modalMsg(errorThrown, "error");
+            }
+        });
+
+    }
+</script>
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">申请人</th>
+                <td class="formValue">
+                    <input id="CREATE_USER" name="CREATE_USER" class="form-control" readonly="readonly">
+                </td>
+                <th class="formTitle">申请部门</th>
+                <td class="formValue">
+                    <input id="APP_DEP" name="APP_DEP" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <td class="formValue" rowspan="10">
+                    <div class="layui-upload-list" style="margin-top: -16px;width: 180px;height: 420px;display:none;">
+                        <table class="layui-table" style="table-layout:fixed;">
+                            <thead>
+                                <tr>
+                                    <th>文件名</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="demoList"></tbody>
+                        </table>
+                    </div>
+                    <button type="button" class="layui-btn" id="testListAction" style="display:none;">开始上传</button>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">样板名称</th>
+                <td class="formValue">
+                    <input id="TEM_NAME" name="TEM_NAME" type="text" class="form-control required" />
+                </td>
+                <th class="formTitle">客户</th>
+                <td class="formValue">
+                    <input id="CUSTOMER" name="CUSTOMER" type="text" class="form-control required" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">样板类型</th>
+                <td class="formValue">
+                    <input id="TEM_TYPE" name="TEM_TYPE" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">套数</th>
+                <td class="formValue">
+                    <input id="TEM_NUM" name="TEM_NUM" type="text" class="form-control required" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">材料要求</th>
+                <td class="formValue" colspan="3">
+                    <input id="MAT_REQ" name="MAT_REQ" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">审核人</th>
+                <td class="formValue">
+                    <select id="AUDIT_MAN" name="AUDIT_MAN" type="text" class="form-control" style="width: 99%;"></select>
+                </td>
+                <th class="formTitle">主工艺</th>
+                <td class="formValue">
+                    <select name="PROCESS" id="PROCESS" class="form-control required" style="width:100%;">
+                        <option value=""></option>
+                        <option value="机加工">机加工</option>
+                        <option value="焊接">焊接</option>
+                        <option value="抛光">抛光</option>
+                        <option value="喷漆">喷漆</option>
+                        <option value="玻璃加工">玻璃加工</option>
+                        <option value="表面处理">表面处理</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">期望交期</th>
+                <td class="formValue">
+                    <input id="HOPE_DD" name="HOPE_DD" type="text" class="form-control required" />
+                </td>
+                <th class="formTitle">图片</th>
+                <td class="formValue">
+                    <input id="TEM_IMG" name="TEM_IMG" type="file" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">图纸别名</th>
+                <td class="formValue">
+                    <input id="DRAWING_ALIAS" name="DRAWING_ALIAS" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">图纸</th>
+                <td class="formValue">
+                    <button type="button" class="layui-btn layui-btn-normal" id="testList">选择多文件</button>
+                    <input class="layui-upload-file" accept="undefined" name="DRAWING" multiple="" type="file">
+                    @*<input id="DRAWING1" name="DRAWING1" type="file" class="form-control" />*@
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">打样部门</th>
+                <td class="formValue">
+                    <select name="RATIFY_MAN" id="RATIFY_MAN" class="form-control" onchange="GetCharge(this)" style="width: 99%;"></select>
+                </td>
+                <th class="formTitle">负责人</th>
+                <td class="formValue">
+                    <input id="TEM_CHARGE" name="TEM_CHARGE" type="text" class="form-control" />
+                </td>
+                @*<td class="formValue">
+                    <input id="DRAWING3" name="DRAWING3" type="file" class="form-control" />
+                </td>*@
+            </tr>
+            <tr>
+                <th class="formTitle">关键尺寸</th>
+                <td class="formValue" colspan="3">
+                    <input type="text" class="form-control" id="SIZE" name="SIZE" />
+                </td>
+                @*<td class="formValue">
+                    <input id="DRAWING4" name="DRAWING4" type="file" class="form-control" />
+                </td>*@
+            </tr>
+            <tr>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">
+                    备注
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea class="form-control" id="TEM_REMARK" name="TEM_REMARK"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+

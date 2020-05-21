@@ -1,0 +1,124 @@
+﻿
+@{
+    ViewBag.Title = "TransferForm";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    var title = $.request("t");
+
+    $(function () {
+        if (!!keyValue) {
+            $.ajax({
+                url: "/PurchaseManage/Bill/GetReturnForm",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    var element = $("#form1");
+                    for (var key in data) {
+                            var $id = element.find('#' + key);
+                            var value = $.trim(data[key]).replace(/&nbsp;/g, '');
+                            $id.html(value);
+                    }
+                    $("#num").val(data.num);
+                    $("#purSup").val(data.sup);
+                    $("#viceNum").val(data.viceNum);
+                    $("#prdNo").val(data.prdNo);
+                    $("#fromID").val(data.ID);
+                    $("#inNum").val(data.retNum);
+                    $("#retNum").val(data.retNum);
+                }
+            });
+        }
+    });
+
+    function submitForm() {
+        if (!$("#form1").formValid()) {
+            return false;
+        }
+        if (parseFloat($("#inNum").val()) < 0) {
+            $.modalMsg("退货数量不能小于等于零！", "error");
+            return false;
+        }
+        if (parseFloat($("#inNum").val())>parseFloat($("#retNum").val())) {
+            $.modalMsg("退货数量超出最大可退货量", "error");
+            return false;
+        }
+        $.submitForm({
+            url: "/PurchaseManage/Bill/SubmitReturnForm?keyValue=" + keyValue + "&&title=" + title,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">进货单号</th>
+                <td class="formValue">
+                    <label id="billNo"></label>
+                </td>
+                <th class="formTitle">名称</th>
+                <td class="formValue" id="prdName"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">规格</th>
+                <td class="formValue" id="spc"></td>
+                <th class="formTitle">材料要求</th>
+                <td class="formValue" id="mat"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">期望交期</th>
+                <td class="formValue" id="hopeDD"></td>
+                <th class="formTitle">进货数量</th>
+                <td class="formValue" id="num"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">供应商</th>
+                <td class="formValue" id="sup"></td>
+                <th class="formTitle">报价单位</th>
+                <td class="formValue" id="priceUnit"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">单位</th>
+                <td class="formValue" id="appUnit"></td>
+                <th class="formTitle" id="label_num">退货数量</th>
+                <td class="formValue">
+                    <input id="inNum" name="inNum" class="form-control required" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">副单位</th>
+                <td class="formValue" id="viceUnit"></td>
+                <th class="formTitle">副数量</th>
+                <td class="formValue">
+                    <input id="retNum" type="hidden" />
+                    <input id="viceNum" name="viceNum" class="form-control required" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">采购员</th>
+                <td class="formValue" id="purMan"></td>
+                <th class="formTitle">物料编码</th>
+                <td class="formValue">
+                    <input id="prdNo" name="prdNo" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">备注</th>
+                <td colspan="3" class="formValue">
+                    <input id="fromID" type="hidden" />
+                    <input id="caseTag" type="hidden" value="F" />
+                    <input id="purSup" type="hidden" />
+                    <input id="prtTag" type="hidden" value="F" />
+                    <textarea id="remark" name="remark" class="form-control"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>

@@ -1,0 +1,158 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/LeaveManage/LeaveManage/GetHistoryList?keyValue=getPersonal",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "主键", name: "F_Id", hidden: true, key: true },
+                {
+                    label: "操作", name: "F_Id", width: 80, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = '';
+                        str += "<a id='personal_details' onclick=btn_details('" + cellvalue + "') >查看</a>";
+                        str += "&nbsp;&nbsp;<a id='personal_upload' onclick=btn_upload('" + cellvalue + "') >上传附件</a>";
+                        return str;
+                    }
+                },
+                {
+                    label: '员工姓名', name: 'F_UserName', width: 55, align: 'left'
+                },
+                {
+                    label: '工号', name: 'F_Account', width: 50, align: 'left'
+                },
+                {
+                    label: '填写日期', name: 'F_CreateTime', width: 70, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: '开始日期', name: 'F_BeginTime', width: 120, align: 'left'
+                },
+                {
+                    label: '结束日期', name: 'F_EndTime', width: 120, align: 'left'
+                },
+                {
+                    label: "时长", name: "F_TimeLength_Day", width: 80, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        return "<span>" + cellvalue + "天" + rowObject.F_TimeLength_Hour + "时" + rowObject.F_TimeLength_Minute + "分</span>";
+                    }
+                },
+                {
+                    label: "假期类别", name: "F_VacationTypeId", width: 50, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.dataItems["vacationtype"] == null ? "" : top.clients.dataItems["vacationtype"][parseInt(cellvalue)];
+                    }
+                },
+                {
+                    label: '请假类别', name: 'F_LeaveTypeId', width: 50, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.dataItems["leavetype"] == null ? "" : top.clients.dataItems["leavetype"][parseInt(cellvalue)];
+                    }
+                },
+                {
+                    label: "是否批准", name: "F_IsApproval", width: 50, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue) {
+                            return "<span>是</span>";
+                        }
+                        return "<span>否</span>";
+                    }
+                },
+                {
+                    label: "销假日期", name: "F_ResumptionLeaveTime", width: 60, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d h:i:s', newformat: 'Y-m-d H:i:s' }
+                },
+                {
+                    label: "线下审批", name: "F_IsOffLine", width: 50, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!cellvalue) {
+                            return "<span>否</span>";
+                        }
+                        return "<span>是</span>";
+                    }
+                },
+                {
+                    label: '附件', name: 'F_FileId', width: 100, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                         if (cellvalue != null) {
+                             return "<a onclick=btn_download('" + rowObject.F_FileName + "') >" + rowObject.F_FileName + "</a>"
+                        }
+                        return "";
+                    }
+                }
+            ],
+            pager: "#gridPager",
+            sortname: 'F_CreateTime desc',
+            viewrecords: true,
+            rowNum: 20,
+            rowList: [10, 20, 30],
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#txt_keyword").val() },
+             page:1 }).trigger('reloadGrid');
+        });
+    }
+    function btn_download(keyValue) {
+        $.download("/ProposalManage/ProposalManage/DownloadProposal", "keyValue=" + keyValue, 'post');
+    }
+    function btn_upload(keyValue) {
+        $.modalOpen({
+            id: "Details",
+            title: "上传附件",
+            url: "/LeaveManage/History/UploadForm?keyValue=" + keyValue,
+            width: "400px",
+            height: "150px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+
+    function btn_details(keyValue) {
+        $.modalOpen({
+            id: "Details",
+            title: "查看请假记录",
+            url: "/LeaveManage/History/Form?keyValue=" + keyValue,
+            width: "550px",
+            height: "620px",
+            btn: null,
+        });
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="history_export" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_export()"><i class="fa fa-plus"></i>导出</a>
+        </div>
+        @*<div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="personal_details" authorize="yes" onclick="btn_details()"><i class="fa fa-search-plus"></i>查看</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>*@
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+

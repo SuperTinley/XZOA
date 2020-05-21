@@ -1,0 +1,291 @@
+﻿
+@{
+    ViewBag.Title = "ApplyToPurchaseIndex";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script src="~/Content/js/validate/jquery.validate.min.js"></script>
+<style>
+    
+</style>
+<script>
+    $(function () {
+        initSelect();
+        gridList();
+    })
+    function initSelect() {
+        $.ajax({
+            url: "/PurchaseManage/Apply/GetTypeJson",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                var str = "<option value=''>请选择</option>";
+                if (data.length > 1) {
+                    for (var i = 0; i < data.length; i++) {
+                        str += "<option value='" + data[i].id + "'>" + data[i].text + "</option>";
+                    }
+                    $("#TypeID").html(str);
+                } else if (data.length == 1) {
+                    $("#TypeID").html(str+="<option value='" + data[0].id + "'>" + data[0].text + "</option>");
+                }
+            },
+            error: function () { }
+        });
+    }
+    function ChangeColor() {
+        var trs = $(".purIsTem");
+        for (var i = 0; i < trs.length; i++) {
+            trs.eq(i).parent().css('background-color','#00FFFF');
+        }
+    }
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PurchaseManage/Apply/GetApplyResultList",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "主键", name: "ID", hidden: true, key: true },
+                {
+                    label: '操作', name: 'ID', width: 135, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = '<a onclick="btn_detail(' + cellvalue + ')">查看</a>';
+                        str += '&nbsp;&nbsp;<a id="apply_convert" onclick="btn_convert(' + cellvalue + ')">转单</a>';
+                        if (rowObject.purNo == null) {
+                            str += '&nbsp;&nbsp;<a id="apply_back"  onclick="open_back(' + cellvalue + ')">退单</a>';
+                        }
+                        if (rowObject.annex != null) {
+                            var address = "http://" + window.location.host + "/Uploads/" + rowObject.annex;
+                            str += "&nbsp;&nbsp;<a href=" + address + " download='" + rowObject.annex + "'>下载</a>";
+                        }
+                        return str;
+                    }
+                },
+                {
+                    label: '申购日期', name: 'date', width: 65, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: '名称', name: 'prdName', width: 120, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.purIsTem == "T")
+                            return '<span  class="purIsTem" title="采购类型为样板">' + cellvalue + '</span>';
+                        else
+                            return cellvalue;
+                    }
+                },
+                {
+                    label: '牌号', name: 'orderNo', width: 60, align: 'left'
+                },
+                {
+                    label: '规格', name: 'spc', width: 80, align: 'left'
+                },
+                {
+                    label: '中类', name: 'TypeID', width: 50, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                       return top.clients.type[cellvalue] == null ? "" : top.clients.type[cellvalue].fullname;
+                    }
+                },
+                {
+                    label: '材料要求', name: 'mat', width: 50, align: 'left'
+                },
+                {
+                    label: "期望交期", name: "hopeDD", width: 65, align: "left",
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: "数量", name: "appNum", width: 35, align: "left"
+                },
+                {
+                    label: '单位', name: 'appUnit', width: 35, align: 'left'
+                },
+                {
+                    label: "副数量", name: "viceNum", width: 40, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != null && cellvalue != "" && cellvalue!= 0)
+                            return cellvalue;
+                        else
+                            return "";
+                    }
+                },
+                {
+                    label: '副单位', name: 'viceUnit', width: 40, align: 'left'
+                },
+                {
+                    label: "采购单号", name: "purNo", width: 75, align: "left"
+                },
+                {
+                    label: "采购员", name: "purMan", width: 40, align: "left",
+                },
+                {
+                    label: "供应商", name: "purSup", width: 40, align: "left"
+                },
+                {
+                    label: "采购单价", name: "purPrice", width: 50, align: "left"
+                },
+                {
+                    label: "用途", name: "rem", width: 100, align: "left"
+                },
+                {
+                    label: "申购部门", name: "appDep", width: 55, align: "left",
+                },
+                {
+                    label: "申购人", name: "appMan", width: 40, align: "left"
+                }
+            ],
+            loadComplete: function () {
+                ChangeColor();
+            },
+            pager: "#gridPager",
+            sortname: 'date desc',
+            rowNum: 20,
+            rowList: [10, 20, 30],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: {
+                    keyword: $("#txt_keyword").val(),
+                    purIsTem: $("#purIsTem").val(),
+                    purWay: $("#purWay").val(),
+                    status: $("#status").val(),
+                    TypeID: $("#TypeID").val()
+                },
+                page:1
+              }).trigger('reloadGrid');
+        });
+        setTimeout('ChangeColor()', 100);
+
+    }
+    function btn_convert(keyValue) {
+        $.modalOpen({
+            id: "Details",
+            title: "转单",
+            url: "/PurchaseManage/Apply/ApplyConvertPurchaseForm?keyValue=" + keyValue,
+            width: "800px",
+            height: "680px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_detail(keyValue) {
+        $.modalOpen({
+            id: "Details",
+            title: "查看",
+            url: "/PurchaseManage/Apply/Details?keyValue=" + keyValue,
+            width: "780px",
+            height: "550px",
+            btn: null,
+        });
+    }
+    function open_back(keyValue) {
+        $.modalOpen({
+            id: "Details",
+            title: "退单",
+            url: "/PurchaseManage/Apply/BackApply?keyValue=" + keyValue,
+            width: "550px",
+            height: "300px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_export() {
+        var keyValue = ".xls";
+        $.ajax({
+            url: '/PurchaseManage/Purchase/ExportExcel',
+            type: "GET",
+            contentType: 'application/octet-stream',
+            data: { txt_keyword: $("#txt_keyword").val(), purWay: $("#purWay").val(), purIsTem: $("#purIsTem").val(), status: $("#status").val() },
+            success: function (resp) {
+                var filename = resp.substr(resp.lastIndexOf('\\') + 1);
+                var doc = resp.match(/([^\\]+)(\.[^\(]+)/i);
+                var h5Down = !/Trident|MSIE/.test(navigator.userAgent); //浏览器是否支持download
+                if (h5Down) {
+                    openDownloadDialog("http://" + window.location.host + "/Excel/" + filename, filename);
+                } else {
+                    window.open("http://" + window.location.host + "/Excel/" + filename);
+                }
+            },
+            error: function () {
+                $.modalAlert("导出失败！");
+            }
+        })
+    }
+    function openDownloadDialog(url, saveName) {
+        if (typeof url == 'object' && url instanceof Blob) {
+            url = URL.createObjectURL(url); // 创建blob地址
+        }
+        var aLink = document.createElement('a');
+        aLink.href = url;
+        aLink.download = saveName || '';
+        var event;
+        event = document.createEvent('MouseEvents');
+        event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        aLink.dispatchEvent(event);
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="purchase_export" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_export()"><i class="fa fa-plus"></i>导出</a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <form class="form-inline" role="form">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input id="txt_keyword" type="text" class="form-control" placeholder="申购人/名称/采购员/供应商" style="width: 170px;">
+                            </div>
+                            <div class="form-group">
+                                <label for="purWay">采购方式:</label>
+                                <select id="purWay" class="form-control">
+                                    <option value="">请选择</option>
+                                    <option value="0">国内采购</option>
+                                    <option value="3">国际采购</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="purIsTem">样板采购：</label>
+                                <select id="purIsTem" class="form-control" height="20">
+                                    <option value="">请选择</option>
+                                    <option value="T">是</option>
+                                    <option value="F">否</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="status">转单状态：</label>
+                                <select id="status" class="form-control">
+                                    <option value="ALL">请选择</option>
+                                    <option value="F" selected="selected">未转单</option>
+                                    <option value="T">已转单</option>
+                                    <option value="N">审批不通过</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="TypeID">中类：</label>
+                                <select id="TypeID" class="form-control">
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+

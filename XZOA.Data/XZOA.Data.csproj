@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F71003E8-A836-48F4-9DF6-DF9095CEBD18}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>XZOA.Data</RootNamespace>
+    <AssemblyName>XZOA.Data</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="IRepository\SystemManage\IApplyBillRepository - 复制.cs" />
+    <Compile Include="IRepository\SystemManage\IBookTypeRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IBookRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IProposalRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IMaterialPriceRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IMeetRoomRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IBookMeetingRepository.cs" />
+    <Compile Include="IRepository\SystemManage\ITempChargeRepository.cs" />
+    <Compile Include="IRepository\SystemManage\ITemplateRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IErrorLogRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IBillRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IPriceRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IAppointManRepository.cs" />
+    <Compile Include="IRepository\SystemManage\ITypeRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IAreaRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IDepartGroupRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IItemsDetailRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IItemsRepository.cs" />
+    <Compile Include="IRepository\SystemManage\ILeaveRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IModuleButtonRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IModuleRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IOrganizeRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IRoleAuthorizeRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IRoleRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IUserLogOnRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IMF_PSSRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IPRDTRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IPRDT1Repository.cs" />
+    <Compile Include="IRepository\SystemManage\ITF_PSSRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IProjectRepository.cs" />
+    <Compile Include="IRepository\SystemManage\IUserRepository.cs" />
+    <Compile Include="IRepository\SystemSecurity\IDbBackupRepository.cs" />
+    <Compile Include="IRepository\SystemSecurity\IFilterIPRepository.cs" />
+    <Compile Include="IRepository\SystemSecurity\ILogRepository.cs" />
+    <Compile Include="DBContext\G_WSDbContext.cs" />
+    <Compile Include="DBContext\NFineDbContext.cs" />
+    <Compile Include="DBContext\TOOLDbContext.cs" />
+    <Compile Include="Extensions\DbHelper.cs" />
+    <Compile Include="Extensions\EntityInterfaceExtensions.cs" />
+    <Compile Include="Repository\IRepositoryBase.cs" />
+    <Compile Include="Repository\IRepositoryBase.T.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repository\RepositoryBase.cs" />
+    <Compile Include="Repository\RepositoryBase.T.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\XZOA.Code\XZOA.Code.csproj">
+      <Project>{db19ce03-c307-43fe-a209-08aa4ae10e21}</Project>
+      <Name>NFine.Code</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XZOA.Domain\XZOA.Domain.csproj">
+      <Project>{7dc886cd-b8a0-44e8-aadd-57fcb0cfecb8}</Project>
+      <Name>XZOA.Domain</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

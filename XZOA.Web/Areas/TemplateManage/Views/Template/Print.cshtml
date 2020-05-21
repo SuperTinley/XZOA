@@ -1,0 +1,145 @@
+﻿
+@{
+    ViewBag.Title = "Print";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script src="~/Content/js/jqprint/jquery-migrate-1.2.1.js"></script>
+<script src="~/Content/js/jqprint/jquery.jqprint-0.3.js"></script>
+<link media="print" href="~/Content/js/jqprint/jquery.jqprint.css" rel="stylesheet" />
+<link href="~/Content/js/jqprint/purchaseStyle.css" rel="stylesheet" media="print" />
+<link href="~/Content/js/jqprint/purchaseStyle.css" rel="stylesheet" />
+<style>
+    .price-box {
+        width: 860px;
+        margin-left: auto;
+        margin-right: auto;
+        border: 1px solid #ddd;
+        box-shadow: rgb(189, 189, 189) 0px 0px 10px;
+        background: #fff;
+        padding: 50px;
+        padding-top: 20px;
+        margin-top: 25px;
+        padding-bottom: 0px;
+    }
+
+    .price-table th {
+        width: 21%;
+        height: 40px;
+        border: solid 1px;
+        text-align: center;
+        font-family: NSimSun;
+        font-size: 1em;
+        font-weight: normal;
+    }
+
+    .price-info th, td {
+        font-family: NSimSun;
+        font-size: 15px;
+        height: 20px;
+        font-weight: normal;
+    }
+
+    .print-p {
+        font-weight: bold;
+        font-family: NSimSun;
+    }
+
+        .print-p span {
+            font-weight: bold;
+            font-family: NSimSun;
+        }
+</style>
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        top.$(".content-iframe").css("background-color", "#f9f9f9");
+    })
+    function init() {
+        var tables = $(".tableinfo");
+        for (var i = 0; i < tables.length; i++) {
+            var title = tables.eq(i).attr("id");
+            if (title != "title0") {
+                tables.eq(i).css('display', 'none');
+            }
+        }
+    }
+    function btn_print() {
+        var Count = $("#Count").val();
+        $(".tableinfo").css("display", "block");
+        $(".tableinfo").jqprint({
+                debug: false, //如果是true则可以显示iframe查看效果（iframe默认高和宽都很小，可以再源码中调大），默认是false
+                importCSS: true, //true表示引进原来的页面的css，默认是true。（如果是true，先会找$("link[media=print]")，若没有会去找$("link")中的css文件）
+                printContainer: true, //表示如果原来选择的对象必须被纳入打印（注意：设置为false可能会打破你的CSS规则）。
+                operaSupport: true//表示如果插件也必须支持歌opera浏览器，在这种情况下，它提供了建立一个临时的打印选项卡。默认是true
+            });
+    }
+    function changeBill(key) {
+        $(".tableinfo").css("display", "none");
+        $("#title" + key).css("display", "block");
+    }
+</script>
+<div style="position: absolute; top: 22px; left: 8px;">
+        <div><a>@Model[0].GROUP_ID</a></div>
+</div>
+<div style="position: absolute; top: 22px; right: 8px;">
+    <a class="btn btn-default " onclick="btn_print()"><i class="fa fa-print" style="margin-right: 5px; font-size: 13px;"></i>直接打印</a>
+    <a class="btn btn-default" href="javascript:window.opener=null;window.open('','_self');window.close();">退出</a>
+</div>
+<div class="price-box">
+    
+            <div class="tableinfo">
+                <div>
+                    <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                        <table class="form">
+                            <tr>
+                                <th style="text-align:center;font-weight:bold;" colspan="7">广 州 雄 义 精 密 五 金 有 限 公 司 样 板 跟 踪 表</th>
+                                <th class="formTitle">跟踪单号：@Model[0].GROUP_ID</th>
+                            </tr>
+                            <tr>
+                                <th class="formTitle">申请人</th>
+                                <th class="formValue">@Model[0].CREATE_USER</th>
+                                <th class="formTitle"> 申请日期</th>
+                                <th class="formValue">@Model[0].CREATE_DATE.ToString("yyyy-MM-dd")</th>
+                                <th class="formTitle">申请部门‎</th>
+                                <th class="formValue">@Model[0].APP_DEP</th>
+                                <th class="formTitle">打样负责人‎‎</th>
+                                <th class="formValue">@Model[0].TEM_CHARGE</th>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="price-table">
+                        <table style="table-layout: fixed;">
+                            <tr>
+                                <th>打样编号‎</th>
+                                <th>样板名称‎‎</th>
+                                <th>套数‎‎</th>
+                                <th>材料要求‎</th>
+                                <th>关键尺寸‎‎</th>
+                                <th>主工艺‎</th>
+                                <th>期望交期‎‎</th>
+                                <th>客户‎</th>
+                                <th>备注‎</th>
+                            </tr>
+                            <tbody>
+                                @for (int i = 0; i < Model.Count; i++)
+                                {
+                                    <tr>
+                                        <th>@Model[i].TEM_NO‎</th>
+                                        <th>@Model[i].TEM_NAME‎‎</th>
+                                        <th>@Model[i].TEM_NUM‎‎</th>
+                                        <th>@Model[i].MATERIAL‎</th>
+                                        <th>@Model[i].SIZE‎‎</th>
+                                        <th>@Model[i].PROCESS‎</th>
+                                        <th>@Model[i].HOPE_DD.ToString("yyyy-MM-dd")‎‎</th>
+                                        <th>@Model[i].CUSTOMER‎</th>
+                                        <th>@Model[i].TEM_REMARK‎</th>
+                                    </tr>
+                                }
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    <input type="hidden" id="Count" value="@Model.Count" />
+</div>

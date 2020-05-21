@@ -1,0 +1,116 @@
+﻿.price-box {
+    width: 860px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid #ddd;
+    box-shadow: rgb(189, 189, 189) 0px 0px 10px;
+    background: #fff;
+    padding: 50px;
+    padding-top: 20px;
+    margin-top: 25px;
+    padding-bottom: 0px;
+}
+
+.price-title {
+    font-size: 18px;
+    text-align: center;
+    line-height: 20px;
+    font-weight: normal;
+    font-family: 'FangSong_GB2312';
+}
+
+.price-subtitle {
+    text-align: center;
+    font-weight: normal;
+}
+
+.price-info {
+    /*margin-top: 20px;*/
+    margin-bottom: 20px;
+    font-weight: normal;
+}
+
+    .price-info table .formTitle {
+        text-align: right;
+        width: 50px;
+        font-size: 13px;
+        font-weight: normal;
+    }
+
+    .price-info table .formValue {
+        text-align: left;
+        font-size: 13px;
+        font-weight: normal;
+    }
+
+        .price-info table .formValue input {
+            border-top: none;
+            border-right: none;
+            border-left: none;
+            height: 22px !important;
+            line-height: 22px !important;
+            font-size: 13px;
+            font-weight: normal;
+        }
+
+.price-table table {
+    margin: 0px;
+    margin-top: 1px;
+    border-collapse: collapse;
+    width: 100%;
+    border-left: 1px solid #ccc;
+    font-weight: normal;
+}
+
+    .price-table table thead tr td {
+
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        text-overflow: ellipsis;
+        word-break: keep-all;
+        overflow: hidden;
+        padding-left: 5px;
+        padding-right: 5px;
+        font-size: 13px;
+        font-weight: normal;
+    }
+
+    .price-table table tbody tr td {
+        border-bottom: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        height: 25px;
+        line-height: 25px;
+        word-break: break-all;
+        padding-left: 5px;
+        padding-right: 5px;
+        font-size: 13px;
+        font-weight: normal;
+    }
+
+.price-table th {
+    width: 100px;
+    height: 40px;
+    border: solid 1px;
+    text-align: center;
+    font-family: 'FangSong_GB2312';
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.price-info th, td {
+    font-family: 'FangSong_GB2312';
+    font-size: 12px;
+    height: 20px;
+    font-weight: normal;
+}
+.print-p {
+    font-family: 'FangSong_GB2312';
+    font-weight: normal;
+}
+    .print-p span {
+        font-family: 'FangSong_GB2312';
+        font-weight: normal;
+    }

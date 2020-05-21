@@ -1,0 +1,230 @@
+﻿
+@{
+    ViewBag.Title = "ApplyConvertPurchaseForm";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<script>
+    var keyValue = $.request("keyValue");
+    var code = $.request("code");
+    $(function () {
+        initGridList();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/PurchaseManage/Apply/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    var element = $("#form1");
+                    for (var key in data) {
+                        if (key !="purExaMan") {
+                            var $id = element.find('#' + key);
+                            var value = $.trim(data[key]).replace(/&nbsp;/g, '');
+                            $id.html(value);
+                        }
+                    }
+                    if (data.priNO != null) {
+                        $("#priN").val(data.priNO);
+                    }
+                    initSelect();
+                    $("#txt_keyword").val(data.prdName);
+                    setTimeout(function () { $("#btn_search").click(); },100 );
+                    
+                }
+            });
+        }
+    });
+    function initGridList(keyValue) {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PurchaseManage/Price/GetSearchPrice",
+            height: 200,
+            colModel: [
+                { label: "报价单号", name: "priNO", width: 70, key: true },
+                {
+                    label: '供应商', name: 'sup', width: 40, align: 'left'
+                },
+                {
+                    label: '名称', name: 'prdName', width: 90, align: 'left'
+                },
+                {
+                    label: '牌号', name: 'orderNo', width: 35, align: 'left'
+                },
+                {
+                    label: '规格', name: 'spc', width: 60, align: 'left'
+                },
+                {
+                    label: '单价', name: 'price', width: 35, align: 'left'
+                },
+                {
+                    label: "单位", name: "unit", width: 35, align: "left"
+                },
+                {
+                    label: "启用日期", name: "startDD", width: 65, align: "left",
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: '备注', name: 'rem', width: 100, align: 'left'
+                }
+            ],
+            pager: "#gridPager",
+            rowNum: 20,
+            rowList: [10, 20, 30],
+            viewrecords: true,
+            ondblClickRow: function (rowIndex, status) {
+                var rowData = $("#gridList").jqGridRowValue();
+                $("#purSup").val(rowData.sup);
+                $("#purPrice").val(rowData.price);
+                $("#unit").val(rowData.unit);
+                $("#priNO").val(rowData.priNO);
+            }
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: {
+                    keyword: $("#txt_keyword").val()
+                },
+                page:1
+            }).trigger('reloadGrid');
+        });
+    }
+    function initSelect() {
+        $("#purExaMan").bindSelect({
+            url: "/PurchaseManage/Apply/GetTreeSelectJson?type=check",
+        });
+        $("#purAuthMan").bindSelect({
+            url: "/PurchaseManage/Apply/GetTreeSelectJsonApproval",
+        });
+    }
+    function submitForm() {
+        if ($("#purExaMan").val() == "==请选择==") {
+            $("#purExaMan").val("");
+        }
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        if (!!code) {
+            if ($("#priN").val() == $("#priNO").val()) {
+                $.modalAlert("报价单号不能和之前相同！");
+                return false;
+            }
+        }
+        var unit = $("#unit").val();
+        var appUnit = $("#appUnit").text();
+        var viceUnit=$("#viceUnit").text();
+        if (unit != appUnit && unit != viceUnit) {
+            if ($("#unit").val() == $("#viceUnit").text() && $("#viceNum").text() == "0") {
+                $.modalAlert("副数量不能为空！");
+                return false;
+            } else {
+                $.modalAlert("报价单位必须与主单位或副单位一致！");
+                return false;
+            }
+        }
+        $.submitForm({
+            url: "/PurchaseManage/Purchase/SubmitForm?code=" + code + "&keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<div class="container" >
+    <div style="width:100%;height:250px;">
+        <form name="myForm" id="form1">
+            <div style="padding-top: 20px; margin-right: 20px;">
+                <table class="form">
+                    <tr>
+                        <th class="formTitle">名称</th>
+                        <td class="formValue">
+                            <label id="prdName"></label>
+                        </td>
+                        <th class="formTitle">牌号</th>
+                        <td class="formValue" id="orderNo"></td>
+                    </tr>
+                    <tr>
+                        <th class="formTitle">规格</th>
+                        <td class="formValue" id="spc"></td>
+                        <th class="formTitle">材料要求</th>
+                        <td class="formValue" id="mat"></td>
+                    </tr>
+                    <tr>
+                        <th class="formTitle">期望交期</th>
+                        <td class="formValue" id="hopeDD"></td>
+                        <th class="formTitle">申购日期</th>
+                        <td class="formValue" id="date"></td>
+                    </tr>
+                    <tr>
+                        <th class="formTitle">申购数量</th>
+                        <td class="formValue" id="appNum"></td>
+                        <th class="formTitle">主单位</th>
+                        <td class="formValue" id="appUnit"></td>
+                    </tr>
+                    <tr>
+                        <th class="formTitle">副数量</th>
+                        <td class="formValue" id="viceNum"></td>
+                        <th class="formTitle">副单位</th>
+                        <td class="formValue" id="viceUnit"></td>
+                    </tr>
+                    <tr>
+                        <th class="formTitle">审核领导</th>
+                        <td class="formValue">
+                            <select id="purExaMan" name="purExaMan" style="padding:0;" class="form-control required">
+                                <option>==请选择==</option>
+                            </select>
+                        </td>
+                        <th class="formTitle">批准领导</th>
+                        <td class="formValue">
+                            <select id="purAuthMan" name="purAuthMan" style="padding:0;" class="form-control required"></select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="formTitle">供应商</th>
+                        <td class="formValue">
+                            <input id="purSup" name="purSup" class="form-control required" readonly="readonly" style="width: 243px;" />
+                        </td>
+                        <th class="formTitle">单价</th>
+                        <td class="formValue">
+                            <input id="unit" type="hidden" />
+                            <input id="purPrice" name="purPrice" readonly="readonly" style="width:60px;"/>
+                            <input id="priN" name="priN" type="hidden" />
+                            <input id="priNO" name="priNO" type="text" placeholder="报价单号"  readonly="readonly" style="width:172px;" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </form>
+    </div>
+    <div style="width:100%;height:308px;overflow: hidden;">
+        <div class="topPanel">
+            <div class="search">
+                <table>
+                    <tr>
+                        <td>
+                            <form class="form-inline" role="form">
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <input id="txt_keyword" type="text" class="form-control" placeholder="名称/规格" style="width: 200px;">
+                                        <span class="input-group-btn">
+                                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="gridPanel" >
+            <table id="gridList"></table>
+            <div id="gridPager"></div>
+        </div>
+    </div>
+</div>
+
+
+

@@ -1,0 +1,275 @@
+﻿@{
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<link href="~/Content/js/laydate/theme/default/laydate.css" rel="stylesheet" />
+<script src="~/Content/js/laydate/laydate.js"></script>
+<script>
+    $(function () {
+        gridList();
+        datepickerInit();
+        organList();
+    })
+    function btn_details(keyValue) {
+        $.modalOpen({
+            id: "Details",
+            title: "查看请假记录",
+            url: "/LeaveManage/History/Form?keyValue=" + keyValue,
+            width: "550px",
+            height: "620px",
+            btn: null,
+        });
+    }
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/LeaveManage/LeaveManage/GetHistoryList",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "主键", name: "F_Id", hidden: true, key: true },
+                {
+                    label: "操作", name: "F_Id", width: 40, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = '';
+                        str += "<a id='leave_details' onclick=btn_details('" + cellvalue + "') >查看</a>";
+                        return str;
+                    }
+                },
+                {
+                    label: '员工姓名', name: 'F_UserName', width: 55, align: 'left'
+                },
+                {
+                    label: '工号', name: 'F_Account', width: 45, align: 'left'
+                },
+                {
+                    label: '填写日期', name: 'F_CreateTime', width: 70, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: '开始日期', name: 'F_BeginTime', width: 120, align: 'left'
+                },
+                {
+                    label: '结束日期', name: 'F_EndTime', width: 120, align: 'left'
+                },
+                {
+                    label: "时长", name: "F_TimeLength_Day", width: 80, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        return "<span>" + cellvalue + "天" + rowObject.F_TimeLength_Hour + "时" + rowObject.F_TimeLength_Minute + "分</span>";
+                    }
+                },
+                {
+                    label: "假期类别", name: "F_VacationTypeId", width: 55, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.dataItems["vacationtype"] == null ? "" : top.clients.dataItems["vacationtype"][parseInt(cellvalue)];
+                    }
+                },
+                {
+                    label: '请假类别', name: 'F_LeaveTypeId', width: 55, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.dataItems["leavetype"] == null ? "" : top.clients.dataItems["leavetype"][parseInt(cellvalue)];
+                    }
+                },
+                {
+                    label: "是否批准", name: "F_IsApproval", width: 52, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue) {
+                            return "<span>是</span>";
+                        }
+                        return "<span>否</span>";
+                    }
+                },
+                {
+                    label: "销假日期", name: "F_ResumptionLeaveTime", width: 60, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d h:i:s', newformat: 'Y-m-d H:i:s' }
+                },
+                {
+                    label: "线下审批", name: "F_IsOffLine", width: 52, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!cellvalue) {
+                            return "<span>否</span>";
+                        }
+                        return "<span>是</span>";
+                    }
+                },
+                {
+                    label: '附件', name: 'F_FileId', width: 115, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                         if (cellvalue != null) {
+                             return "<a onclick=btn_download('" + rowObject.F_FileName + "') >" + rowObject.F_FileName + "</a>"
+                        }
+                        return "";
+                    }
+                }
+            ],
+            pager: "#gridPager",
+            sortname: 'F_CreateTime desc',
+            viewrecords: true,
+            rowNum: 20,
+            rowList: [10, 20, 30],
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#txt_keyword").val(), depart: $("#sel_organ option:selected").val(), beginDate: $("#beginDate").val(), endDate: $("#endDate").val() },
+             page:1 }).trigger('reloadGrid');
+        });
+    }
+    function btn_download(keyValue) {
+        $.download("/ProposalManage/ProposalManage/DownloadProposal", "keyValue=" + keyValue, 'post');
+    }
+    function organList() {
+        var sel_organ = $("#sel_organ");
+        $.ajax({
+            url: '/SystemManage/Organize/GetList',
+            type: 'GET',
+            success: function (data) {
+                var json = eval(data);
+                if (json == null) {
+                    return;
+                }
+
+                var opts = '<option value="">请选择</option>';
+                for (var i = 0; i < json.length; i++) {
+                    opts += '<option value="' + json[i].F_Id + '">' + json[i].F_FullName + '</option>';
+                }
+                sel_organ.html(opts);
+            },
+            error: function () {
+                return;
+            }
+        });
+    }
+
+    function datepickerInit() {
+        laydate.render({
+            elem: '#Date',
+            range: '~',
+            change: function (value, date, endDate) {
+                var dates = value.split('~');
+                $("#beginDate").val(dates[0]);
+                $("#endDate").val(dates[1]);
+            }
+        }); 
+    };
+
+    function btn_export() {
+        $.ajax({
+            url: "/LeaveManage/History/ExportExcel",
+            type: "GET",
+            data: { keyword: $("#txt_keyword").val(), depart: $("#sel_organ option:selected").val(), beginDate: $("#beginDate").val(), endDate: $("#endDate").val() },
+            success: function (resp) {
+                if (resp.state == "undefined") {
+                    $.modalMsg("数据为空","error");
+                    return false;
+                }
+                var filename = resp.substr(resp.lastIndexOf('\\') + 1);
+                var doc = resp.match(/([^\\]+)(\.[^\(]+)/i);
+                var h5Down = !/Trident|MSIE/.test(navigator.userAgent); //浏览器是否支持
+
+                if (h5Down) {
+                    openDownloadDialog("http://" + window.location.host + "/Excel/" + filename, filename);
+                } else {
+                    window.open("http://" + window.location.host + "/Excel/" + filename);
+                }
+            },
+            error: function () {
+
+                $.modalAlert("导出失败！");
+            }
+        });
+    }
+
+    function btn_gather() {
+        $.ajax({
+            url: "/LeaveManage/History/GatherExcel",
+            type: "GET",
+            success: function (resp) {
+                if (resp.state == "undefind") {
+                    $.modalMsg("数据为空", "error");
+                    return false;
+                }
+                var filename = resp.substr(resp.lastIndexOf('\\') + 1);
+                var doc = resp.match(/([^\\]+)(\.[^\(]+)/i);
+                var h5Down = !/Trident|MSIE/.test(navigator.userAgent); //浏览器是否支持download
+                if (h5Down) {
+                    openDownloadDialog("http://" + window.location.host + "/Excel/" + filename, filename);
+                } else {
+                    window.open("http://" + window.location.host + "/Excel/" + filename);
+                }
+            },
+            error: function () {
+
+                $.modalAlert("导出失败！");
+            }
+        });
+    }
+
+    function openDownloadDialog(url, saveName) {
+        if (typeof url == 'object' && url instanceof Blob) {
+            url = URL.createObjectURL(url); // 创建blob地址
+        }
+        var aLink = document.createElement('a');
+        aLink.href = url;
+        aLink.download = saveName || '';
+        var event;
+        event = document.createEvent('MouseEvents');
+        event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        aLink.dispatchEvent(event);
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="history_export" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_export()">导出</a>
+        </div>
+        <div class="btn-group">
+            <a id="history_gather" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_gather()">汇总</a>
+        </div>
+        @*<div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="leave_delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+                <li><a id="history_detail" authorize="yes" onclick="btn_details()"><i class="fa fa-search-plus"></i>查看</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>*@
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <form class="form-inline" role="form">
+                        <div class="form-group">
+                            <label for="sel_organ">部门:</label>
+                            <select id="sel_organ" class="form-control"></select>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input id="txt_keyword" type="text" class="form-control" placeholder="姓名/工号" style="width: 200px;">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="daterange-hopeDD">请假日期:</label>
+                            <div class="input-group">
+                                <input id="beginDate" type="hidden" />
+                                <input id="endDate" type="hidden" />
+                                <input type="text" id="Date" placeholder="请选择日期" class="form-control" style="width:200px;" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+

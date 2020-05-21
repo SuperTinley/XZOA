@@ -1,0 +1,80 @@
+﻿
+@{
+    ViewBag.Title = "HandleIndex";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+    });
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/RoomManage/RoomManage/GetHandleList",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "主键", name: "ID", hidden: true, key: true },
+                {
+                    label: '预订人', name: 'AppMan', width: 150, align: 'left'
+                },
+                {
+                    label: '会议室名称', name: 'RoomName', width: 150, align: 'left'
+                },
+                {
+                    label: '会议开始时间', name: 'BeginTime', width: 150, align: 'left'
+                },
+                {
+                    label: '预计结束时间', name: 'PreEndTime', width: 150, align: 'left'
+                },
+                {
+                    label: '会议主题', name: 'Subject', width: 150, align: 'left'
+                },
+                {
+                    label: "备注", name: "Remark", width: 100, align: 'left'
+                }
+            ],
+            pager: "#gridPager",
+            sortname: 'date desc',
+            multiselect: true,
+            rowNum: 20,
+            rowList: [10, 20, 30],
+            viewrecords: true
+        });
+    }
+    function btn_check() {
+        var keyValue = $("#gridList").jqGrid('getGridParam', 'selarrrow');
+        $.modalOpen({
+            id: "Details",
+            title: "审核",
+            url: "/RoomManage/RoomManage/CheckForm?keyValue=" + keyValue,
+            width: "550px",
+            height: "300px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="meet_check" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_check()"><i class="fa fa-plus"></i>审核</a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+

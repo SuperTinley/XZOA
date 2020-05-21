@@ -1,0 +1,194 @@
+﻿
+@{
+    ViewBag.Title = "Bookingndex";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<style>
+    #meetDD td {
+        text-align:center;
+
+    }
+    .th-title {
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        font-weight: normal;
+        height: 20px;
+        padding-left: 2px;
+        border: 1px solid #808080;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: keep-all;
+    }
+</style>
+<script>
+    var total, records;
+    var page = 1, rows = 20;
+    $(function () {
+        laydate.render({
+            elem: '#MeetingDate',
+            range: '~',
+            change: function (value, date, endDate) {
+                var dates = value.split('~');
+                $("#BeginDate").val(dates[0]);
+                $("#EndDate").val(dates[1]);
+            }
+        }); 
+        GetBookMeetingList();
+        $("#btn_search").click(function () {
+            GetBookMeetingList($("#BeginDate").val(), $("#EndDate").val());
+        });
+    });
+
+    function GetBookMeetingList(BeginDate, EndDate) {
+        $.ajax({
+            url: '/RoomManage/RoomManage/GetBookMeetingList',
+            type: 'GET',
+            async: false,
+            dataType: 'json',
+            data: { "page": page, "rows": rows, "BeginDate": BeginDate,"EndDate": EndDate },
+            success: function (json) {
+                var data = json.rows;
+                total = json.total;
+                records = json.records;
+                var myArray = ["08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00",
+                    "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00",
+                    "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"];
+                var strs = "";
+                if (data.length != 0) {
+                    for (var i = 0; i < data.length; i++) {
+                        var star = 0, flag = 0;
+                        strs += "<tr class='jqgfirstrow'>";
+                        strs += "<td>" + data[i].RoomName + "</td>";
+                        strs += "<td>" + data[i].MeetingDate.slice(0, 10) + "</td>";
+                        var list = data[i].meetingTimes;
+                        for (var j = 0; j < list.length; j++) {
+                            var bengintime = list[j].BeginTime.slice(11, 16);
+                            var endtime = list[j].PreEndTime.slice(11, 16);
+                            var b = myArray.indexOf(bengintime);
+                            var e = myArray.indexOf(endtime);
+                            var subject = list[j].Subject == null ? "" : list[j].Subject;
+                            var col = e - b; var s = col < 1 ? 0 : (col - 1);
+                            if (b > -1 && e > -1) {
+                                for (var k = star; k < e; k++) {
+                                    if (k == b) {
+                                        if (list[j].AuditTag == 1) {
+                                            strs += '<td colspan="' + col + '" title="' + subject + '" style="background:#3bc689;color:#FFFFFF;">' + subject + '</td>';
+                                            flag += col;
+                                            k += col;
+                                        } else {
+                                            strs += '<td colspan="' + col + '" title="' + subject + '" style="background:rgb(26, 173, 206);color:#FFFFFF;">' + subject + '</td>';
+                                            flag += col;
+                                            k += col;
+                                        }
+                                    } else {
+                                        strs += '<td></td>';
+                                        flag++;
+                                    }
+                                }
+                                star = e;
+                            }
+                        }
+                        for (var s = 0; s < 20 - flag; s++) {
+                            strs += "<td></td>";
+                        }
+                        strs += "</tr>";
+                    }
+                    $("#meetContent").html(strs);
+                } else {
+                    $("#meetContent").html('<tr><th colspan="22"><div class="unwritten" style="color: red; padding: 7px; border - bottom: #ddd 1px solid;">没有找到您要的相关数据!</div></th></tr>');
+                }
+                
+            },
+            error: function () { }
+        });
+       
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="meet_add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>添加</a>
+        </div>
+        <div class="btn-group">
+            <a id="meet_delete" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_delete()">删除</a>
+        </div>
+        <div class="btn-group">
+            <a id="meet_cancel" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_cancel()">取消</a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <form class="form-inline" role="form">
+                        <div class="form-group">
+                            <label for="daterange-MeetingDate">会议日期:</label>
+                            <div class="input-group">
+                                <input id="BeginDate" type="hidden" />
+                                <input id="EndDate" type="hidden" />
+                                <input type="text" id="MeetingDate" placeholder="请选择日期" class="form-control" style="width:200px;" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="meetDD" class="ui-jqgrid-btable ui-common-table table table-bordered" style="width:100%;table-layout: fixed;word-wrap: break-word; word-break: break-all;">
+        <thead>
+            <tr>
+                <th class="th-title" style="width:70px;">会议室名称</th>
+                <th class="th-title" style="width:70px;">会议日期</th>
+                <th class="th-title" colspan="2">08:00</th>
+                <th class="th-title" colspan="2">09:00</th>
+                <th class="th-title" colspan="2">10:00</th>
+                <th class="th-title" colspan="2">11:00</th>
+                <th class="th-title" colspan="2">12:00</th>
+                <th class="th-title" colspan="2">13:00</th>
+                <th class="th-title" colspan="2">14:00</th>
+                <th class="th-title" colspan="2">15:00</th>
+                <th class="th-title" colspan="2">16:00</th>
+                <th class="th-title" colspan="2">17:00</th>
+            </tr>
+        </thead>
+        <tbody id="meetContent"></tbody>
+    </table>
+    @*<div id="gridPager" class="ui-jqgrid-pager" dir="ltr" style="width: 100%;">
+    <div id="pg_gridPager" class="ui-pager-control" role="group">
+        <table class="ui-pg-table ui-common-table ui-pager-table table">
+        <tbody><tr>
+            <td id="gridPager_center" style="white-space: pre; width: 315px;">
+            <table class="ui-pg-table ui-common-table ui-paging-pager"
+                   ><tbody><tr>
+                <td id="first_gridPager" class="ui-pg-button ui-disabled" title="">
+                <span class="glyphicon glyphicon-step-backward"></span></td>
+                <td id="prev_gridPager" class="ui-pg-button ui-disabled" title="">
+                <span class="glyphicon glyphicon-backward"></span></td>
+                <td class="ui-pg-button ui-disabled"><span class="ui-separator"></span></td>
+                <td id="input_gridPager" dir="ltr"> 
+                <input class="ui-pg-input form-control" type="text" size="2" maxlength="7" value="0" role="textbox"> 共 <span id="sp_1_gridPager">1</span> 页</td><td class="ui-pg-button ui-disabled"><span class="ui-separator"></span></td><td id="next_gridPager" class="ui-pg-button ui-disabled" title="">
+                <span class="glyphicon glyphicon-forward"></span></td>
+                <td id="last_gridPager" class="ui-pg-button ui-disabled" title="">
+                <span class="glyphicon glyphicon-step-forward"></span></td>
+                <td dir="ltr"><select class="ui-pg-selbox form-control" role="listbox" title="">
+                    <option role="option" value="10">10</option>
+                    <option role="option" value="20" selected="selected">20</option>
+                    <option role="option" value="30">30</option></select>
+                    </td></tr></tbody></table></td>
+            <td id="gridPager_left" align="left"></td>
+            <td id="gridPager_right" align="right">
+            <div dir="ltr" style="text-align:right" class="ui-paging-info" id="records">检索到 9 条记录</div>
+                </td></tr></tbody></table></div></div>*@
+</div>
+
+

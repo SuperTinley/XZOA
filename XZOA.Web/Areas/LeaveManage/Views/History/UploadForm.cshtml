@@ -1,0 +1,88 @@
+﻿
+@{
+    ViewBag.Title = "UploadForm";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<link href="~/Content/js/layui/css/layui.css" rel="stylesheet" />
+<script src="~/Content/js/layui/layui.js"></script>
+<script>
+    var keyValue = $.request("keyValue");
+    layui.use('upload', function () {
+        var $ = layui.jquery
+            , upload = layui.upload;
+
+        //执行实例
+        var uploadInst = upload.render({
+            elem: '#upload' //绑定元素
+            , url: '/LeaveManage/History/SubmitUploadForm' //上传接口09
+            , auto: false 
+            , accept: 'file' //普通文件
+            , done: function (data) {
+                var icon = "";
+                if (data.state == "success") {
+                    icon = "fa-check-circle";
+                    top.layer.msg(data.message, { icon: icon, time: 4000, shift: 5 });
+                    top.$(".layui-layer-msg").find('i.' + icon).parents('.layui-layer-msg').addClass('layui-layer-msg-' + data.state);
+                } else {
+                    top.layer.msg(data.message);
+                }
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                var index = top.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                top.layer.close(index);//关闭弹框
+            }
+            , error: function () {
+                //请求异常回调
+            }
+        });
+    });
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        var form = new FormData(document.getElementById("form1"));
+        if ($('[name=__RequestVerificationToken]').length > 0) {
+            form.append("__RequestVerificationToken", $('[name=__RequestVerificationToken]').val());
+        }
+        $.ajax({
+            url: "/LeaveManage/History/SubmitUploadForm?keyValue=" + keyValue,
+            type: "post",
+            data: form,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function (data) {
+                var icon = "";
+                if (data.state == "success") {
+                    icon = "fa-check-circle";
+                    top.layer.msg(data.message, { icon: icon, time: 4000, shift: 5 });
+                    top.$(".layui-layer-msg").find('i.' + icon).parents('.layui-layer-msg').addClass('layui-layer-msg-' + data.state);
+                } else {
+                    top.layer.msg(data.message);
+                }
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                var index = top.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                top.layer.close(index);//关闭弹框
+
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.loading(false);
+                $.modalMsg(errorThrown, "error");
+            }
+        });
+    }
+</script>
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <td>
+                    <button type="button" class="layui-btn" id="upload">
+                        上传文件
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+

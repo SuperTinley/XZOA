@@ -1,0 +1,114 @@
+﻿@{
+    // ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<script src="~/Content/js/jqprint/jquery.jqprint-0.3.js"></script>
+<link media="print" href="~/Content/js/jqprint/jquery.jqprint.css" rel="stylesheet" />
+<link href="~/Content/js/jqprint/printStyle.css" rel="stylesheet" media="print"/>
+<style>
+    .price-table th {
+        width: 100px;
+        height: 40px;
+        border: solid 1px;
+        text-align: center;
+        font-family: STKaiti;
+        font-size: 15px;
+    }
+
+    .price-info th, td {
+        font-family: STKaiti;
+        font-size: 15px;
+        height: 20px;
+        font-weight: bold;
+    }
+    .print-p {
+        font-weight: bold;
+        font-family: STKaiti;
+    }
+
+        .print-p span {
+            font-weight: bold;
+            font-family: STKaiti;
+        }
+</style>
+<script>
+    $(function () {
+        top.$(".content-iframe").css("background-color", "#f9f9f9");
+    })
+    function btn_print() {
+
+        $("#print").jqprint({
+            debug: false, //如果是true则可以显示iframe查看效果（iframe默认高和宽都很小，可以再源码中调大），默认是false
+            importCSS: true, //true表示引进原来的页面的css，默认是true。（如果是true，先会找$("link[media=print]")，若没有会去找$("link")中的css文件）
+            printContainer: true, //表示如果原来选择的对象必须被纳入打印（注意：设置为false可能会打破你的CSS规则）。
+            operaSupport: true//表示如果插件也必须支持歌opera浏览器，在这种情况下，它提供了建立一个临时的打印选项卡。默认是true
+        });
+    }
+</script>
+<div style="position: absolute; top: 22px; right: 8px;">
+    <a class="btn btn-default " onclick="btn_print()"><i class="fa fa-print" style="margin-right: 5px; font-size: 13px;"></i>直接打印</a>
+    <a class="btn btn-default" href="javascript:window.opener=null;window.open('','_self');window.close();">退出</a>
+</div>
+<div class="price-box">
+    <div id="print">
+        <div class="price-title">
+            广州雄智精密五金有限公司
+        </div>
+        <div class="price-title">
+            请&nbsp;假&nbsp;申&nbsp;请&nbsp;单
+        </div>
+        <p class="print-p">填写日期:<span>@Model.StartTime.ToString("yyyy/MM/dd")</span></p>
+        <div class="price-table">
+            <table>
+                <tr>
+                    <th>请假人</th>
+                    <th>@Model.UserName</th>
+                    <th>部门</th>
+                    <th>@Model.Department</th>
+                    <th>组别</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <th>工号</th>
+                    <th>@Model.Account</th>
+                    <th>职位</th>
+                    <th>@Model.Position</th>
+                    <th>入厂日期</th>
+                    <th>@Model.StartTime.ToString("yyyy/MM/dd")</th>
+                </tr>
+                <tr>
+                    <th>请假事由</th>
+                    <th colspan="5" style="height:100px">@Model.F_LeaveReason</th>
+                </tr>
+                <tr>
+                    <th>起止时间</th>
+                    <th colspan="5">@Model.F_BeginTime.ToString()<span>至</span>@Model.F_EndTime.ToString()</th>
+                </tr>
+            </table>
+        </div>
+        <div class="price-info">
+            <table class="form">
+                <tr>
+                    <th>申&nbsp;&nbsp;请&nbsp;&nbsp;人：</th>
+                    <th class="formValue">
+                        @Model.UserName
+                    </th>
+                    <th class="formValue">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;审核：</th>
+                    <th>
+
+                    </th>
+                    <th class="formValue">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;批准：</th>
+                    <th>
+
+                    </th>
+                </tr>
+                <tr>
+                    <td colspan="5">注：病假需附镇级以上医院证明。</td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+</div>
+

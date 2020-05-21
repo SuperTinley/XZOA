@@ -1,0 +1,1520 @@
+﻿
+@{
+    ViewBag.Title = "Print";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<script src="~/Content/js/jqprint/jquery.jqprint-0.3.js"></script>
+<link media="print" href="~/Content/js/jqprint/jquery.jqprint.css" rel="stylesheet" />
+<link href="~/Content/js/jqprint/printStyle2.css" rel="stylesheet" media="print" />
+<link href="~/Content/js/jqprint/printStyle1.css" rel="stylesheet" />
+<style>
+.price-table th { width: auto; height: 40px; border: solid 1px; text-align: center; font-family: 'FangSong_GB2312'; font-size: 1em; font-weight: normal; }
+
+.price-info th, td { font-family: 'FangSong_GB2312'; font-size: 13px; height: 20px; font-weight: normal; }
+
+    .print-p {
+        font-family: 'FangSong_GB2312';
+        font-weight: normal;
+    }
+
+        .print-p span {
+            font-family: 'FangSong_GB2312';
+            font-weight: normal;
+        }
+    
+</style>
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        top.$(".content-iframe").css("background-color", "#f9f9f9");
+    })
+    function btn_print() {
+        var strs = new Array(); //定义一数组
+        strs = keyValue.split(","); //字符分割
+        $(".tableinfo").css("display", "block");
+        $(".tableinfo").jqprint({
+                debug: false, //如果是true则可以显示iframe查看效果（iframe默认高和宽都很小，可以再源码中调大），默认是false
+                importCSS: true, //true表示引进原来的页面的css，默认是true。（如果是true，先会找$("link[media=print]")，若没有会去找$("link")中的css文件）
+                printContainer: true, //表示如果原来选择的对象必须被纳入打印（注意：设置为false可能会打破你的CSS规则）。
+                operaSupport: true//表示如果插件也必须支持歌opera浏览器，在这种情况下，它提供了建立一个临时的打印选项卡。默认是true
+            });
+        
+    }
+    function changeBill(key) {
+        $(".tableinfo").css("display", "none");
+        $("#title" + key).css("display", "block");
+    }
+</script>
+<div style="position: absolute; top: 22px; left: 8px;">
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        <div><a onclick="changeBill(@i)">@Model[i].billNo</a></div>
+    }
+</div>
+<div style="position: absolute; top: 22px; right: 8px;">
+    <a class="btn btn-default " onclick="btn_print()"><i class="fa fa-print" style="margin-right: 5px; font-size: 13px;"></i>直接打印</a>
+    <a class="btn btn-default" href="javascript:window.opener=null;window.open('','_self');window.close();">退出</a>
+</div>
+<div class="price-box">
+
+    @for (int i = 0; i < Model.Count; i++)
+    {
+
+
+        if (i == 0)
+        {
+            if(Model.Count==1)
+            {
+                var title = "title" + i;
+                <div id="@title" class="tableinfo">
+                    <div class="bill-title price-title">
+                        广州雄智精密五金有限公司
+                    </div>
+                    <div class="bill-title price-title tablehead" id=@title>
+                        @{
+                            var bill = "bill" + @i;
+                            var type = Model[i].billType == "C" ? "工具仓收货单" : Model[i].billType == "D" ? "工具仓领用单" : Model[i].billType == "B" ? "验收退货" : Model[i].billType == "E" ? "进货退回单" : "";
+                        }
+                        @type
+
+                        <span style="float:right;"></span>
+                    </div>
+
+                    @if (Model[i].billType == "C")
+                    {
+                        <div>
+                            <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                <table class="form">
+                                    <tr>
+                                        <th class="formTitle">送货单位：</th>
+                                        <th>
+                                            @Model[i].purSup
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].billNo
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].chkDate
+                                        </th>
+                                        <th class="formTitle">税率：</th>
+                                        <th class="formValue">
+                                            <span>@Model[i].principal</span>%
+                                        </th>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="price-table">
+                                <table>
+                                    <tr>
+                                        <th>采购单号</th>
+                                        <th>物料名称‎</th>
+                                        <th>型号‎&‎规格‎</th>
+                                        <th width="50px">单位‎</th>
+                                        <th>数量</th>
+                                        <th>单价</th>
+                                        <th>金额</th>
+                                        <th>备注</th>
+                                    </tr>
+                                    @foreach (var item in Model[i].bills)
+                                    {
+                                        <tr>
+                                            <th>@item.purNo</th>
+                                            <th>@item.prdName</th>
+                                            <th>@item.spc</th>
+                                            <th>@item.unit</th>
+                                            <th>@item.num</th>
+                                            <th>@item.price</th>
+                                            <th><span>@item.TotalMoney</span></th>
+                                            <th>
+                                                @if (!string.IsNullOrEmpty(item.remark))
+                                                {
+                                                    @item.remark<br />
+                                                }
+                                                @if (item.viceNum != null && item.viceNum != 0)
+                                                {
+                                                    @item.viceNum@item.viceUnit
+                                                }
+
+                                            </th>
+                                        </tr>
+
+                                    }
+
+                                </table>
+                            </div>
+                            <div class="price-info" style="margin-top:0px;">
+                                <table class="form">
+                                    <tr>
+                                        <th class="formTitle">仓库主管：</th>
+                                        <th class="formValue">
+
+                                        </th>
+                                        <th class="formTitle">仓管：</th>
+                                        <th class="formValue">
+                                            @Model[i].PrintMan
+                                        </th>
+                                        <th class="formTitle">采购员：</th>
+                                        <th class="formValue">
+                                            @Model[i].purMan
+                                        </th>
+                                        <th class="formTitle">合计：</th>
+                                        <th class="formValue" style="width:100px;">
+                                            <span>@Model[i].currency</span> @Model[i].TotalMoney
+                                        </th>
+                                    </tr>
+                                </table>
+
+                            </div>
+
+                        </div>
+                    }
+                    else if (Model[i].billType == "B")
+                    {
+                        <div>
+                            <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                <table class="form">
+                                    <tr>
+                                        <th class="formTitle">收货单位：</th>
+                                        <th>
+                                            @Model[i].purSup
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].billNo
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].chkDate
+                                        </th>
+                                        <th class="formTitle">税率：</th>
+                                        <th class="formValue">
+                                            <span>@Model[i].principal</span>%
+                                        </th>
+                                    </tr>
+                                </table>
+
+                            </div>
+                            <div class="price-table">
+                                <table>
+                                    <tr>
+                                        <th>采购单号</th>
+                                        <th>物料名称‎</th>
+                                        <th>型号‎&‎规格‎</th>
+                                        <th width="50px">单位‎</th>
+                                        <th>数量</th>
+                                        <th>单价</th>
+                                        <th>金额</th>
+                                        <th>备注</th>
+                                    </tr>
+                                    @foreach (var item in Model[i].bills)
+                                    {
+                                        <tr>
+                                            <th>@item.purNo</th>
+                                            <th>@item.prdName</th>
+                                            <th>@item.spc</th>
+                                            <th>@item.unit</th>
+                                            <th>@item.num</th>
+                                            <th>@item.price</th>
+                                            <th><span>@item.TotalMoney</span></th>
+                                            <th>
+                                                @if (!string.IsNullOrEmpty(item.remark))
+                                                {
+                                                    @item.remark<br />
+                                                }
+                                                @if (item.viceNum != null && item.viceNum != 0)
+                                                {
+                                                    @item.viceNum@item.viceUnit
+                                                }
+                                            </th>
+                                        </tr>
+
+                                    }
+
+                                </table>
+                            </div>
+                            <div class="price-info" style="margin-top:0px;">
+                                <table class="form">
+                                    <tr>
+                                        <th>制表：</th>
+                                        <th class="formValue">
+                                            @Model[i].PrintMan
+                                        </th>
+                                        <th class="formValue">QC：</th>
+                                        <th class="formValue">
+                                        </th>
+                                        <th class="formValue">签收：</th>
+                                        <th class="formValue">
+                                        </th>
+                                        <th class="formValue">合计：</th>
+                                        <th class="formValue" style="width:100px;">
+                                            <span>@Model[i].currency</span> @Model[i].TotalMoney
+                                        </th>
+                                    </tr>
+                                </table>
+
+                            </div>
+
+                        </div>
+                    }
+                    else if (Model[i].billType == "D")
+                    {
+                        <div>
+                            <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                <table class="form">
+                                    <tr>
+                                        <th class="formTitle">领用部门：</th>
+                                        <th style="width:90px;">
+                                            @Model[i].appDep
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].billNo
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].chkDate
+                                        </th>
+                                        <th class="formTitle">税率：</th>
+                                        <th class="formValue">
+                                            <span>@Model[i].principal</span>%
+                                        </th>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="price-table">
+                                <table>
+                                    <tr>
+                                        <th>领用组别</th>
+                                        <th>物料名称‎</th>
+                                        <th>型号‎&‎规格‎</th>
+                                        <th width="60px">单位‎</th>
+                                        <th>数量</th>
+                                        <th>单价</th>
+                                        <th>金额</th>
+                                        <th>备注</th>
+                                    </tr>
+                                    @foreach (var item in Model[i].bills)
+                                    {
+                                        <tr>
+                                            <th>@item.useGroup</th>
+                                            <th>@item.prdName</th>
+                                            <th>@item.spc</th>
+                                            <th>@item.unit</th>
+                                            <th>@item.num</th>
+                                            <th>@item.price</th>
+                                            <th><span>@item.TotalMoney</span></th>
+                                            <th>
+                                                <span>申购人：</span>@item.appMan<br />
+                                                @if (item.viceNum != null && item.viceNum != 0)
+                                                {
+                                                    @item.viceNum@item.viceUnit
+                                                }
+                                            </th>
+                                        </tr>
+
+                                    }
+
+                                </table>
+                            </div>
+                            <div class="price-info" style="margin-top:0px;">
+                                <table class="form">
+                                    <tr>
+                                        <th>领用人：</th>
+                                        <th class="formValue">
+
+                                        </th>
+                                        <th class="formValue">批准：</th>
+                                        <th class="formValue">
+                                            @Model[i].appExaMan
+                                        </th>
+                                        <th class="formValue">仓管：</th>
+                                        <th class="formValue">
+                                            @Model[i].PrintMan
+                                        </th>
+                                        <th class="formValue">合计：</th>
+                                        <th class="formValue" style="width:100px;">
+                                            <span>@Model[i].currency</span> @Model[i].TotalMoney
+                                        </th>
+                                    </tr>
+                                </table>
+
+                            </div>
+
+                        </div>
+                    }
+                    else if (Model[i].billType == "E")
+                    {
+                        <div>
+                            <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                <table class="form">
+                                    <tr>
+                                        <th class="formTitle">收货单位：</th>
+                                        <th>
+                                            @Model[i].purSup
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].billNo
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].chkDate
+                                        </th>
+                                        <th class="formTitle">税率：</th>
+                                        <th class="formValue">
+                                            <span>@Model[i].principal</span>%
+                                        </th>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="price-table">
+                                <table>
+                                    <tr>
+                                        <th>采购单号</th>
+                                        <th>物料名称‎</th>
+                                        <th>型号‎&‎规格‎</th>
+                                        <th width="60px">单位‎</th>
+                                        <th>数量</th>
+                                        <th>单价</th>
+                                        <th>金额</th>
+                                        <th>备注</th>
+                                    </tr>
+                                    @foreach (var item in Model[i].bills)
+                                    {
+                                        <tr>
+                                            <th>@item.purNo</th>
+                                            <th>@item.prdName</th>
+                                            <th>@item.spc</th>
+                                            <th>@item.unit</th>
+                                            <th>@item.num</th>
+                                            <th>@item.price</th>
+                                            <th><span>@item.TotalMoney</span></th>
+                                            <th>
+                                                @if (!string.IsNullOrEmpty(item.remark))
+                                                {
+                                                    @item.remark<br />
+                                                }
+                                                @if (item.viceNum != null && item.viceNum != 0)
+                                                {
+                                                    @item.viceNum@item.viceUnit
+                                                }
+                                            </th>
+                                        </tr>
+
+                                    }
+
+                                </table>
+                            </div>
+                            <div class="price-info" style="margin-top:0px;">
+                                <table class="form">
+                                    <tr>
+                                        <th>制表：</th>
+                                        <th class="formValue">
+                                            @Model[i].PrintMan
+                                        </th>
+                                        <th class="formValue">QC：</th>
+                                        <th class="formValue">
+                                        </th>
+                                        <th class="formValue">签收：</th>
+                                        <th class="formValue">
+                                        </th>
+                                        <th class="formValue">合计：</th>
+                                        <th class="formValue" style="width:100px;">
+                                            <span>@Model[i].currency</span> @Model[i].TotalMoney
+                                        </th>
+                                    </tr>
+                                </table>
+
+                            </div>
+
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                var title = "title" + i;
+                <div id="@title" class="tableinfo" style="page-break-after:always;">
+                    <div class="bill-title price-title">
+                        广州雄智精密五金有限公司
+                    </div>
+                    <div class="bill-title price-title tablehead" id=@title>
+                        @{
+                            var bill = "bill" + @i;
+                            var type = Model[i].billType == "C" ? "工具仓收货单" : Model[i].billType == "D" ? "工具仓领用单" : Model[i].billType == "B" ? "验收退货" : Model[i].billType == "E" ? "进货退回单" : "";
+                        }
+                        @type
+                    </div>
+
+                    @if (Model[i].billType == "C")
+                    {
+                        <div>
+                            <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                <table class="form">
+                                    <tr>
+                                        <th class="formTitle">送货单位：</th>
+                                        <th>
+                                            @Model[i].purSup
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].billNo
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].chkDate
+                                        </th>
+                                        <th class="formTitle">税率：</th>
+                                        <th class="formValue">
+                                            <span>@Model[i].principal</span>%
+                                        </th>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="price-table">
+                                <table>
+                                    <tr>
+                                        <th>采购单号</th>
+                                        <th>物料名称‎</th>
+                                        <th>型号‎&‎规格‎</th>
+                                        <th width="50px">单位‎</th>
+                                        <th>数量</th>
+                                        <th>单价</th>
+                                        <th>金额</th>
+                                        <th>备注</th>
+                                    </tr>
+                                    @foreach (var item in Model[i].bills)
+                                    {
+                                        <tr>
+                                            <th>@item.purNo</th>
+                                            <th>@item.prdName</th>
+                                            <th>@item.spc</th>
+                                            <th>@item.unit</th>
+                                            <th>@item.num</th>
+                                            <th>@item.price</th>
+                                            <th><span>@item.TotalMoney</span></th>
+                                            <th>
+                                                @if (!string.IsNullOrEmpty(item.remark))
+                                                {
+                                                    @item.remark<br />
+                                                }
+                                                @if (item.viceNum != null && item.viceNum != 0)
+                                                {
+                                                    @item.viceNum@item.viceUnit
+                                                }
+
+                                            </th>
+                                        </tr>
+
+                                    }
+
+                                </table>
+                            </div>
+                            <div class="price-info" style="margin-top:0px;">
+                                <table class="form">
+                                    <tr>
+                                        <th class="formTitle">仓库主管：</th>
+                                        <th class="formValue">
+
+                                        </th>
+                                        <th class="formTitle">仓管：</th>
+                                        <th class="formValue">
+                                            @Model[i].PrintMan
+                                        </th>
+                                        <th class="formTitle">采购员：</th>
+                                        <th class="formValue">
+                                            @Model[i].purMan
+                                        </th>
+                                        <th class="formTitle">合计：</th>
+                                        <th class="formValue" style="width:100px;">
+                                            <span>@Model[i].currency</span> @Model[i].TotalMoney
+                                        </th>
+                                    </tr>
+                                </table>
+
+                            </div>
+
+                        </div>
+                    }
+                    else if (Model[i].billType == "B")
+                    {
+                        <div>
+                            <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                <table class="form">
+                                    <tr>
+                                        <th class="formTitle">收货单位：</th>
+                                        <th>
+                                            @Model[i].purSup
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].billNo
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].chkDate
+                                        </th>
+                                        <th class="formTitle">税率：</th>
+                                        <th class="formValue">
+                                            <span>@Model[i].principal</span>%
+                                        </th>
+                                    </tr>
+                                </table>
+
+                            </div>
+                            <div class="price-table">
+                                <table>
+                                    <tr>
+                                        <th>采购单号</th>
+                                        <th>物料名称‎</th>
+                                        <th>型号‎&‎规格‎</th>
+                                        <th width="50px">单位‎</th>
+                                        <th>数量</th>
+                                        <th>单价</th>
+                                        <th>金额</th>
+                                        <th>备注</th>
+                                    </tr>
+                                    @foreach (var item in Model[i].bills)
+                                    {
+                                        <tr>
+                                            <th>@item.purNo</th>
+                                            <th>@item.prdName</th>
+                                            <th>@item.spc</th>
+                                            <th>@item.unit</th>
+                                            <th>@item.num</th>
+                                            <th>@item.price</th>
+                                            <th><span>@item.TotalMoney</span></th>
+                                            <th>
+                                                @if (!string.IsNullOrEmpty(item.remark))
+                                                {
+                                                    @item.remark<br />
+                                                }
+                                                @if (item.viceNum != null && item.viceNum != 0)
+                                                {
+                                                    @item.viceNum@item.viceUnit
+                                                }
+                                            </th>
+                                        </tr>
+
+                                    }
+
+                                </table>
+                            </div>
+                            <div class="price-info" style="margin-top:0px;">
+                                <table class="form">
+                                    <tr>
+                                        <th>制表：</th>
+                                        <th class="formValue">
+                                            @Model[i].PrintMan
+                                        </th>
+                                        <th class="formValue">QC：</th>
+                                        <th class="formValue">
+                                        </th>
+                                        <th class="formValue">签收：</th>
+                                        <th class="formValue">
+                                        </th>
+                                        <th class="formValue">合计：</th>
+                                        <th class="formValue" style="width:100px;">
+                                            <span>@Model[i].currency</span> @Model[i].TotalMoney
+                                        </th>
+                                    </tr>
+                                </table>
+
+                            </div>
+
+                        </div>
+                    }
+                    else if (Model[i].billType == "D")
+                    {
+                        <div>
+                            <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                <table class="form">
+                                    <tr>
+                                        <th class="formTitle">领用部门：</th>
+                                        <th style="width:90px;">
+                                            @Model[i].appDep
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].billNo
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].chkDate
+                                        </th>
+                                        <th class="formTitle">税率：</th>
+                                        <th class="formValue">
+                                            <span>@Model[i].principal</span>%
+                                        </th>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="price-table">
+                                <table>
+                                    <tr>
+                                        <th>领用组别</th>
+                                        <th>物料名称‎</th>
+                                        <th>型号‎&‎规格‎</th>
+                                        <th width="60px">单位‎</th>
+                                        <th>数量</th>
+                                        <th>单价</th>
+                                        <th>金额</th>
+                                        <th>备注</th>
+                                    </tr>
+                                    @foreach (var item in Model[i].bills)
+                                    {
+                                        <tr>
+                                            <th>@item.useGroup</th>
+                                            <th>@item.prdName</th>
+                                            <th>@item.spc</th>
+                                            <th>@item.unit</th>
+                                            <th>@item.num</th>
+                                            <th>@item.price</th>
+                                            <th><span>@item.TotalMoney</span></th>
+                                            <th>
+                                                <span>申购人：</span>@item.appMan<br />
+                                                @if (item.viceNum != null && item.viceNum != 0)
+                                                {
+                                                    @item.viceNum@item.viceUnit
+                                                }
+                                            </th>
+                                        </tr>
+
+                                    }
+
+                                </table>
+                            </div>
+                            <div class="price-info" style="margin-top:0px;">
+                                <table class="form">
+                                    <tr>
+                                        <th>领用人：</th>
+                                        <th class="formValue">
+
+                                        </th>
+                                        <th class="formValue">批准：</th>
+                                        <th class="formValue">
+                                            @Model[i].appExaMan
+                                        </th>
+                                        <th class="formValue">仓管：</th>
+                                        <th class="formValue">
+                                            @Model[i].PrintMan
+                                        </th>
+                                        <th class="formValue">合计：</th>
+                                        <th class="formValue" style="width:100px;">
+                                            <span>@Model[i].currency</span> @Model[i].TotalMoney
+                                        </th>
+                                    </tr>
+                                </table>
+
+                            </div>
+
+                        </div>
+                    }
+                    else if (Model[i].billType == "E")
+                    {
+                        <div>
+                            <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                <table class="form">
+                                    <tr>
+                                        <th class="formTitle">收货单位：</th>
+                                        <th>
+                                            @Model[i].purSup
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].billNo
+                                        </th>
+                                        <th colspan="2">
+                                            @Model[i].chkDate
+                                        </th>
+                                        <th class="formTitle">税率：</th>
+                                        <th class="formValue">
+                                            <span>@Model[i].principal</span>%
+                                        </th>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="price-table">
+                                <table>
+                                    <tr>
+                                        <th>采购单号</th>
+                                        <th>物料名称‎</th>
+                                        <th>型号‎&‎规格‎</th>
+                                        <th width="60px">单位‎</th>
+                                        <th>数量</th>
+                                        <th>单价</th>
+                                        <th>金额</th>
+                                        <th>备注</th>
+                                    </tr>
+                                    @foreach (var item in Model[i].bills)
+                                    {
+                                        <tr>
+                                            <th>@item.purNo</th>
+                                            <th>@item.prdName</th>
+                                            <th>@item.spc</th>
+                                            <th>@item.unit</th>
+                                            <th>@item.num</th>
+                                            <th>@item.price</th>
+                                            <th><span>@item.TotalMoney</span></th>
+                                            <th>
+                                                @if (!string.IsNullOrEmpty(item.remark))
+                                                {
+                                                    @item.remark<br />
+                                                }
+                                                @if (item.viceNum != null && item.viceNum != 0)
+                                                {
+                                                    @item.viceNum@item.viceUnit
+                                                }
+                                            </th>
+                                        </tr>
+
+                                    }
+
+                                </table>
+                            </div>
+                            <div class="price-info" style="margin-top:0px;">
+                                <table class="form">
+                                    <tr>
+                                        <th>制表：</th>
+                                        <th class="formValue">
+                                            @Model[i].PrintMan
+                                        </th>
+                                        <th class="formValue">QC：</th>
+                                        <th class="formValue">
+                                        </th>
+                                        <th class="formValue">签收：</th>
+                                        <th class="formValue">
+                                        </th>
+                                        <th class="formValue">合计：</th>
+                                        <th class="formValue" style="width:100px;">
+                                            <span>@Model[i].currency</span> @Model[i].TotalMoney
+                                        </th>
+                                    </tr>
+                                </table>
+
+                            </div>
+
+                        </div>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            if (i == Model.Count - 1)
+            {
+                {
+                    var title = "title" + i;
+                    <div id="@title" class="tableinfo" style="display:none;page-break-after:unset;">
+                        <div class="bill-title price-title">
+                            广州雄智精密五金有限公司
+                        </div>
+                        <div class="bill-title price-title tablehead">
+                            @{
+                                var bill = "bill" + @i;
+                                var ware = Model[i].ware == 0 ? "工具仓" : "玻璃仓";
+                                var type = Model[i].billType == "C" ? ware + "收货单" : Model[i].billType == "D" ? ware + "领用单" : Model[i].billType == "B" ? "验收退货" : Model[i].billType == "E" ? "进货退回单" : "";
+                            }
+                            @type
+                        </div>
+
+                        @if (Model[i].billType == "C")
+                        {
+                            <div>
+                                <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th class="formTitle">送货单位：</th>
+                                            <th>
+                                                @Model[i].purSup
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].billNo
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].chkDate
+                                            </th>
+                                            <th class="formTitle">税率：</th>
+                                            <th class="formValue">
+                                                <span>@Model[i].principal</span>%
+                                            </th>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="price-table">
+                                    <table>
+                                        <tr>
+                                            <th>采购单号</th>
+                                            <th>物料名称‎</th>
+                                            <th>型号‎&‎规格‎</th>
+                                            <th width="60px">单位‎</th>
+                                            <th>数量</th>
+                                            <th>单价</th>
+                                            <th>金额</th>
+                                            <th>备注</th>
+                                        </tr>
+                                        @foreach (var item in Model[i].bills)
+                                        {
+                                            <tr>
+                                                <th>@item.purNo</th>
+                                                <th>@item.prdName</th>
+                                                <th>@item.spc</th>
+                                                <th>@item.unit</th>
+                                                <th>@item.num</th>
+                                                <th>@item.price</th>
+                                                <th><span>@item.TotalMoney</span></th>
+                                                <th>
+                                                    @if (!string.IsNullOrEmpty(item.remark))
+                                                    {
+                                                        @item.remark<br />
+                                                    }
+                                                    @if (item.viceNum != null && item.viceNum != 0)
+                                                    {
+                                                        @item.viceNum@item.viceUnit
+                                                    }
+                                                </th>
+                                            </tr>
+
+                                        }
+
+                                    </table>
+                                </div>
+                                <div class="price-info" style="margin-top:0px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th>仓库主管：</th>
+                                            <th class="formValue">
+
+                                            </th>
+                                            <th class="formValue">仓管：</th>
+                                            <th class="formValue">
+                                                @Model[i].PrintMan
+                                            </th>
+                                            <th class="formValue">采购员：</th>
+                                            <th class="formValue">
+                                                @Model[i].purMan
+                                            </th>
+                                            <th class="formValue">合计：</th>
+                                            <th class="formValue" style="width:100px;">
+                                                <span>@Model[i].currency</span> @Model[i].TotalMoney
+                                            </th>
+                                        </tr>
+                                    </table>
+
+                                </div>
+
+                            </div>
+                        }
+                        else if (Model[i].billType == "B")
+                        {
+                            <div>
+                                <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th class="formTitle">收货单位：</th>
+                                            <th>
+                                                @Model[i].purSup
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].billNo
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].chkDate
+                                            </th>
+                                            <th class="formTitle">税率：</th>
+                                            <th class="formValue">
+                                                <span>@Model[i].principal</span>%
+                                            </th>
+                                        </tr>
+                                    </table>
+
+                                </div>
+                                <div class="price-table">
+                                    <table>
+                                        <tr>
+                                            <th>采购单号</th>
+                                            <th>物料名称‎</th>
+                                            <th>型号‎&‎规格‎</th>
+                                            <th width="60px">单位‎</th>
+                                            <th>数量</th>
+                                            <th>单价</th>
+                                            <th>金额</th>
+                                            <th>备注</th>
+                                        </tr>
+                                        @foreach (var item in Model[i].bills)
+                                        {
+                                            <tr>
+                                                <th>@item.purNo</th>
+                                                <th>@item.prdName</th>
+                                                <th>@item.spc</th>
+                                                <th>@item.unit</th>
+                                                <th>@item.num</th>
+                                                <th>@item.price</th>
+                                                <th><span>@item.TotalMoney</span></th>
+                                                <th>
+                                                    @if (!string.IsNullOrEmpty(item.remark))
+                                                    {
+                                                        @item.remark<br />
+                                                    }
+                                                    @if (item.viceNum != null && item.viceNum != 0)
+                                                    {
+                                                        @item.viceNum@item.viceUnit
+                                                    }
+                                                </th>
+                                            </tr>
+
+                                        }
+
+                                    </table>
+                                </div>
+                                <div class="price-info" style="margin-top:0px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th>制表：</th>
+                                            <th class="formValue">
+                                                @Model[i].PrintMan
+                                            </th>
+                                            <th class="formValue">QC：</th>
+                                            <th class="formValue">
+                                            </th>
+                                            <th class="formValue">签收：</th>
+                                            <th class="formValue">
+                                            </th>
+                                            <th class="formValue">合计：</th>
+                                            <th class="formValue" style="width:100px;">
+                                                <span>@Model[i].currency</span> @Model[i].TotalMoney
+                                            </th>
+                                        </tr>
+                                    </table>
+
+                                </div>
+
+                            </div>
+                        }
+                        else if (Model[i].billType == "D")
+                        {
+                            <div>
+                                <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th class="formTitle">领用部门：</th>
+                                            <th>
+                                                @Model[i].appDep
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].billNo
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].chkDate
+                                            </th>
+                                            <th class="formTitle">税率：</th>
+                                            <th class="formValue">
+                                                <span>@Model[i].principal</span>%
+                                            </th>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="price-table">
+                                    <table>
+                                        <tr>
+                                            <th>领用组别</th>
+                                            <th>物料名称‎</th>
+                                            <th>型号‎&‎规格‎</th>
+                                            <th width="60px">单位‎</th>
+                                            <th>数量</th>
+                                            <th>单价</th>
+                                            <th>金额</th>
+                                            <th>备注</th>
+                                        </tr>
+                                        @foreach (var item in Model[i].bills)
+                                        {
+                                            <tr>
+                                                <th>@item.useGroup</th>
+                                                <th>@item.prdName</th>
+                                                <th>@item.spc</th>
+                                                <th>@item.unit</th>
+                                                <th>@item.num</th>
+                                                <th>@item.price</th>
+                                                <th><span>@item.TotalMoney</span></th>
+                                                <th>
+                                                    <span>申购人：</span>@item.appMan<br />
+                                                    @if (item.viceNum != null && item.viceNum != 0)
+                                                    {
+                                                        @item.viceNum@item.viceUnit
+                                                    }
+                                                </th>
+                                            </tr>
+
+                                        }
+
+                                    </table>
+                                </div>
+                                <div class="price-info" style="margin-top:0px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th>领用人：</th>
+                                            <th class="formValue">
+
+                                            </th>
+                                            <th class="formValue">批准：</th>
+                                            <th class="formValue">
+                                                @Model[i].appExaMan
+                                            </th>
+                                            <th class="formValue">仓管：</th>
+                                            <th class="formValue">
+                                                @Model[i].PrintMan
+                                            </th>
+                                            <th class="formValue">合计：</th>
+                                            <th class="formValue" style="width:100px;">
+                                                <span>@Model[i].currency</span>@Model[i].TotalMoney
+                                            </th>
+                                        </tr>
+                                    </table>
+
+                                </div>
+
+                            </div>
+                        }
+                        else if (Model[i].billType == "E")
+                        {
+                            <div>
+                                <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th class="formTitle">收货单位：</th>
+                                            <th>
+                                                @Model[i].purSup
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].billNo
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].chkDate
+                                            </th>
+                                            <th class="formTitle">税率：</th>
+                                            <th class="formValue">
+                                                <span>@Model[i].principal</span>%
+                                            </th>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="price-table">
+                                    <table>
+                                        <tr>
+                                            <th>采购单号</th>
+                                            <th>物料名称‎</th>
+                                            <th>型号‎&‎规格‎</th>
+                                            <th width="60px">单位‎</th>
+                                            <th>数量</th>
+                                            <th>单价</th>
+                                            <th>金额</th>
+                                            <th>备注</th>
+                                        </tr>
+                                        @foreach (var item in Model[i].bills)
+                                        {
+                                            <tr>
+                                                <th>@item.purNo</th>
+                                                <th>@item.prdName</th>
+                                                <th>@item.spc</th>
+                                                <th>@item.unit</th>
+                                                <th>@item.num</th>
+                                                <th>@item.price</th>
+                                                <th><span>@item.TotalMoney</span></th>
+                                                <th>
+                                                    @if (!string.IsNullOrEmpty(item.remark))
+                                                    {
+                                                        @item.remark<br />
+                                                    }
+                                                    @if (item.viceNum != null && item.viceNum != 0)
+                                                    {
+                                                        @item.viceNum@item.viceUnit
+                                                    }
+                                                </th>
+                                            </tr>
+
+                                        }
+
+                                    </table>
+                                </div>
+                                <div class="price-info" style="margin-top:0px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th>制表：</th>
+                                            <th class="formValue">
+                                                @Model[i].PrintMan
+                                            </th>
+                                            <th class="formValue">QC：</th>
+                                            <th class="formValue">
+                                            </th>
+                                            <th class="formValue">签收：</th>
+                                            <th class="formValue">
+                                            </th>
+                                            <th class="formValue">合计：</th>
+                                            <th class="formValue" style="width:100px;">
+                                                <span>@Model[i].currency</span>@Model[i].TotalMoney
+                                            </th>
+                                        </tr>
+                                    </table>
+
+                                </div>
+
+                            </div>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                {
+                    var title = "title" + i;
+                    <div id="@title" class="tableinfo" style="display:none;page-break-after:always;">
+                        <div class="bill-title price-title">
+                            广州雄智精密五金有限公司
+                        </div>
+                        <div class="bill-title price-title tablehead">
+                            @{
+                                var bill = "bill" + @i;
+                                var ware = Model[i].ware == 0 ? "工具仓" : "玻璃仓";
+                                var type = Model[i].billType == "C" ? ware + "收货单" : Model[i].billType == "D" ? ware + "领用单" : Model[i].billType == "B" ? "验收退货" : Model[i].billType == "E" ? "进货退回单" : "";
+                            }
+                            @type
+                        </div>
+
+                        @if (Model[i].billType == "C")
+                        {
+                            <div>
+                                <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th class="formTitle">送货单位：</th>
+                                            <th>
+                                                @Model[i].purSup
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].billNo
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].chkDate
+                                            </th>
+                                            <th class="formTitle">税率：</th>
+                                            <th class="formValue">
+                                                <span>@Model[i].principal</span>%
+                                            </th>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="price-table">
+                                    <table>
+                                        <tr>
+                                            <th>采购单号</th>
+                                            <th>物料名称‎</th>
+                                            <th>型号‎&‎规格‎</th>
+                                            <th width="60px">单位‎</th>
+                                            <th>数量</th>
+                                            <th>单价</th>
+                                            <th>金额</th>
+                                            <th>备注</th>
+                                        </tr>
+                                        @foreach (var item in Model[i].bills)
+                                        {
+                                            <tr>
+                                                <th>@item.purNo</th>
+                                                <th>@item.prdName</th>
+                                                <th>@item.spc</th>
+                                                <th>@item.unit</th>
+                                                <th>@item.num</th>
+                                                <th>@item.price</th>
+                                                <th><span>@item.TotalMoney</span></th>
+                                                <th>
+                                                    @if (!string.IsNullOrEmpty(item.remark))
+                                                    {
+                                                        @item.remark<br />
+                                                    }
+                                                    @if (item.viceNum != null && item.viceNum != 0)
+                                                    {
+                                                        @item.viceNum@item.viceUnit
+                                                    }
+                                                </th>
+                                            </tr>
+
+                                        }
+
+                                    </table>
+                                </div>
+                                <div class="price-info" style="margin-top:0px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th>仓库主管：</th>
+                                            <th class="formValue">
+
+                                            </th>
+                                            <th class="formValue">仓管：</th>
+                                            <th class="formValue">
+                                                @Model[i].PrintMan
+                                            </th>
+                                            <th class="formValue">采购员：</th>
+                                            <th class="formValue">
+                                                @Model[i].purMan
+                                            </th>
+                                            <th class="formValue">合计：</th>
+                                            <th class="formValue" style="width:100px;">
+                                                <span>@Model[i].currency</span> @Model[i].TotalMoney
+                                            </th>
+                                        </tr>
+                                    </table>
+
+                                </div>
+
+                            </div>
+                        }
+                        else if (Model[i].billType == "B")
+                        {
+                            <div>
+                                <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th class="formTitle">收货单位：</th>
+                                            <th>
+                                                @Model[i].purSup
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].billNo
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].chkDate
+                                            </th>
+                                            <th class="formTitle">税率：</th>
+                                            <th class="formValue">
+                                                <span>@Model[i].principal</span>%
+                                            </th>
+                                        </tr>
+                                    </table>
+
+                                </div>
+                                <div class="price-table">
+                                    <table>
+                                        <tr>
+                                            <th>采购单号</th>
+                                            <th>物料名称‎</th>
+                                            <th>型号‎&‎规格‎</th>
+                                            <th width="60px">单位‎</th>
+                                            <th>数量</th>
+                                            <th>单价</th>
+                                            <th>金额</th>
+                                            <th>备注</th>
+                                        </tr>
+                                        @foreach (var item in Model[i].bills)
+                                        {
+                                            <tr>
+                                                <th>@item.purNo</th>
+                                                <th>@item.prdName</th>
+                                                <th>@item.spc</th>
+                                                <th>@item.unit</th>
+                                                <th>@item.num</th>
+                                                <th>@item.price</th>
+                                                <th><span>@item.TotalMoney</span></th>
+                                                <th>
+                                                    @if (!string.IsNullOrEmpty(item.remark))
+                                                    {
+                                                        @item.remark<br />
+                                                    }
+                                                    @if (item.viceNum != null && item.viceNum != 0)
+                                                    {
+                                                        @item.viceNum@item.viceUnit
+                                                    }
+                                                </th>
+                                            </tr>
+
+                                        }
+
+                                    </table>
+                                </div>
+                                <div class="price-info" style="margin-top:0px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th>制表：</th>
+                                            <th class="formValue">
+                                                @Model[i].PrintMan
+                                            </th>
+                                            <th class="formValue">QC：</th>
+                                            <th class="formValue">
+                                            </th>
+                                            <th class="formValue">签收：</th>
+                                            <th class="formValue">
+                                            </th>
+                                            <th class="formValue">合计：</th>
+                                            <th class="formValue" style="width:100px;">
+                                                <span>@Model[i].currency</span> @Model[i].TotalMoney
+                                            </th>
+                                        </tr>
+                                    </table>
+
+                                </div>
+
+                            </div>
+                        }
+                        else if (Model[i].billType == "D")
+                        {
+                            <div>
+                                <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th class="formTitle">领用部门：</th>
+                                            <th>
+                                                @Model[i].appDep
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].billNo
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].chkDate
+                                            </th>
+                                            <th class="formTitle">税率：</th>
+                                            <th class="formValue">
+                                                <span>@Model[i].principal</span>%
+                                            </th>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="price-table">
+                                    <table>
+                                        <tr>
+                                            <th>领用组别</th>
+                                            <th>物料名称‎</th>
+                                            <th>型号‎&‎规格‎</th>
+                                            <th width="60px">单位‎</th>
+                                            <th>数量</th>
+                                            <th>单价</th>
+                                            <th>金额</th>
+                                            <th>备注</th>
+                                        </tr>
+                                        @foreach (var item in Model[i].bills)
+                                        {
+                                            <tr>
+                                                <th>@item.useGroup</th>
+                                                <th>@item.prdName</th>
+                                                <th>@item.spc</th>
+                                                <th>@item.unit</th>
+                                                <th>@item.num</th>
+                                                <th>@item.price</th>
+                                                <th><span>@item.TotalMoney</span></th>
+                                                <th>
+                                                    <span>申购人：</span>@item.appMan<br />
+                                                    @if (item.viceNum != null && item.viceNum != 0)
+                                                    {
+                                                        @item.viceNum@item.viceUnit
+                                                    }
+                                                </th>
+                                            </tr>
+
+                                        }
+
+                                    </table>
+                                </div>
+                                <div class="price-info" style="margin-top:0px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th>领用人：</th>
+                                            <th class="formValue">
+                                            </th>
+                                            <th class="formValue">批准：</th>
+                                            <th class="formValue">
+                                                @Model[i].appExaMan
+                                            </th>
+                                            <th class="formValue">仓管：</th>
+                                            <th class="formValue">
+                                                @Model[i].PrintMan
+                                            </th>
+                                            <th class="formValue">合计：</th>
+                                            <th class="formValue" style="width:100px;">
+                                                <span>@Model[i].currency</span>@Model[i].TotalMoney
+                                            </th>
+                                        </tr>
+                                    </table>
+
+                                </div>
+
+                            </div>
+                        }
+                        else if (Model[i].billType == "E")
+                        {
+                            <div>
+                                <div class="price-info" style=" margin-bottom: 0px; margin-top: 10px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th class="formTitle">收货单位：</th>
+                                            <th>
+                                                @Model[i].purSup
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].billNo
+                                            </th>
+                                            <th colspan="2">
+                                                @Model[i].chkDate
+                                            </th>
+                                            <th class="formTitle">税率：</th>
+                                            <th class="formValue">
+                                                <span>@Model[i].principal</span>%
+                                            </th>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="price-table">
+                                    <table>
+                                        <tr>
+                                            <th>采购单号</th>
+                                            <th>物料名称‎</th>
+                                            <th>型号‎&‎规格‎</th>
+                                            <th width="60px">单位‎</th>
+                                            <th>数量</th>
+                                            <th>单价</th>
+                                            <th>金额</th>
+                                            <th>备注</th>
+                                        </tr>
+                                        @foreach (var item in Model[i].bills)
+                                        {
+                                            <tr>
+                                                <th>@item.purNo</th>
+                                                <th>@item.prdName</th>
+                                                <th>@item.spc</th>
+                                                <th>@item.unit</th>
+                                                <th>@item.num</th>
+                                                <th>@item.price</th>
+                                                <th><span>@item.TotalMoney</span></th>
+                                                <th>
+                                                    @if (!string.IsNullOrEmpty(item.remark))
+                                                    {
+                                                        @item.remark<br />
+                                                    }
+                                                    @if (item.viceNum != null && item.viceNum != 0)
+                                                    {
+                                                        @item.viceNum@item.viceUnit
+                                                    }
+                                                </th>
+                                            </tr>
+
+                                        }
+
+                                    </table>
+                                </div>
+                                <div class="price-info" style="margin-top:0px;">
+                                    <table class="form">
+                                        <tr>
+                                            <th>制表：</th>
+                                            <th class="formValue">
+                                                @Model[i].PrintMan
+                                            </th>
+                                            <th class="formValue">QC：</th>
+                                            <th class="formValue">
+                                            </th>
+                                            <th class="formValue">签收：</th>
+                                            <th class="formValue">
+                                            </th>
+                                            <th class="formValue">合计：</th>
+                                            <th class="formValue" style="width:100px;">
+                                                <span>@Model[i].currency</span>@Model[i].TotalMoney
+                                            </th>
+                                        </tr>
+                                    </table>
+
+                                </div>
+
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        }
+
+    }
+
+</div>
+         

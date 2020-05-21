@@ -1,0 +1,220 @@
+﻿
+@{
+    ViewBag.Title = "PrintIndex";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+        laydate.render({
+            elem: '#date',
+            range: '~',
+            change: function (value, date, endDate) {
+                var dates = value.split('~');
+                $("#dateBeginDate").val(dates[0]);
+                $("#dateEndDate").val(dates[1]);
+            },
+            done: function (value, date, endDate) {
+                if (value == "") {
+                    $("#dateBeginDate").val("");
+                    $("#dateEndDate").val("");
+                }
+            }
+        });
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PurchaseManage/Bill/GetPrintList" ,
+            height: $(window).height() - 128,
+            autowidth: true, //自适应宽度
+            shrinkToFit: true, //自适应宽度
+            colModel: [
+                { label: "主键", name: "billNo", hidden: true, key: true },
+                {
+                    label: '单据类型', name: 'billType', width: 200, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == "C") {
+                            return "进货";
+                        } else if (cellvalue == "B") {
+                            return "验收退回";
+                        } else if (cellvalue == "D") {
+                            return "领料";
+                        } else if (cellvalue == "E") {
+                            return "进货退回";
+                        }
+                    }
+                },
+                {
+                    label: '单据号码', name: 'billNo', width: 200, align: 'left'
+                },
+                {
+                    label: '标记', name: 'prtTag', width: 200, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == "F") {
+                            return "未打印";
+                        } else {
+                            return "已打印";
+                        }
+                    }
+                },
+                {
+                    label: "单据日期", name: "chkDate", width: 200, align: "left",
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                {
+                    label: "厂商", name: "purSup", width: 100, align: "left"
+                }
+            ],
+            pager: "#gridPager",
+            sortname: 'date desc',
+            multiselect: true,
+            rowNum: 20,
+            rowList: [10, 20, 30],
+            viewrecords: true,
+            subGrid: true,//开启子表格支持
+            //子表格的id；当子表格展开的时候，在主表格中会创建一个div元素用来容纳子表格，subgrid_id就是这个div的id
+            subGridRowExpanded: function (subgrid_id, row_id) {//子表格容器的id和需要展开子表格的行id
+
+                bindSubGrid(subgrid_id, row_id);
+
+            },
+            subGridOptions: {
+                "reloadOnExpand": false,
+                "selectOnExpand": false
+            },
+            beforeSelectRow: function (rowid, e) {
+
+            },
+            ondblClickRow: function (row) {
+
+            }
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: {
+                    prtTag: $("#sel_prtTag").val(), 
+                    billType: $("#sel_billType").val(),
+                    purSup: $("#purSup").val(),
+                    dateBeginDate: $("#dateBeginDate").val(),
+                    dateEndDate: $("#dateEndDate").val()
+                },
+             page:1 }).trigger('reloadGrid');
+        });
+    }
+    function bindSubGrid(subgrid_id, collectLineId) {
+        var subgrid_table_id;
+        subgrid_table_id = subgrid_id + "_t"; // (3)根据subgrid_id定义对应的子表格的table的id
+        var subgrid_pager_id;
+        subgrid_pager_id = subgrid_id + "_pgr" // (4)根据subgrid_id定义对应的子表格的pager的id
+        // (5)动态添加子报表的table和pager
+        $("#" + subgrid_id).html("<table id='" + subgrid_table_id + "' class='scroll'></table><div id='" + subgrid_pager_id + "' class='scroll'></div>");
+        // (6)创建jqGrid对象
+        $("#" + subgrid_table_id).dataGrid({
+            url: "/PurchaseManage/Bill/GetBillDetailsList?billNo=" + collectLineId,
+            colModel: [
+                { label: "主键", name: "id", hidden: true, key: true },
+                {
+                    label: '单号', name: 'billNo', width: 80, align: 'left'
+                },
+                {
+                    label: '名称', name: 'prdName', width: 80, align: 'left'
+                },
+                {
+                    label: '规格', name: 'spc', width: 100, align: 'left'
+                },
+                {
+                    label: '数量', name: 'num', width: 60, align: 'left'
+                },
+                {
+                    label: "单位", name: "unit", width: 60, align: "left"
+                },
+                {
+                    label: '副数量', name: 'viceNum', width: 60, align: 'left'
+                },
+                {
+                    label: "副单位", name: "viceUnit", width: 60, align: 'left'
+                },
+                {
+                    label: '申购部门', name: 'appDep', width: 60, align: 'left'
+                },
+                {
+                    label: "申购人", name: "appMan", width: 60, align: "left"
+                },
+                {
+                    label: "备注", name: "remark", width: 60, align: "left"
+                }
+            ]
+        });
+    }
+    function btn_print() {
+        var keyValue = $("#gridList").jqGrid('getGridParam', 'selarrrow');
+        if (keyValue == "") {
+            return false;
+        }
+        window.open("~/../Print?keyValue=" + keyValue, "_blank", null);
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="bill_print" class="btn btn-primary" onclick="btn_print()">打印</a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <form class="form-inline" role="form">
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label for="sel_prtTag">打印状态:</label>
+                                <select id="sel_prtTag" class="form-control">
+                                    <option value="F">未打印</option>
+                                    <option value="T">已打印</option>
+                                    <option value="ALL">所有</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label for="sel_billType">单据类型:</label>
+                                <select id="sel_billType" class="form-control">
+                                    <option value="">==请选择==</option>
+                                    <option value="C">进货</option>
+                                    <option value="B">验收退回</option>
+                                    <option value="D">领料</option>
+                                    <option value="E">进货退回</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="daterange-date">单据日期:</label>
+                            <div class="input-group">
+                                <input id="dateBeginDate" type="hidden" />
+                                <input id="dateEndDate" type="hidden" />
+                                <input type="text" id="date" placeholder="请选择日期" class="form-control" style="width:200px;" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input type="text" id="purSup" class="form-control" placeholder="厂商/单号" style="width: 200px;" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>

@@ -1,0 +1,169 @@
+﻿
+@{
+    ViewBag.Title = "NoticeForm";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        if (!!keyValue) {
+            $.ajax({
+                url: "/TemplateManage/Template/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                    //var finish = parseFloat(data.TEM_NUM) - parseFloat(data.TAKE_MAN == null ? 0 : data.TAKE_MAN);
+                    $("#FINISH_NUM").val(data.TEM_NUM);
+                    $("#TAKE_MAN").val(data.CREATE_USER);
+                }
+            });
+        }
+        $("input[name=MATERIAL]").change(function () {
+            var weight = $("#WEIGHT").val();
+            if (weight!="") {
+                GetMatFee(weight);
+            }
+        });
+    });
+    function GetMatFee(value) {
+        if (value == "") {
+            $("#MAT_FEE").val("");
+            return false;
+        }
+        var chkVal = $("input[name='MATERIAL']:checked").val();
+        if (chkVal != undefined) {
+            $.ajax({
+                url: '/TemplateManage/Template/GetMatFee',
+                type: 'GET',
+                dataType:"json",
+                data: { keyValue: chkVal },
+                success: function (data) {
+                    var weight = $("#WEIGHT").val();
+                    var fee = (parseFloat(data.PRICE) * parseFloat(value)).toFixed(2);
+                    $("#MAT_FEE").val(fee);
+                },
+                error: function (resp) { }
+            });
+        }
+    }
+    function GetMadeFee(value) {
+        var fee = Number(value * 1).toFixed(2);
+        $("#MDDE_FEE").val(fee);
+    }
+    function submitForm()
+    {
+        $.submitForm({
+            url: "/TemplateManage/Template/SubmitFreeForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form name="form" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">材料费用</th>
+                <td class="formValue">
+                    <input id="MAT_FEE" name="MAT_FEE" class="form-control required">
+                </td>
+                <th class="formTitle">制造费用</th>
+                <td class="formValue">
+                    <input id="MDDE_FEE" name="MDDE_FEE" type="text" class="form-control required"/>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">领取人</th>
+                <td class="formValue">
+                    <input id="TAKE_MAN" name="TAKE_MAN" type="text" class="form-control required" />
+                </td>
+                <th class="formTitle">完成套数</th>
+                <td class="formValue">
+                    <input id="FINISH_NUM" name="FINISH_NUM" type="text" class="form-control required" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">重量（KG）</th>
+                <td class="formValue">
+                    <input id="WEIGHT" name="WEIGHT" type="text" class="form-control" placeholder="填入重量自动计算材料费用" onkeyup="GetMatFee(this.value)"/>
+                </td>
+                <th class="formTitle">工时（分钟）</th>
+                <td class="formValue">
+                    <input id="WORK_TIME" name="WORK_TIME" type="text" class="form-control" placeholder="填入工时自动计算制造费用" onkeyup="GetMadeFee(this.value)"/>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">组别</th>
+                <td class="formValue">
+                    <input id="GROUP_NAME" name="GROUP_NAME" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">
+                    <input type="hidden" id="CREATE_USER" />
+                    <input type="hidden" id="TEM_NUM" />
+                </th>
+                <td class="formValue"></td>
+            </tr>
+            <tr>
+                <th class="formTitle" rowspan="5">材质</th>
+                <td class="formValue" rowspan="5" colspan="3">
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="尼龙" />尼龙</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="PC" />PC</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="铁氟龙" />铁氟龙</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="POM" />POM</label>
+                    </div> <br />
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="不锈钢" />不锈钢</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="铁" />铁</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="毛坯" />毛坯</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="型材" />型材</label>
+                    </div> <br />
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="铝板" />铝板</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="铝管" />铝管</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="铝棒" />铝棒</label>
+                    </div> <br />
+                    <div class="radio-inline">
+                        <label class="radio"> <input type="radio" name="MATERIAL" value="铜板" />铜板</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="铜管" />铜管</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="铜棒" />铜棒</label>
+                    </div> <br />
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="钢板" />钢板</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="钢管" />钢管</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input type="radio" name="MATERIAL" value="钢棒" />钢棒</label>
+                    </div>
+                </td>
+             </tr>
+        </table>
+    </div>
+</form>

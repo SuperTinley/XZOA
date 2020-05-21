@@ -1,0 +1,486 @@
+﻿
+@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<style>
+    .check-box:checked {
+        background-color: #FDA366;
+    }
+    .check-box:disabled {
+        background-color: #ddd2d2;
+    }
+   .check-box {
+        width: 100%;
+        height: 100%;
+        font-size: 14px;
+        border: none;
+        outline: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        margin:0;
+    }
+
+    .th-title {
+        position: relative;
+        text-align: center;
+        white-space: nowrap;
+        font-weight: normal;
+        height: 50px;
+        border: 1px solid #808080;
+    }
+    .li_out {
+        height: 120px;
+        padding: 0;
+        border:1px solid #808080;
+    }
+    .li_on {
+        height: 120px;
+        padding: 0;
+        border: 1px solid #808080;
+    }
+    .li_disabled {
+        height: 120px;
+        padding: 0;
+        border: 1px solid #808080;
+    }
+    #tool a {
+        text-decoration:none;
+        font-family:NSimSun;
+        color:blue;
+        cursor:pointer;
+    }
+</style>
+<script>
+    var keyValue = $.request("keyValue");
+    Date.prototype.Format = function (fmt) {
+        var o = {
+            "M+": this.getMonth() + 1, //月份 
+            "d+": this.getDate(), //日 
+            "h+": this.getHours(), //小时 
+            "m+": this.getMinutes(), //分 
+            "s+": this.getSeconds(), //秒 
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+            "S": this.getMilliseconds() //毫秒 
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+    var date = new Date();
+    $(function () {
+        initSelect();
+        if (!!keyValue) {
+            $("#ID").val(keyValue);
+            $.ajax({
+                url: "/RoomManage/RoomManage/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                    GetMeetingTime();
+                    $("#MeetingDate").val(data.MeetingDate.substring(0, 11));
+                    var str1 = data.BeginTime.slice(11, 16);
+                    var str2 = data.PreEndTime.slice(11, 16);
+                    $("#showTime").html(str1 + "-" + str2);
+                    var checkboxs = $("input[type='checkbox']");
+                    var b,e;
+                    for (var j = 0; j < checkboxs.length; j++) {
+                        if (checkboxs.eq(j).val() == str1) {
+                            checkboxs.eq(j).removeAttr('disabled');
+                            checkboxs.eq(j).attr('checked', true);
+                            checkboxs.eq(j).parent().removeClass("li_out").removeClass("li_disabled").addClass("li_on");
+                            checkboxs.eq(j).css("background","#FDA366");
+                            b = j;
+                        }
+                        if (checkboxs.eq(j).val() == str2) {
+                            checkboxs.eq(j - 1).removeAttr('disabled');
+                            checkboxs.eq(j - 1).attr('checked', true);
+                            checkboxs.eq(j - 1).parent().removeClass("li_out").removeClass("li_disabled").addClass("li_on");
+                            checkboxs.eq(j - 1).css("background", "#FDA366");
+                            e = j-1;
+                        }
+                    }
+                    for (var k = b; k < e; k++) {
+                        checkboxs.eq(k).removeAttr('disabled');
+                        checkboxs.eq(k).attr('checked', true);
+                        checkboxs.eq(k).parent().removeClass("li_out").removeClass("li_disabled").addClass("li_on");
+                        checkboxs.eq(k).css("background", "#FDA366");
+                    }
+                }
+            });
+        }
+        else {
+            $("#MeetingDate").val(date.Format("yyyy-MM-dd"));
+            GetMeetingTime();
+        }
+        GetRoom();
+        laydate.render({
+            elem: '#MeetingDate',
+            min: date.Format("yyyy-MM-dd"),
+            done: function (value, date) { //监听日期被切换
+                GetMeetingDate();
+                clearbox();
+            }
+        });
+        $("#meetDD td").click(function () {
+            var $li = $(this);
+            var check = $li.children("input").eq(0);
+            var ch = $("#MeetingDate").val() + " " + check.val();
+            date = new Date();
+            var t = new Date(Date.parse(ch.replace(/-/g, "/")));
+            var id = check.attr("id");
+            var len = parseInt(id.substring(8));
+            var checks = $("input[type='checkbox']:checked");
+            var maxNum = len, minNum = len;
+            for (var i = 0; i < checks.length; i++) {
+                var sort = parseInt(checks.eq(i).attr("sort"));
+                if (sort > maxNum) {
+                    maxNum = sort;
+                }
+                if (sort < minNum) {
+                    minNum = sort;
+                }
+            }
+            for (var i = minNum; i < maxNum; i++) {
+                if ($("#checkbox" + i).parent().attr("class") == "li_disabled") {
+                    check.attr("checked", false );
+                    return false;
+                }
+            }
+            if (date > t) {
+                $.modalMsg('该时间段小于当前时间，不能预订', 'error');
+                return false;
+            }
+            if ($li.hasClass("li_out")) {
+                $li.removeClass("li_out").addClass("li_on");
+                check.attr("checked", true);
+                check.css("background", "#FDA366");
+            } else if ($li.hasClass("li_on")) {
+                $li.removeClass("li_on").addClass("li_out");
+                check.attr("checked", false);
+                check.css("background", "#FFFFFF");
+            } else {
+                return false;
+            }
+            
+            $("#tool").html("<a class='' onclick='clearbox()'>清除已选</a>");
+            
+            if (check.is(':checked')) {
+                if (checks.length > 1) {
+                    for (var i = minNum; i < maxNum; i++) {
+                        $("#checkbox" + i).parent().removeClass("li_out").addClass("li_on");
+                        $("#checkbox" + i).attr("checked", true);
+                        $("#checkbox" + i).css("background","#FDA366");
+                    }
+                }
+            } else {
+                if (Math.abs(len - minNum) > Math.abs(maxNum - len)) {
+                    for (var i = len; i <= maxNum; i++) {
+                        $("#checkbox" + i).parent().removeClass("li_on").addClass("li_out");
+                        $("#checkbox" + i).attr("checked", false);
+                        $("#checkbox" + i).css("background", "#FFFFFF");
+                    }
+                    maxNum = (len-1);
+                } else {
+                    for (var i = len; i >= minNum; i--) {
+                        $("#checkbox" + i).parent().removeClass("li_on").addClass("li_out");
+                        $("#checkbox" + i).attr("checked", false);
+                        $("#checkbox" + i).css("background", "#FFFFFF");
+                    }
+                    minNum = (len+1);
+                }
+            }
+          
+            if (maxNum != 0 && minNum != 0) {
+                var begin = $("#checkbox" + minNum).val();
+                var end = $("#checkbox" + (maxNum + 1)).val();
+                if (maxNum==20) {
+                    end = "18:00";
+                }
+                if ($("input[type='checkbox']:checked").size() == 0) {
+                    begin = "00:00";
+                    end = "00:00";
+                    $("#tool").html("");
+                }
+                $("#showTime").html(begin + "-" + end);
+                if ($("#MeetingDate").val() != "") {
+                    var beginDate = $("#MeetingDate").val() + " " + begin;
+                    var endDate = $("#MeetingDate").val() + " " + end;
+                    $("#BeginTime").val(beginDate);
+                    $("#PreEndTime").val(endDate);
+                } else {
+                    $("#BeginTime").val(begin);
+                    $("#PreEndTime").val(end);
+                }
+               
+            }
+           
+        });
+    });
+    function fileUpload() {
+        var form = new FormData(document.getElementById("myForm"));
+        $.ajax({
+            url: "/RoomManage/RoomManage/UploadFile",
+            type: "post",
+            data: form,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                var icon = "";
+                if (data.state == "success") {
+                    icon = "fa-check-circle";
+                    top.layer.msg(data.message, { icon: icon, time: 4000, shift: 5 });
+                    top.$(".layui-layer-msg").find('i.' + icon).parents('.layui-layer-msg').addClass('layui-layer-msg-' + data.state);
+                } else {
+                    top.layer.msg(data.message);
+                }
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                $("#myModal").modal('hide');
+
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.loading(false);
+                $.modalMsg(errorThrown, "error");
+            }
+        });
+    }
+    function clearbox() {
+        var checkboxs = $(".li_on");
+        for (var j = 0; j < checkboxs.length; j++) {
+            checkboxs.eq(j).children().eq(0).attr('checked', false);
+            checkboxs.eq(j).children().eq(0).css("background", "#FFFFFF");
+            checkboxs.eq(j).removeClass("li_on").addClass("li_out");
+        }
+        $("#BeginTime").val($("#MeetingDate").val() + " 00:00");
+        $("#PreEndTime").val($("#MeetingDate").val() + " 00:00");
+        $("#showTime").html("00:00-00:00");
+        $("#tool").html("");
+    }
+    function GetMeetingTime() {
+        $.ajax({
+            url: '/RoomManage/RoomManage/GetMeetingTime',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            data: { date: $("#MeetingDate").val(), RoomNo: $("#RoomID").val() },
+            success: function (data) {
+                var checkboxs = $("input[type='checkbox']");
+                var disaleds = $("input[type='checkbox']:disabled");
+                for (var i = 0; i < disaleds.length; i++) {
+                    disaleds.eq(i).removeAttr("disabled");
+                    disaleds.eq(i).css("background","#FFFFFF");
+                    disaleds.eq(i).parent().removeClass("li_disabled").removeClass("li_on").addClass("li_out");
+                }
+                for (var i = 0; i < data.length; i++) {
+                    var Begin = data[i].BeginTime.slice(11, 16);
+                    var End = data[i].PreEndTime.slice(11, 16);
+                    if (End == "18:00") {
+                        End = "17:30";
+                        $("#checkbox20").attr('disabled', 'disabled');
+                        $("#checkbox20").css("background", "#ddd2d2");
+                        $("#checkbox20").parent().removeClass("li_out").removeClass("li_on").addClass("li_disabled");
+                    }
+                    var b = 0, e = 0;
+                    for (var j = 0; j < checkboxs.length; j++) {
+                        if (checkboxs.eq(j).val() == Begin) {
+                            checkboxs.eq(j).attr('disabled', 'disabled');
+                            checkboxs.eq(j).css("background", "#ddd2d2");
+                            checkboxs.eq(j).parent().removeClass("li_out").removeClass("li_on").addClass("li_disabled");
+                            b = j;
+                        }
+                        if (checkboxs.eq(j).val() == End) {
+                            checkboxs.eq(j - 1).attr('disabled', 'disabled');
+                            checkboxs.eq(j - 1).css("background", "#ddd2d2");
+                            checkboxs.eq(j - 1).parent().removeClass("li_out").removeClass("li_on").addClass("li_disabled");
+                            e = j - 1;
+                        }
+                    }
+                    for (var k = b; k < e; k++) {
+                        checkboxs.eq(k).attr('disabled', 'disabled');
+                        checkboxs.eq(k).css("background", "#ddd2d2");
+                        checkboxs.eq(k).parent().removeClass("li_out").removeClass("li_on").addClass("li_disabled");
+                    }
+                }
+            },
+            error: function () {
+
+            }
+        });
+    }
+    function GetMeetingDate() {
+        if ($("#MeetingDate").val() != "" && $("#BeginTime").val() != "" && $("#PreEndTime").val()!="") {
+            var beginDate = $("#MeetingDate").val() + " " + $("#BeginTime").val();
+            var endDate = $("#MeetingDate").val() + " " + $("#PreEndTime").val();
+            $("#BeginTime").val(beginDate);
+            $("#PreEndTime").val(endDate);
+        }
+        GetMeetingTime();
+    }
+    function GetRoomForm() {
+        GetRoom();
+        GetMeetingTime();
+        clearbox();
+    }
+    function GetRoom() {
+        var keyValue = $('#RoomID option:selected').val();
+        $.ajax({
+            url: '/RoomManage/RoomManage/GetRoom',
+            type: 'GET',
+            data: { "keyValue": keyValue },
+            dataType: "json",
+            success: function (data) {
+                if (data != null) {
+                    $("#Location").html(data.Location);
+                    $("#Number").html(data.Number);
+                    var str = new Array();
+                    if (data.HasProjector) {
+                        str.push("投影仪");
+                    }
+                    if (data.HasNotebook) {
+                        str.push("笔记本");
+                    }
+                    if (data.Teleconferencing) {
+                        str.push("电话会议");
+                    }
+                    if (data.Videoconferencing) {
+                        str.push("视频会议");
+                    }
+                    $("#PT").html(str.join(","));
+                }
+            },
+            error: function () { }
+        });
+    }
+    function initSelect() {
+        $("#RoomID").bindSelect({
+            url: "/RoomManage/RoomManage/GetTreeJson",
+        });
+    }
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        if ($("#Subject").val()=="") {
+            $("#Subject").parents('.formValue').addClass('has-error');
+            $("#Subject").parents('.has-error').find('i.error').remove();
+            $("#Subject").parents('.has-error').append('<i class="form-control-feedback fa fa-exclamation-circle error" data-placement="left" data-toggle="tooltip" title="该字段为必填字段"></i>');
+            $("[data-toggle='tooltip']").tooltip();
+            return false;
+        }
+        if ($("#showTime").text() =="00:00-00:00"||$("#BeginTime").val().slice(11, 16) == "00:00" || $("#PreEndTime").val().slice(11, 16) == "00:00") {
+            $.modalMsg('请选择时间', 'error');
+            return false;
+        }
+        $.submitForm({
+            url: "/RoomManage/RoomManage/SubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+ </script>
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">会议日期</th>
+                <td class="formValue">
+                    <input type="hidden" id="ID" />
+                    <input id="MeetingDate" class="form-control required">
+                </td>
+                <th class="formTitle">会议室</th>
+                <td class="formValue">
+                    <select id="RoomID" class="form-control required" onchange="GetRoomForm()">
+                       
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">开会时间</th>
+                <td class="formValue" colspan="3">
+                    <div>
+                        <table id="meetDD" class="form" style="width:100%;table-layout: flex;word-wrap: break-word; word-break: break-all;">
+                            <tr>
+                                <th colspan="2" class="th-title fa-border">会议室配套</th>
+                                <th colspan="6" class="th-title fa-border" id="PT"></th>
+                                <th colspan="2" class="th-title fa-border">容纳人数</th>
+                                <th colspan="2" class="th-title fa-border" id="Number"></th>
+                                <th colspan="2" class="th-title fa-border">位置</th>
+                                <th colspan="6" class="th-title fa-border" id="Location"></th>
+                            </tr>
+                            <tr>
+                                <th colspan="2" class="th-title fa-border">08:00</th>
+                                <th colspan="2" class="th-title fa-border">09:00</th>
+                                <th colspan="2" class="th-title fa-border">10:00</th>
+                                <th colspan="2" class="th-title fa-border">11:00</th>
+                                <th colspan="2" class="th-title fa-border">12:00</th>
+                                <th colspan="2" class="th-title fa-border">13:00</th>
+                                <th colspan="2" class="th-title fa-border">14:00</th>
+                                <th colspan="2" class="th-title fa-border">15:00</th>
+                                <th colspan="2" class="th-title fa-border">16:00</th>
+                                <th colspan="2" class="th-title fa-border">17:00</th>
+                            </tr>
+                            <tr>
+                                <td class="li_out"><input id="checkbox1" sort="1" type="checkbox" class="check-box" value="08:00" /></td>
+                                <td class="li_out"><input id="checkbox2" sort="2" type="checkbox" class="check-box" value="08:30" /></td>
+                                <td class="li_out"><input id="checkbox3" sort="3" type="checkbox" class="check-box" value="09:00" /></td>
+                                <td class="li_out"><input id="checkbox4" sort="4" type="checkbox" class="check-box" value="09:30" /></td>
+                                <td class="li_out"><input id="checkbox5" sort="5" type="checkbox" class="check-box" value="10:00" /></td>
+                                <td class="li_out"><input id="checkbox6" sort="6" type="checkbox" class="check-box" value="10:30" /></td>
+                                <td class="li_out"><input id="checkbox7" sort="7" type="checkbox" class="check-box" value="11:00" /></td>
+                                <td class="li_out"><input id="checkbox8" sort="8" type="checkbox" class="check-box" value="11:30" /></td>
+                                <td class="li_out"><input id="checkbox9" sort="9" type="checkbox" class="check-box" value="12:00" /></td>
+                                <td class="li_out"><input id="checkbox10" sort="10" type="checkbox" class="check-box" value="12:30" /></td>
+                                <td class="li_out"><input id="checkbox11" sort="11" type="checkbox" class="check-box" value="13:00" /></td>
+                                <td class="li_out"><input id="checkbox12" sort="12" type="checkbox" class="check-box" value="13:30" /></td>
+                                <td class="li_out"><input id="checkbox13" sort="13" type="checkbox" class="check-box" value="14:00" /></td>
+                                <td class="li_out"><input id="checkbox14" sort="14" type="checkbox" class="check-box" value="14:30" /></td>
+                                <td class="li_out"><input id="checkbox15" sort="15" type="checkbox" class="check-box" value="15:00" /></td>
+                                <td class="li_out"><input id="checkbox16" sort="16" type="checkbox" class="check-box" value="15:30" /></td>
+                                <td class="li_out"><input id="checkbox17" sort="17" type="checkbox" class="check-box" value="16:00" /></td>
+                                <td class="li_out"><input id="checkbox18" sort="18" type="checkbox" class="check-box" value="16:30" /></td>
+                                <td class="li_out"><input id="checkbox19" sort="19" type="checkbox" class="check-box" value="17:00" /></td>
+                                <td class="li_out"><input id="checkbox20" sort="20" type="checkbox" class="check-box" value="17:30" /></td>
+                            </tr>
+                            <tr>
+                                <th class="formTitle" colspan="2">
+                                    会议时间
+                                </th>
+                                <th class="formValue" colspan="18">
+                                    <span id="showTime">00:00-00:00</span>
+                                    <input id="BeginTime" type="hidden" value="2018-9-20 00:00" />
+                                    <input id="PreEndTime" type="hidden" value="2018-9-20 00:00" />
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <span id="tool"></span>
+                                </th>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                </td>
+            </tr>
+           
+            <tr>
+                <th class="formTitle">会议主题</th>
+                <td class="formValue" colspan="3"><input id="Subject" class="form-control required" style="width:99%;" type="text"/></td>
+            </tr>
+            <tr>
+               <td class="formTitle">
+                   备注：
+               </td>
+               <td class="formValue" colspan="3">
+                 <textarea id="Remark" class="form-control" style="width:97.4%;"></textarea>
+               </td>
+           </tr>
+            
+        </table>
+    </div>
+</form>
+
+

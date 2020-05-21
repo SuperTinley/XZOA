@@ -1,0 +1,216 @@
+﻿
+@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initDate();
+        initSelect();
+        if (!!keyValue) {
+            $.ajax({
+                url: '/ProjectManage/Project/GetFormJson',
+                type: 'GET',
+                dataType:'JSON',
+                success: function () {
+                    $("#form1").formSerialize(keyValue);
+                }
+            });
+        }
+    });
+    function initSelect() {
+        $.ajax({
+            url: "/ProjectManage/Project/GetProjectEngineerList",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                if (data.length > 1) {
+                    var str = '';
+                    for (var i = 0; i < data.length; i++) {
+                        str += "<option value='" + data[i].id + "'>" + data[i].text + "</option>";
+                    }
+                    $("#F_ProjectEngineer").html(str);
+                } else if (data.length == 1) {
+                    $("#F_ProjectEngineer").html("<option value='" + data[0].id + "'>" + data[0].text + "</option>");
+                }
+            },
+            error: function () { }
+        });
+        $.ajax({
+            url: "/PurchaseManage/Apply/GetTypeJson",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                if (data.length > 1) {
+                    var str = '';
+                    for (var i = 0; i < data.length; i++) {
+                        str += "<option value='" + data[i].id + "'>" + data[i].text + "</option>";
+                    }
+                    $("#F_TypeID").html(str);
+                } else if (data.length == 1) {
+                    $("#F_TypeID").html("<option value='" + data[0].id + "'>" + data[0].text + "</option>");
+                }
+            },
+            error: function () { }
+        });
+    }
+    function initDate() {
+        laydate.render({
+            elem: '#F_OrderItemDate',
+            trigger: 'click'
+        });
+        laydate.render({
+            elem: '#F_PlanSendSampleDate',
+            trigger: 'click'
+        });
+        laydate.render({
+            elem: '#F_SampleReturnDate',
+            trigger: 'click'
+        });
+        laydate.render({
+            elem: '#F_FactSendSampleDate',
+            trigger: 'click'
+        });
+    }
+    function submitForm() {
+        var keyValue = $("#F_Id").val();
+        $.submitForm({
+            url: "/ProjectManage/Project/SubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        });
+    }
+</script>
+
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">项目工程师</th>
+                <td class="formValue">
+                    <input id="F_Id" name="F_Id" type="hidden" />
+                    <select id="F_ProjectEngineer" name="F_ProjectEngineer" class="form-control" style="width: 100%;"></select>
+                </td>
+                <th class="formTitle">客户</th>
+                <td class="formValue">
+                    <input id="F_Customer" name="F_Customer" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">型号</th>
+                <td class="formValue">
+                    <input id="F_Model" name="F_Model" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">名称规格</th>
+                <td class="formValue">
+                    <input id="F_Spc" name="F_Spc" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">类型</th>
+                <td class="formValue">
+                    <select id="F_TypeID" name="F_TypeID" class="form-control" style="width: 100%;"></select>
+                </td>
+                <th class="formTitle">样板数量</th>
+                <td class="formValue">
+                    <input id="F_SampleQty" name="F_SampleQty" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">订单号</th>
+                <td class="formValue">
+                    <input id="F_OrderNo" name="F_OrderNo" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">立项单</th>
+                <td class="formValue">
+                    <input id="F_OrderItem" name="F_OrderItem" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">立项时间</th>
+                <td class="formValue">
+                    <input id="F_OrderItemDate" name="F_OrderItemDate" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">计划寄样时间</th>
+                <td class="formValue">
+                    <input id="F_PlanSendSampleDate" name="F_PlanSendSampleDate" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">样板回厂时间</th>
+                <td class="formValue">
+                    <input id="F_SampleReturnDate" name="F_SampleReturnDate" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">自制/外协</th>
+                <td class="formValue">
+                    <div class="radio-inline">
+                        <label class="radio"><input id="F_Choose" name="F_Choose" type="radio" value="1" checked="checked">自制</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input id="F_Choose" name="F_Choose" type="radio" value="2">外协</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">备注</th>
+                <td class="formValue" colspan="3">
+                    <input id="F_Remark" name="F_Remark" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">实际寄样时间</th>
+                <td class="formValue">
+                    <input id="F_FactSendSampleDate" name="F_FactSendSampleDate" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">样板准时</th>
+                <td class="formValue">
+                    <div class="radio-inline">
+                        <label class="radio"><input id="F_SampleOnTime" name="F_SampleOnTime" type="radio" value="T" checked="checked">是</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input id="F_SampleOnTime" name="F_SampleOnTime" type="radio" value="F">否</label>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">是否批准</th>
+                <td class="formValue">
+                    <div class="radio-inline">
+                        <label class="radio"><input id="F_IsAudit" name="F_IsAudit" type="radio" value="T" checked="checked">是</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input id="F_IsAudit" name="F_IsAudit" type="radio" value="F">否</label>
+                    </div>
+                </td>
+                <th class="formTitle">样板准确率</th>
+                <td class="formValue">
+                    <input id="F_AccuracyRate" name="F_AccuracyRate" type="text" class="form-control" style="width:100px;display: inline-block;"/>%
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">产品发布时间</th>
+                <td class="formValue">
+                    <input id="F_PublishDate" name="F_PublishDate" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">图纸/包装/erp资料</th>
+                <td class="formValue">
+                    <input id="F_Annex" name="F_Annex" type="file" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">签板</th>
+                <td class="formValue">
+                    <select id="F_SignSample" name="F_SignSample" class="form-control" style="width: 100%;"></select>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+

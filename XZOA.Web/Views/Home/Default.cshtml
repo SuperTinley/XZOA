@@ -1,0 +1,384 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link href="~/Content/css/framework-font.css" rel="stylesheet" />
+    <link href="~/Content/css/framework-ui.css" rel="stylesheet" />
+    <script src="~/Content/js/jquery/jquery-2.1.1.min.js"></script>
+    <link href="~/Content/css/framework-theme.css" rel="stylesheet" />
+    <link href="~/Content/js/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/css/framework-theme.css" rel="stylesheet" />
+    <script src="~/Content/js/charts/Chart.js"></script>
+    <script src="~/Content/js/indextab.js"></script>
+    <style>
+        table {
+            table-layout: fixed; /* 只有定义了表格的布局算法为fixed，下面td的定义才能起作用。 */
+        }
+
+        td {
+            width: 100%;
+            word-break: keep-all; /* 不换行 */
+            white-space: nowrap; /* 不换行 */
+            overflow: hidden; /* 内容超出宽度时隐藏超出部分的内容 */
+            text-overflow: ellipsis; /* 当对象内文本溢出时显示省略标记(...) ；需与overflow:hidden;一起使用。*/
+        }
+    </style>
+    <script>
+
+        $(function () {
+            GetCount();
+            GetTodayRoomList();
+        });
+
+        function GetCount() {
+            $.ajax({
+                url: '/LeaveManage/LeaveManage/GetCount',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    if (data != null) {
+                        $("#checkCount").html(data.checkCount);
+                        $("#approvalCount").html(data.approvalCount);
+                        $("#tempCheckCount").html(data.tempCheckCount);
+                        $("#tempAcceptCount").html(data.tempAcceptCount);
+                        $("#applyCheckCount").html(data.applyCheckCount);
+                        $("#applyApprovalCount").html(data.applyApprovalCount);
+                        $("#purchaseCheckCount").html(data.purchaseCheckCount);
+                        $("#purchaseApprovalCount").html(data.purchaseApprovalCount);
+                    }
+                },
+                error: function () { }
+            });
+        }
+
+        function GoToPage(keyValue) {
+            var menuName;
+            switch (keyValue) {
+                case 'checkCount':
+                    menuName = "请假审批";
+                    break;
+                case 'approvalCount':
+                    menuName = "请假审批";
+                    break;
+                case 'tempCheckCount':
+                    menuName = "打样审核";
+                    break;
+                case 'tempAcceptCount':
+                    menuName = "样板接收";
+                    break;
+                case 'applyCheckCount':
+                    menuName = "申购单审核";
+                    break;
+                case 'applyApprovalCount':
+                    menuName = "申购单批准";
+                    break;
+                case 'purchaseCheckCount':
+                    menuName = "采购单审核";
+                    break;
+                case 'purchaseApprovalCount':
+                    menuName = "采购单批准";
+                    break;
+            }
+            var Items = top.$("#sidebar-nav .submenu .menuItem");
+            for (var i = 0; i < Items.length; i++) {
+                if (Items.eq(i).text() == menuName) {
+                    Items.eq(i).click();
+                }
+            }
+         
+        }
+
+        function GetTodayRoomList() {
+            $.ajax({
+                url: '/RoomManage/RoomManage/GetTodayRoomList',
+                type: 'GET',
+                async: false,
+                dataType: 'json',
+                success: function (data) {
+                    var myArray = ["08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00",
+                        "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00",
+                        "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"];
+                    var strs = "";
+                    if (data.length != 0) {
+                        for (var i = 0; i < data.length; i++) {
+                            var star = 0, flag = 0;
+                            strs += "<tr class='jqgfirstrow'>";
+                            strs += "<td>" + data[i].RoomName + "</td>";
+                            var list = data[i].meetingTimes;
+                            for (var j = 0; j < list.length; j++) {
+                                debugger;
+                                var bengintime = list[j].BeginTime.slice(11, 16);
+                                var endtime = list[j].PreEndTime.slice(11, 16);
+                                var b = myArray.indexOf(bengintime);
+                                var e = myArray.indexOf(endtime);
+                                var subject = list[j].Subject == null ? "" : list[j].Subject;
+                                var appMan = list[j].AppMan == null ? "" : list[j].AppMan;
+                                var col = e - b; var s = col < 1 ? 0 : (col - 1);
+                                if (b > -1 && e > -1) {
+                                    for (var k = star; k < e; k++) {
+                                        if (k == b) {
+                                            if (list[j].AuditTag == 1) {
+                                                strs += '<td colspan="' + col + '" title="' + subject + '" style="background:#3bc689;color:#FFFFFF;">' + appMan + '</td>';
+                                                flag += col;
+                                                k += col;
+                                            } else {
+                                                strs += '<td colspan="' + col + '" title="' + subject + '" style="background:rgb(26, 173, 206);color:#FFFFFF;">' + appMan + '</td>';
+                                                flag += col;
+                                                k += col;
+                                            }
+                                        } else {
+                                            strs += '<td></td>';
+                                            flag++;
+                                        }
+                                    }
+                                    star = e;
+                                }
+                            }
+                            for (var s = 0; s < 20 - flag; s++) {
+                                strs += "<td></td>";
+                            }
+                            strs += "</tr>";
+                        }
+                        $("#meetContent").html(strs);
+                    } else {
+                        $("#meetContent").html('<tr><th colspan="22"><div class="unwritten" style="color: red; padding: 7px; border - bottom: #ddd 1px solid;">没有找到您要的相关数据!</div></th></tr>');
+                    }
+
+                },
+                error: function () { }
+            });
+
+        }
+    </script>
+</head>
+<body>
+    <div id="areascontent">
+        <div class="rows" style="margin-bottom: 1%; border: 1px solid #e6e6e6; overflow: hidden; padding-left: 1px;height:49%">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-line-chart fa-lg" style="padding-right: 5px;"></i>待处理事项
+                </div>
+                <div class="panel-body">
+                    <div class="dashboard-stats" onclick="GoToPage('checkCount')">
+                        <div class="dashboard-stats-item" style="background-color: #fc8675;">
+                            <h2 class="m-top-none" id="checkCount">8</h2>
+                            <h5>请假审核</h5>
+                            <div class="stat-icon">
+                                <i class="fa fa-envelope-o fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-stats" onclick="GoToPage('approvalCount')">
+                        <div class="dashboard-stats-item" style="background-color: #6bafbd;">
+                            <h2 class="m-top-none" id="approvalCount">12</h2>
+                            <h5>请假批准</h5>
+                            <div class="stat-icon">
+                                <i class="fa fa-envelope-o fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-stats" onclick="GoToPage('tempCheckCount')">
+                        <div class="dashboard-stats-item" style="background-color: #f3ce85;">
+                            <h2 class="m-top-none" id="tempCheckCount">2</h2>
+                            <h5>打样审核</h5>
+                            <div class="stat-icon">
+                                <i class="fa fa-bookmark-o fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-stats" onclick="GoToPage('tempAcceptCount')">
+                        <div class="dashboard-stats-item" style="background-color: #949FB1;">
+                            <h2 class="m-top-none" id="tempAcceptCount">6</h2>
+                            <h5>打样接收</h5>
+                            <div class="stat-icon">
+                                <i class="fa fa-bookmark-o fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="dashboard-stats" onclick="GoToPage('applyCheckCount')">
+                        <div class="dashboard-stats-item" style="background-color: #ffa395;">
+                            <h2 class="m-top-none" id="applyCheckCount">8</h2>
+                            <h5>申购审核</h5>
+                            <div class="stat-icon">
+                                <i class="fa fa-shopping-cart fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-stats" onclick="GoToPage('applyApprovalCount')">
+                        <div class="dashboard-stats-item" style="background-color:#6bafbd;">
+                            <h2 class="m-top-none" id="applyApprovalCount">12</h2>
+                            <h5>申购审批</h5>
+                            <div class="stat-icon">
+                                <i class="fa fa-shopping-cart fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-stats" onclick="GoToPage('purchaseCheckCount')">
+                        <div class="dashboard-stats-item" style="background-color: #f3ce85;">
+                            <h2 class="m-top-none" id="purchaseCheckCount">2</h2>
+                            <h5>采购审核</h5>
+                            <div class="stat-icon">
+                                <i class="fa fa-shopping-cart fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-stats" onclick="GoToPage('purchaseApprovalCount')">
+                        <div class="dashboard-stats-item" style="background-color: #949FB1;">
+                            <h2 class="m-top-none" id="purchaseApprovalCount">6</h2>
+                            <h5>采购批准</h5>
+                            <div class="stat-icon">
+                                <i class="fa fa-shopping-cart fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="rows" style="margin-bottom: 1%; overflow: hidden;width: 100%;height:50%;">
+            <div style="float: left; width: 100%;">
+                <div style="border: 1px solid #e6e6e6; background-color: #fff;">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-area-chart fa-lg" style="padding-right: 5px;"></i>会议室今日预定情况
+                        <div style="float: right">
+                            <span style="font-weight: 500;"><i class="fa fa-square" style="color: #3bc689; font-size: 20px; padding-right: 5px; vertical-align: middle; margin-top: -3px;"></i>已预订</span>
+                            <span style="margin-left: 10px; font-weight: 500;"><i class="fa fa-square" style="color: rgb(26, 173, 206); font-size: 20px; padding-right: 5px; vertical-align: middle; margin-top: -3px;"></i>待审</span>
+                        </div>
+                        </div>
+                        <div class="panel-body" style="padding-bottom: 0px;">
+                            <div class="gridPanel">
+                                <table id="meetDD" class="ui-jqgrid-btable ui-common-table table table-bordered" style="width:100%;height:100%;table-layout: fixed;word-wrap: break-word; word-break: break-all;">
+                                    <thead>
+                                        <tr>
+                                            <th class="th-title" style="width:100px;">会议室名称</th>
+                                            <th class="th-title" colspan="2">08:00</th>
+                                            <th class="th-title" colspan="2">09:00</th>
+                                            <th class="th-title" colspan="2">10:00</th>
+                                            <th class="th-title" colspan="2">11:00</th>
+                                            <th class="th-title" colspan="2">12:00</th>
+                                            <th class="th-title" colspan="2">13:00</th>
+                                            <th class="th-title" colspan="2">14:00</th>
+                                            <th class="th-title" colspan="2">15:00</th>
+                                            <th class="th-title" colspan="2">16:00</th>
+                                            <th class="th-title" colspan="2">17:00</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="meetContent"></tbody>
+                                </table>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    <style>
+        #copyrightcontent {
+            height: 30px;
+            line-height: 29px;
+            overflow: hidden;
+            position: absolute;
+            top: 100%;
+            margin-top: -30px;
+            width: 100%;
+            background-color: #fff;
+            border: 1px solid #e6e6e6;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .dashboard-stats {
+            float: left;
+            width: 25%;
+        }
+
+        .dashboard-stats-item {
+            position: relative;
+            overflow: hidden;
+            color: #fff;
+            cursor: pointer;
+            height: 105px;
+            margin-right: 25px;
+            margin-bottom: 10px;
+            padding: 20px 20px;
+        }
+
+            .dashboard-stats-item .m-top-none {
+                margin-top: 2px;
+            }
+
+            .dashboard-stats-item h2 {
+                font-size: 35px;
+                font-family: inherit;
+                line-height: 1.1;
+                font-weight: 500;
+            }
+
+            .dashboard-stats-item h5 {
+                font-size: 14px;
+                font-family: inherit;
+                margin-top: 3px;
+                line-height: 1.1;
+            }
+
+
+            .dashboard-stats-item .stat-icon {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                font-size: 30px;
+                opacity: .3;
+            }
+
+        .dashboard-stats i.fa.stats-icon {
+            width: 50px;
+            padding: 20px;
+            font-size: 50px;
+            text-align: center;
+            color: #fff;
+            height: 50px;
+            border-radius: 10px;
+        }
+
+        .panel-default {
+            border: none;
+            border-radius: 0px;
+            margin-bottom: 0px;
+            box-shadow: none;
+            -webkit-box-shadow: none;
+        }
+
+            .panel-default > .panel-heading {
+                color: #777;
+                background-color: #fff;
+                border-color: #e6e6e6;
+                padding: 10px 10px;
+            }
+
+            .panel-default > .panel-body {
+                padding-left: 30px;
+            }
+
+                .panel-default > .panel-body ul {
+                    overflow: hidden;
+                    padding: 0;
+                    margin:0px;margin-top: -5px;
+                }
+
+                    .panel-default > .panel-body ul li {
+                        line-height: 27px;
+                        list-style-type: none;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                    }
+
+                        .panel-default > .panel-body ul li .time {
+                            color: #a1a1a1;
+                            float: right;
+                            padding-right: 5px;
+                        }
+    </style>
+</body>
+</html>

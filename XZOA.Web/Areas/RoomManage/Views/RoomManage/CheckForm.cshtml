@@ -1,0 +1,57 @@
+﻿@{
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+
+    $(function () {
+        $("#F_Id").val(keyValue);
+    });
+
+    function submitForm() {
+        var keyValue = $("#F_Id").val();
+        var PreResult = $("input[name='PreResult']:checked").val();
+        if (PreResult=="0") {
+            if ($("#AuditIdea").val()=="") {
+                $.modelMsg("审核意见不能为空", "error");
+                return false;
+            }
+        }
+        $.submitForm({
+            url: "/RoomManage/RoomManage/SubmitCheckForm?keyValue=" + keyValue,
+            param: { "AuditIdea": $("#AuditIdea").val(), "PreResult": PreResult },
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">
+                    审核意见
+                </th>
+                <td class="formValue" colspan="3">
+                    <input type="hidden" id="F_Id" name="F_Id" />
+                    <textarea class="form-control" id="AuditIdea" name="AuditIdea"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">是否通过</th>
+                <td class="formValue" colspan="3">
+                    <div class="radio-inline">
+                        <label for=""><input id="" name="PreResult" type="radio" value="1" checked="checked">同意</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label for=""><input id="" name="PreResult" type="radio" value="0">不同意</label>
+                    </div>
+                </td>
+            </tr>
+
+        </table>
+    </div>
+</form>
+

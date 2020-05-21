@@ -1,0 +1,320 @@
+﻿@{
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<link href="~/Content/js/datepicker/bootstrap-datepicker.css" rel="stylesheet" />
+<script src="~/Content/js/datepicker/bootstrap-datepicker.min.js"></script>
+<link href="~/Content/js/easyUI/easyui.css" rel="stylesheet" />
+<link href="~/Content/js/easyUI/icon.css" rel="stylesheet" />
+<script src="~/Content/js/easyUI/jquery.easyui.min.js"></script>
+<script>
+    var keyValue = $.request("keyValue");
+    var code = $.request("code");
+    $(function () {
+        initSelect();
+        InitPrdName();
+        $(".date-picker").datepicker({
+            format: 'yyyy-mm-dd',
+            language: 'zh-CN',
+            autoclose: true,
+            minuteStep: 1,
+            todayBtn: true
+
+        });
+        if (!!keyValue) {
+            $.ajax({
+                url: "/PurchaseManage/Apply/GetFormDetail",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    if (!!code) {
+                        $("#form1").formSerialize(data);
+                        $('#Name').combogrid('setValue', data.prdName);
+                    } else {
+                        $("#form1").formSerialize(data);
+                        if (data.annex != null) {
+                            $("#fileId").attr("href", "javascript:window.open('http://" + window.location.host + "/Uploads/" + data.annex + "')");
+                        }
+                        $("#fileId").text(data.annex);
+                        $('#Name').combogrid('setValue', data.prdName);
+                    }
+                }
+            });
+        }
+    });
+    function InitPrdName() {
+        $('#Name').combogrid({
+            panelWidth: 400,
+            url: '/PurchaseManage/Price/GetSearchList',
+            prompt: '输入关键字后自动搜索',
+            method: 'get',
+            idField: 'priNO',
+            editable: true,
+            hasDownArrow: true,
+            textField: 'prdName',
+            mode: 'remote',
+            fitColumns: true,
+            columns: [[
+                { field: 'priNO', title: '报价单号', width: 100, hidden: true },
+                { field: 'prdName', title: '名称', width: 100 },
+                { field: 'orderNo', title: '牌号', width: 100, align: 'right' },
+                { field: 'sup', title: '供应商', width: 100, align: 'right' },
+                { field: 'spc', title: '规格', width: 100, align: 'right' },
+                { field: 'price', title: '单价', width: 100 }
+            ]],
+            onSelect: function (rowIndex, rowData) {
+                $('#prePrice').val(rowData.price);
+                $('#prdName').val(rowData.prdName);
+                $('#sup').val(rowData.sup);
+                $('#spc').val(rowData.spc);
+                $('#priNO').val(rowData.priNO); 
+                $('#orderNo').val(rowData.orderNo); 
+                $('#appUnit').val(rowData.unit);
+                $('#viceUnit').val(rowData.unit);
+            }, 
+            onChange: function (q) {
+                $('#Name').combogrid("grid").datagrid("reload", { 'q': q });
+                $('#Name').combogrid("setValue", q);
+                $('#prdName').val(q);
+            }
+        });
+    }
+    function initSelect() {
+        $.ajax({
+            url: "/PurchaseManage/Apply/GetTreeSelectJson?type=check",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                if (data.length > 1) {
+                    var str = '<option value="">==请选择==</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        str += "<option value='" + data[i].text + "'>" + data[i].text + "</option>";
+                    }
+                    $("#appExaMan").html(str);
+                } else if (data.length == 1) {
+                    $("#appExaMan").html("<option value='" + data[0].text + "'>" + data[0].text + "</option>");
+                }
+            },
+            error: function () { }
+        });
+        $.ajax({
+             url: "/PurchaseManage/Apply/GetTreeSelectJsonApproval",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                if (data.length > 1) {
+                    var str = '<option value="">==请选择==</option>';
+                    for (var i = 0; i < data.length; i++) {
+                        str += "<option value='" + data[i].text + "'>" + data[i].text + "</option>";
+                    }
+                    $("#appAuthMan").html(str);
+                } else if (data.length == 1) {
+                    $("#appAuthMan").html("<option value='" + data[0].text + "'>" + data[0].text + "</option>");
+                }
+            },
+            error: function () { }
+        });
+        $.ajax({
+            url: "/PurchaseManage/Apply/GetTypeJson",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                if (data.length > 1) {
+                    var str = '';
+                    for (var i = 0; i < data.length; i++) {
+                        str += "<option value='" + data[i].id + "'>" + data[i].text + "</option>";
+                    }
+                    $("#TypeID").html(str);
+                } else if (data.length == 1) {
+                    $("#TypeID").html("<option value='" + data[0].id + "'>" + data[0].text + "</option>");
+                }
+            },
+            error: function () { }
+        });
+        //$("#appExaMan").bindSelect({
+        //    url: "/PurchaseManage/Apply/GetTreeSelectJson?type=check",
+        //});
+        //$("#appAuthMan").bindSelect({
+        //    url: "/PurchaseManage/Apply/GetTreeSelectJsonApproval",
+        //});
+    }
+    function submitForm() {
+        if ($("#appExaMan").val() == "==请选择==") {
+            $("#appExaMan").val("");
+        }
+        if ($("#prdName").val() == "") {
+            $.modalMsg("名称不能为空", "error");
+            return false;
+        }
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        var form = new FormData(document.getElementById("form1"));
+        if ($('[name=__RequestVerificationToken]').length > 0) {
+            form.append("__RequestVerificationToken", $('[name=__RequestVerificationToken]').val());
+        }
+        var url;
+        if (!!keyValue) {
+            if (!!code) {
+                url = '/PurchaseManage/Apply/SubmitForm';
+            } else {
+                url="/PurchaseManage/Apply/SubmitForm?keyValue=" + keyValue;
+            }
+        } else {
+            url = '/PurchaseManage/Apply/SubmitForm';
+        }
+
+        $.ajax({
+            url: url,
+            type: "post",
+            data: form,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                var icon = "";
+                if (data.state == "success") {
+                    icon = "fa-check-circle";
+                    top.layer.msg(data.message, { icon: icon, time: 4000, shift: 5 });
+                    top.$(".layui-layer-msg").find('i.' + icon).parents('.layui-layer-msg').addClass('layui-layer-msg-' + data.state);
+                } else {
+                    top.layer.msg(data.message);
+                }
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                var index = top.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                top.layer.close(index);//关闭弹框
+
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.loading(false);
+                $.modalMsg(errorThrown, "error");
+            }
+        });
+    }
+</script>
+
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">名称</th>
+                <td class="formValue">
+                    <input id="Name" class="form-control required" style="width:210px;">
+                    <input type="hidden" id="prdName" name="prdName" class="form-control" />
+                    <input type="hidden" id="prePrice" name="prePrice" class="form-control" />
+                </td>
+                <th class="formTitle">牌号</th>
+                <td class="formValue">
+                    <input id="orderNo" name="orderNo" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">规格</th>
+                <td class="formValue">
+                    <input id="spc" name="spc" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">材料要求</th>
+                <td class="formValue">
+                    <input id="mat" name="mat" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">期望交期</th>
+                <td class="formValue">
+                    <input id="hopeDD" name="hopeDD" type="text" class="form-control date-picker required" />
+                </td>
+                <th class="formTitle">附件</th>
+                <td class="formValue">
+                    <input id="file" name="annex" type="file" class="form-control" />
+                    <a id="fileId"></a>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">申购数量</th>
+                <td class="formValue">
+                    <input id="appNum" name="appNum" type="text" class="form-control required" />
+                </td>
+                <th class="formTitle">主单位</th>
+                <td class="formValue">
+                    <input id="appUnit" name="appUnit" type="text" class="form-control required" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">副数量</th>
+                <td class="formValue">
+                    <input id="viceNum" name="viceNum" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">副单位</th>
+                <td class="formValue">
+                    <input id="viceUnit" name="viceUnit" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">审核领导</th>
+                <td class="formValue">
+                    <select id="appExaMan" name="appExaMan" style="padding:0;" class="form-control required">
+                        <option>==请选择==</option>
+                    </select>
+                    <input id="appExaTag" name="appExaTag" type="hidden" value="D" />
+                    <input id="purExaTag" name="purExaTag" type="hidden" value="D" />
+                </td>
+                <th class="formTitle">批准领导</th>
+                <td class="formValue">
+                    <select id="appAuthMan" name="appAuthMan" style="padding:0;" class="form-control required"></select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">采购方式</th>
+                <td class="formValue">
+                    <div class="radio-inline">
+                        <label class="radio"><input id="purWay" name="purWay" type="radio" value="0" checked="checked">国内采购</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input id="purWay" name="purWay" type="radio" value="3">国际采购</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="checkbox"><input id="purIsTem" name="purIsTem" type="checkbox" value="T">样板</label>
+                    </div>
+                </td>
+                <th class="formTitle">使用组别</th>
+                <td class="formValue">
+                    <input type="text" class="form-control" id="useGroup" name="useGroup" style="padding:0;" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">仓库类型</th>
+                <td class="formValue">
+                    <div class="radio-inline">
+                        <label for=""><input id="WAREWAY" name="WAREWAY" type="radio" value="0" checked="checked">工具仓</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label for=""><input id="WAREWAY" name="WAREWAY" type="radio" value="1">玻璃仓</label>
+                    </div>
+                </td>
+                <th class="formTitle">物料编码</th>
+                <td class="formValue">
+                    <input type="text" class="form-control" id="prdNo" name="prdNo" style="padding:0;" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">中类</th>
+                <td class="formValue">
+                    <select id="TypeID" name="TypeID" class="form-control required"></select>
+                </td>
+                <td  class="formTitle"></td>
+                <td  class="formValue"></td>
+            </tr>
+            <tr>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">
+                    用途/备注
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea class="form-control" id="rem" name="rem"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>

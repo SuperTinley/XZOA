@@ -1,0 +1,204 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    var UserName;
+    $(function () {
+        UserName = GetName();
+        $('#layout').layout();
+        treeView();
+        gridList();
+    });
+    function treeView() {
+        $("#itemTree").treeview({
+            url: "/BookManage/BookManage/GetTreeJson",
+            onnodeclick: function (item) {
+                $("#txt_keyword").val('');
+                $('#btn_search').trigger("click");
+            }
+        });
+    }
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "主键", name: "ID", hidden: true, key: true },
+                {
+                    label: "操作", name: "ID", width: 40, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = '';
+                        if (rowObject.CreateMan == UserName) {
+                            str += "<a onclick='btn_edit(" + cellvalue + ")'>修改</a>";
+                        }
+                        return str;
+                    }
+                },
+                {
+                    label: '书刊原始名', name: 'FullName', width: 150, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var address = "http://" + window.location.host + "/Uploads/" + cellvalue;
+                        var trs = "<a href=" + address + " download=''>" + cellvalue + "</a><br/>";
+                        return trs;
+                    }
+                },
+                { label: '书刊别名', name: 'NickName', width: 120, align: 'left' },
+                { label: '大小', name: 'Size', width: 60, align: 'center' },
+                {
+                    label: '书刊主题', name: 'Subject', width: 100, align: 'left'
+                },
+                { label: "上传者", name: "CreateMan", width: 80, align: "left", sortable: false },
+                {
+                    label: '上传日期', name: 'UploadTime', width: 90, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                { label: '书刊备注', name: 'Remark', width: 100, align: 'left' }
+            ],
+            pager: "#gridPager",
+            sortname: 'date desc',
+            multiselect: true,
+            rowNum: 20,
+            rowList: [10, 20, 30],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                url: "/BookManage/BookManage/GetGridJson",
+                postData: { itemId: $("#itemTree").getCurrentNode().id, keyword: $("#txt_keyword").val() },
+             page:1 }).trigger('reloadGrid');
+        });
+    }
+    function btn_addmulti() {
+        if ($("#itemTree").getCurrentNode() == null) {
+            $.modalMsg('请选择分类','error');
+            return false;
+        }
+        var itemId = $("#itemTree").getCurrentNode().id;
+        var itemName = $("#itemTree").getCurrentNode().text;
+        if (!itemId) {
+            return false;
+        }
+        $.modalOpen({
+            id: "Form",
+            title: itemName + " 》批量上传",
+            url: "/BookManage/BookManage/MultiForm?itemId=" + itemId,
+            width: "450px",
+            height: "450px",
+            btn:null
+        });
+    }
+    function btn_add() {
+        if ($("#itemTree").getCurrentNode() == null) {
+            $.modalMsg('请选择分类', 'error');
+            return false;
+        }
+        var itemId = $("#itemTree").getCurrentNode().id;
+        var itemName = $("#itemTree").getCurrentNode().text;
+        if (!itemId) {
+            return false;
+        }
+        $.modalOpen({
+            id: "Form",
+            title: itemName + " 》新增书刊",
+            url: "/BookManage/BookManage/Form?itemId=" + itemId,
+            width: "450px",
+            height: "450px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit(keyValue) {
+        var itemName = $("#itemTree").getCurrentNode().text;
+        var itemId = $("#itemTree").getCurrentNode().id;
+        $.modalOpen({
+            id: "Form",
+            title: itemName + " 》修改书刊",
+            url: "/BookManage/BookManage/Form?itemId=" + itemId+"&&keyValue=" + keyValue,
+            width: "450px",
+            height: "450px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_delete() {
+        var ids = $("#gridList").jqGrid('getGridParam', 'selarrrow');
+        if (ids == "") {
+            return false;
+        }
+        var keyValue = ids.join(",");
+        $.deleteForm({
+            url: "/BookManage/BookManage/DeleteForm",
+            param: { keyValue: keyValue },
+            success: function () {
+                $("#gridList").resetSelection();
+                $("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+    function GetName() {
+        var CurrentUser = top.$.cookie('CurrentUser');
+        if (!!CurrentUser) {
+            var user = eval("(" + CurrentUser + ")");
+            return user.UserName;
+        }
+    }
+    function btn_itemstype() {
+        $.modalOpen({
+            id: "BookManage",
+            title: "分类管理",
+            url: "/BookManage/BookManage/TypeIndex",
+            width: "800px",
+            height: "550px",
+            btn: null,
+        });
+    }
+</script>
+<div class="ui-layout" id="layout" style="height: 100%; width: 100%;">
+    <div class="ui-layout-west">
+        <div id="itemTree"></div>
+    </div>
+    <div class="ui-layout-center">
+        <div class="topPanel">
+            <div class="toolbar">
+                <div class="btn-group">
+                    <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+                </div>
+                <div class="btn-group">
+                    <a id="book-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>上传书刊</a>
+                </div>
+                <div class="btn-group">
+                    <a id="book-addmulti" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_addmulti()">批量上传</a>
+                </div>
+                <div class="btn-group">
+                    <a id="book-delete" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_delete()">删除书刊</a>
+                </div>
+                <div class="btn-group">
+                    <a id="type-manage" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_itemstype()">分类管理</a>
+                </div>
+                <script>$('.toolbar').authorizeButton()</script>
+            </div>
+            <div class="search">
+                <table>
+                    <tr>
+                        <td>
+                            <div class="input-group">
+                                <input id="txt_keyword" type="text" class="form-control" placeholder="名称" style="width: 200px;">
+                                <span class="input-group-btn">
+                                    <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="gridPanel">
+            <table id="gridList"></table>
+            <div id="gridPager"></div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,167 @@
+﻿@{
+    //  ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    Date.prototype.Format = function (fmt) { //author: meizz
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+    var keyValue = $.request("keyValue");
+    $(function(){
+        $.ajax({
+            url: "/LeaveManage/LeaveManage/GetFormJson",
+            dataType: "json",
+            data: { keyValue: keyValue },
+            async: false,
+            success: function (data) {
+                    $("#form1").formSerialize(data);
+                    if (data.F_SuffixName != null) {
+                        $("#F_fileId").attr("href", "@XZOA.Code.Configs.GetValue("UploadFile")" + data.F_FileId + data.F_SuffixName);
+                    }
+                $("#F_fileId").text(data.F_FileName);
+                var vType=top.clients.dataItems["vacationtype"][parseInt(data.F_VacationTypeId)];
+                var lType = top.clients.dataItems["leavetype"][parseInt(data.F_LeaveTypeId)];
+                $("#F_VacationTypeId").val(vType);
+                $("#F_LeaveTypeId").val(lType);
+                if (data.F_IsApproval) {
+                    $("#F_IsApproval").val("批准");
+                } else {
+                    $("#F_IsApproval").val("不批准");
+                }
+                if (data.F_IsOffLine) {
+                    $("#F_IsOffLine").val("线下审批");
+                } else {
+                    $("#F_IsOffLine").val("在线审批");
+                }
+            }
+        });
+    });
+</script>
+
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">姓名</th>
+                <td class="formValue">
+                    <input type="hidden" id="F_UserId" name="F_UserId" />
+                    <input type="text" id="F_UserName" name="F_UserName" class="form-control required" />
+                </td>
+                <th class="formTitle">工号</th>
+                <td class="formValue">
+                    <input id="F_Account" name="F_Account" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">所属部门</th>
+                <td class="formValue">
+                    <input id="F_Department" name="F_DepartmentId" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">所在职位</th>
+                <td class="formValue">
+                    <input id="F_Duty" name="F_DutyId" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">组别</th>
+                <td class="formValue">
+                    <input id="F_Group" name="F_GroupId" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">填写时间</th>
+                <td class="formValue">
+                    <input id="F_CreateTime" name="F_CreateTime" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">开始时间</th>
+                <td class="formValue">
+                    <input id="F_BeginTime" name="F_BeginTime" type="text" class="form-control date-picker required" />
+                </td>
+                <th class="formTitle">结束时间</th>
+                <td class="formValue">
+                    <input id="F_EndTime" name="F_EndTime" type="text" class="form-control date-picker required" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">时长</th>
+                <td class="formValue">
+                    <input id="F_TimeLength_Day" name="F_TimeLength_Day" type="text" style="width:30px;" />天<input id="F_TimeLength_Hour" name="F_TimeLength_Hour" type="text" style="width:30px;" />时<input id="F_TimeLength_Minute" name="F_TimeLength_Minute" type="text" style="width:30px;" />分
+                </td>
+                <th class="formTitle">附件</th>
+                <td class="formValue">
+                    <a id="F_fileId" download="2" href=""></a>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">假期类型</th>
+                <td class="formValue">
+                    <input class="form-control" id="F_VacationTypeId" name="F_VacationTypeId" style="padding:0;" />
+                </td>
+                <th class="formTitle">请假类别</th>
+                <td class="formValue">
+                    <input class="form-control" id="F_LeaveTypeId" name="F_LeaveTypeId" style="padding:0;" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">审核领导</th>
+                <td class="formValue">
+                    <input class="form-control" id="F_CheckUserName" name="F_CheckUserName" style="padding:0;" />
+                </td>
+                <th class="formTitle">批准领导</th>
+                <td class="formValue">
+                    <input class="form-control" id="F_ApprovalUserName" name="F_ApprovalUserName" style="padding:0;" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">
+                    请假原因
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea class="form-control" id="F_LeaveReason" name="F_LeaveReason"></textarea>
+                </td>
+            </tr>
+            <tr>
+            <tr>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">
+                    批准日期
+                </th>
+                <td class="formValue">
+                    <input id="F_ApprovalTime" name="F_ApprovalTime" type="text" class="form-control date-picker required" />
+                </td>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">
+                    销假日期
+                </th>
+                <td class="formValue">
+                    <input id="F_ResumptionLeaveTime" name="F_ResumptionLeaveTime" type="text" class="form-control date-picker required" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">
+                    是否批准
+                </th>
+                <td class="formValue" >
+                    <input id="F_IsApproval" name="F_IsApproval" type="text" class="form-control date-picker required" />
+                </td>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">
+                    审批类型
+                </th>
+                <td class="formValue">
+                    <input id="F_IsOffLine" name="F_IsOffLine" type="text" class="form-control date-picker required" />
+                </td>
+            </tr>
+            <tr></tr>
+        </table>
+    </div>
+</form>

@@ -1,0 +1,71 @@
+﻿@{
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<script>
+    $(function () {
+        $.ajax({
+            url: "/PurchaseManage/Apply/GetAuthorizeList",
+            type: "GET",
+            dataType:'json',
+            success: function (data) {
+                var radios = '';
+                if (data != null) {
+                    for (var i = 0; i < data.length; i++) {
+                        radios += '<div class="radio-inline"><label class="radio">';
+                        if (data[i].tag == 'Y') {
+                            radios += '<input name="man" type="radio" value="' + data[i].ID + '" checked="checked">' + data[i].man + '</label>';
+                        } else {
+                            radios += '<input name="man" type="radio" value="' + data[i].ID + '">' + data[i].man + '</label>';
+                        }
+                        radios += '</label></div>';
+                    }
+                }
+                $("#Authorize").html(radios);
+                //$("input[name=man]").each(function () {
+                //    if ($(this).val() == data.ID) {
+                //        $(this).attr("checked", "checked");
+                //    }
+                //});
+
+            },
+            error: function () { }
+        });
+    });
+
+    function submitForm() {
+        $.submitForm({
+            url: "/PurchaseManage/Apply/SubmitAuthorizeForm",
+            param: { man: $("input[name=man]:checked").val() },
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <td style="padding: 15px;">
+                    请选择授权人：
+                </td>
+            </tr>
+            <tr>
+                <td class="formValue" style="padding-left: 15%;" id="Authorize">
+                    @*<div class="radio-inline">
+                        <label class="radio"><input name="man" type="radio" value="1" checked="checked">李凌静</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input name="man" type="radio" value="2">李群君</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label class="radio"><input  name="man" type="radio" value="3">梁侃</label>
+                    </div>*@
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>

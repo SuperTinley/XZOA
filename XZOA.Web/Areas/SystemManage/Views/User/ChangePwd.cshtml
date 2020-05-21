@@ -1,0 +1,102 @@
+﻿@{
+    ViewBag.Title = "ChangePwd";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<style>
+    .registerform li {
+        padding-bottom: 20px;
+    }
+
+    .Validform_checktip {
+        margin-left: 10px;
+    }
+
+    .registerform .label {
+        display: inline-block;
+        width: 70px;
+    }
+
+    .action {
+        padding-left: 92px;
+    }
+    table td {
+        padding:5px;
+    }
+</style>
+<script>
+    $(function () {
+        $('.wrapper').height($(window).height() - 11);
+
+    })
+    function checkOldPwd() {
+        if ($("#oldPwd").val() == "") {
+            $("#oldPwd_error").html("请输入旧密码！");
+            return false;
+        }
+    }
+    function checkNewPwd() {
+        if ($("#newPwd").val() == "") {
+            $("#newPwd_error").html("请输入新密码！");
+            return false;
+        }
+    }
+    function checkNewPwd1() {
+        if ($("#newPwd1").val() == "") {
+            $("#newPwd1_error").html("请输入确认密码！");
+            return false;
+        }
+        if ($("#newPwd1").val() != $("#newPwd").val()) {
+            $("#newPwd1_error").html("两次输入密码不一致！");
+            return false;
+        } 
+    }
+
+    function clearText(id) {
+        $("#" + id + "_error").html("");
+    }
+
+    function submitForm() {
+        if (checkOldPwd() || checkNewPwd() || checkNewPwd1()) {
+            return;
+        }
+        $.submitForm({
+            url: "/SystemManage/User/ChangePwd",
+            param: $("#formPwd").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<div class="wrapper">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#a" data-toggle="tab">修改密码</a></li>
+    </ul>
+    <div class="tab-content" style="padding-top: 5px;">
+        <div id="a" class="tab-pane active" style="padding: 15px;">
+            <form id="formPwd" class="form" role="form" style="width:50%">
+                <table>
+                    <tr>
+                        <td><label for="oldPwd" class="form-label">旧密码</label></td>
+                        <td><input id="oldPwd" type="password" class="form-control" onblur="checkOldPwd()" onfocus="clearText('oldPwd')"  /></td>
+                        <td><label id="oldPwd_error" class="form-label" style="color:red;top:50%;"></label></td>
+                    </tr>
+                    <tr>
+                        <td><label for="newPwd" class="form-label">新密码</label></td>
+                        <td><input id="newPwd" name="newPwd" type="password" class="form-control"  onblur="checkNewPwd()" onfocus="clearText('newPwd')" /></td>
+                        <td><label id="newPwd_error" class="form-label" style="color:red;top:50%;"></label></td>
+                    </tr>
+                    <tr>
+                        <td><label for="newPwd1" class="form-label">确认密码</label></td>
+                        <td><input id="newPwd1" name="newPwd1" type="password" class="form-control"  onblur="checkNewPwd1()" onfocus="clearText('newPwd1')"  /></td>
+                        <td><label id="newPwd1_error" class="form-label" style="color:red;top:50%;"></label></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"> <input id="btnSumbit" type="button" class="btn btn-primary" value="确认提交" onclick="submitForm()" /></td>
+                    </tr>
+                </table>
+            </form>
+
+        </div>
+    </div>
+</div>

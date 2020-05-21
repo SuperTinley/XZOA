@@ -1,0 +1,153 @@
+﻿
+@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initSelect();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/PurchaseManage/Price/GetFormJson",
+                type: "GET",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                    $("#sup").attr("readonly", "readonly");
+                    $("#prdName").attr("readonly", "readonly");
+                    $("#orderNo").attr("readonly", "readonly");
+                    $("#price").attr("readonly", "readonly");
+                    $("#startDD").attr("readonly", "readonly");
+                    $("#principal").attr("readonly", "readonly");
+                    $("#spc").attr("readonly", "readonly");
+                    $("#unit").attr("readonly", "readonly");
+                    $("#currency").attr("readonly", "readonly");
+                    if ($("#endDD").val()!= "") {
+                        $("#endDD").attr("disabled", "disabled");
+                    }
+                   
+                }
+            });
+        }
+        setTimeout(function () {
+            laydate.render({
+                elem: '#endDD',
+                trigger: 'click'
+            });
+        }, 1000);
+    });
+    function initSelect()
+    {
+        $.ajax({
+            url: "/SystemManage/ItemsData/GetSelectJsonByType?enCode=currency",
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                    var str = '';
+                    for (var i = 0; i < data.length; i++) {
+                        str += "<option value='" + data[i].id + "'>" + data[i].text + "</option>";
+                    }
+                $("#currency").html(str);
+            },
+            error: function () { }
+        });
+    }
+    function submitForm() {
+        $.submitForm({
+            url: "/PurchaseManage/Price/SubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">供应商</th>
+                <td class="formValue">
+                    <input type="hidden" id="priNO" />
+                    <input type="text" id="sup" name="sup" class="form-control required" />
+                </td>
+                <th class="formTitle">名称</th>
+                <td class="formValue">
+                    <input id="prdName" name="prdName" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">牌号</th>
+                <td class="formValue">
+                    <input id="orderNo" name="orderNo" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">规格</th>
+                <td class="formValue">
+                    <input id="spc" name="spc" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">单价</th>
+                <td class="formValue">
+                    <input id="price" name="price" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">单位</th>
+                <td class="formValue">
+                    <input id="unit" name="unit" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">启用日期</th>
+                <td class="formValue">
+                    <input id="startDD" name="startDD" type="text" class="form-control required" readonly="readonly" value="@DateTime.Now.ToShortDateString()" />
+                </td>
+                <th class="formTitle">截止日期</th>
+                <td class="formValue">
+                    <input id="endDD" name="endDD" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">电话</th>
+                <td class="formValue">
+                    <input id="tel" name="tel" type="text" class="form-control required" />
+                </td>
+                <th class="formTitle">传真</th>
+                <td class="formValue">
+                    <input id="fax" name="fax" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">税率</th>
+                <td class="formValue">
+                    <input id="principal" name="principal" type="text" class="form-control required" value="16" />
+                </td>
+                <th class="formTitle">联系人</th>
+                <td class="formValue">
+                    <input id="conMan" name="conMan" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">币别</th>
+                <td class="formValue">
+                    <select id="currency" name="currency" class="form-control">
+                    </select>
+                </td>
+                <th class="formTitle">报价员</th>
+                <td class="formValue"><input id="quoter" name="quoter" class="form-control"/></td>
+            </tr>
+            <tr>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">
+                    用途/备注
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea class="form-control" id="rem" name="rem"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+

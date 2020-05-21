@@ -1,0 +1,203 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    var UserName;
+    $(function () {
+        UserName = GetName();
+        gridList();
+    });
+    function GetName() {
+        var CurrentUser = top.$.cookie('CurrentUser');
+        if (!!CurrentUser) {
+            var user = eval("(" + CurrentUser + ")");
+            return user.UserName;
+        }
+    }
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/RoomManage/RoomManage/GetList",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "主键", name: "ID", hidden: true, key: true },
+                {
+                    label: "操作", name: "ID", width: 60, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = '';
+                        if (rowObject.BeginTime != null) {
+                            var begin = new Date(rowObject.BeginTime.replace(/-/g, "/"));
+                            var time = new Date();
+                            if (rowObject.AppMan == UserName && begin > time && rowObject.PreResult != 1 && rowObject.PreResult != 2) {
+                                str += '&nbsp;<a id="meet_edit" onclick=btn_edit("' + cellvalue + '")>修改</a>';
+                              //  if (rowObject.PreResult!=2) {
+                                    str += '&nbsp;&nbsp;<a id="meet_cancel" onclick=btn_cancelOne("' + cellvalue + '")>取消</a>';
+                               // }
+                            }
+                        } 
+                        return str;
+                    }
+                },
+                {
+                    label: '预订人', name: 'AppMan', width: 50, align: 'left'
+                },
+                {
+                    label: '会议室名称', name: 'RoomName', width: 70, align: 'left'
+                },
+                {
+                    label: '会议时间', name: 'BeginTime', width: 120, align: 'left'
+                },
+                {
+                    label: '预计结束时间', name: 'PreEndTime', width: 120, align: 'left'
+                },
+                {
+                    label: '会议主题', name: 'Subject', width: 120, align: 'left'
+                },
+                {
+                    label: "预约结果", name: "PreResult", width: 60, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != null) {
+                            if (cellvalue == 1) {
+                                return "同意";
+                            } else if (cellvalue=2)
+                            {
+                                return "已取消";
+                            }
+                            else { return "不同意"; }
+                        } else {
+                            return "";
+                        }
+                        
+                    }
+                },
+                {
+                    label: "处理状态", name: "AuditTag", width: 60, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == 1) {
+                            return "已处理";
+                        }
+                        else { return "未处理"; }
+                    }
+                },
+                {
+                    label: '处理意见', name: 'AuditIdea', width: 60, align: 'left'
+                },
+                {
+                    label: "取消原因", name: "CancelRea", width: 40, align: 'left'
+                }
+            ],
+            pager: "#gridPager",
+            sortname: 'date desc',
+            multiselect: true,
+            rowNum: 20,
+            rowList: [10, 20, 30],
+            viewrecords: true
+        });
+    }
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "添加",
+            url: "/RoomManage/RoomManage/Form",
+            width: "800px",
+            height: "600px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit(keyValue) {
+        $.modalOpen({
+            id: "Form",
+            title: "修改",
+            url: "/RoomManage/RoomManage/Form?keyValue="+keyValue,
+            width: "800px",
+            height: "600px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_delete() {
+        var ids = $("#gridList").jqGrid('getGridParam', 'selarrrow');
+        var keyValue = ids.join(",");
+        $.deleteForm({
+            url: "/RoomManage/RoomManage/DeleteForm",
+            param: { keyValue: keyValue },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+    function btn_cancel() {
+        var keyValue = $("#gridList").jqGrid('getGridParam', 'selarrrow');
+        if (keyValue=="") {
+            $.modelMsg("请选择会议", "error");
+            return false;
+        }
+        $.modalOpen({
+            id: "Form",
+            title: "取消会议",
+            url: "/RoomManage/RoomManage/CancelForm?keyValue=" + keyValue,
+            width: "500px",
+            height: "200px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_cancelOne(keyValue) {
+        $.modalOpen({
+            id: "Form1",
+            title: "取消会议",
+            url: "/RoomManage/RoomManage/CancelOneForm?keyValue=" + keyValue,
+            width: "500px",
+            height: "200px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_details(keyValue) {
+        $.modalOpen({
+            id: "Details",
+            title: "查看",
+            url: "/RoomManage/RoomManage/Details?keyValue=" + keyValue,
+            width: "650px",
+            height: "650px",
+            btn: null,
+        });
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="meet_add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>添加</a>
+        </div>
+        <div class="btn-group">
+            <a id="meet_delete" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_delete()">删除</a>
+        </div>
+        <div class="btn-group">
+            <a id="meet_cancel" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_cancel()">取消</a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>

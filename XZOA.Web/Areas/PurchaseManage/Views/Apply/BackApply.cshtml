@@ -1,0 +1,40 @@
+﻿
+@{
+    ViewBag.Title = "BackApply";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+       
+    });
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        var ID = $("#ID").val();
+        var backReason = $("#backReason").val();
+        $.submitForm({
+            url: "/PurchaseManage/Apply/BackApply",
+            param: { keyValue: keyValue, backReason: backReason },
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form" style="width:85%;">
+            <tr>
+                <th class="formTitle"> 退回原因:</th>
+                <td class="formValue">
+                    <input type="hidden" id="ID" />
+                    <textarea id="backReason" name="backReason" class="form-control required"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+

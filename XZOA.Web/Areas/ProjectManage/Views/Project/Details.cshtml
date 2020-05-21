@@ -1,0 +1,116 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        
+        if (!!keyValue) {
+            $.ajax({
+                url: "/ProjectManage/Project/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                }
+            });
+        }
+    });
+
+</script>
+
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">项目工程师</th>
+                <td class="formValue">
+                    <label id="F_ProjectEngineer"></label>
+                </td>
+                <th class="formTitle">客户</th>
+                <td class="formValue" id="F_Customer"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">型号</th>
+                <td class="formValue" id="F_Model"></td>
+                <th class="formTitle">名称规格</th>
+                <td class="formValue" id="F_Spc"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">类型</th>
+                <td class="formValue" id="F_TypeID"></td>
+                <th class="formTitle">样板数量</th>
+                <td class="formValue" id="F_SampleQty"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">订单号</th>
+                <td class="formValue" id="F_OrderNo"></td>
+                <th class="formTitle">立单项</th>
+                <td class="formValue" id="F_OrderItem"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">立项时间</th>
+                <td class="formValue" id="F_OrderItemDate"></td>
+                <th class="formTitle">计划寄样时间</th>
+                <td class="formValue" id="F_PlanSendSampleDate"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">样板回厂时间</th>
+                <td class="formValue" id="F_SampleReturnDate"></td>
+                <th class="formTitle">备注</th>
+                <td class="formValue" id="F_Remark"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">自制/外协</th>
+                <td class="formValue" id="F_Choose"></td>
+                <th class="formTitle">样板完成时间</th>
+                <td class="formValue" id="F_SampleFinishDate"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">采购员</th>
+                <td class="formValue" id="F_Buyer"></td>
+                <th class="formTitle">供应商</th>
+                <td class="formValue" id="F_Supplier"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">工程文员</th>
+                <td class="formValue" id="F_Clerk"></td>
+                <th class="formTitle">车间</th>
+                <td class="formValue" id="F_Workshop"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">实际完成数量</th>
+                <td class="formValue" id="F_FactFinishNum"></td>
+                <th class="formTitle">实际完成时间</th>
+                <td class="formValue" id="F_FactFinishDate"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">实际寄样时间</th>
+                <td class="formValue" id="F_FactSendSampleDate"></td>
+                <th class="formTitle">样板准时</th>
+                <td class="formValue" id="F_SampleOnTime"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">是否批准</th>
+                <td class="formValue" id="F_IsAudit"></td>
+                <th class="formTitle">样板准确率</th>
+                <td class="formValue" id="F_AccuracyRate"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">样板批准时间</th>
+                <td class="formValue" id="F_AccuracyDate"></td>
+                <th class="formTitle">产品发布时间</th>
+                <td class="formValue" id="F_PublishDate"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">签板</th>
+                <td class="formValue" id="F_SignSample"></td>
+                <th class="formTitle">项目结案</th>
+                <td class="formValue" id="F_CaseTag"></td>
+            </tr>
+        </table>
+    </div>
+</form>
+

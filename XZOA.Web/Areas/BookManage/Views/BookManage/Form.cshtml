@@ -1,0 +1,101 @@
+﻿
+@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    var itemId = $.request("itemId");
+    $(function () {
+        if (!!keyValue) {
+            $.ajax({
+                url: "/BookManage/BookManage/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                }
+            });
+        }
+    });
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        var form = new FormData(document.getElementById("form1"));
+        if ($('[name=__RequestVerificationToken]').length > 0) {
+            form.append("__RequestVerificationToken", $('[name=__RequestVerificationToken]').val());
+        }
+        $.ajax({
+            url: "/BookManage/BookManage/SubmitForm?keyValue=" + keyValue + "&&itemId=" + itemId,
+            type: "post",
+            data: form,
+            dataType: "json",
+            processData: false,
+            contentType: false,
+            cache: false,
+            success: function (data) {
+                var icon = "";
+                if (data.state == "success") {
+                    icon = "fa-check-circle";
+                    top.layer.msg(data.message, { icon: icon, time: 4000, shift: 5 });
+                    top.$(".layui-layer-msg").find('i.' + icon).parents('.layui-layer-msg').addClass('layui-layer-msg-' + data.state);
+                } else {
+                    top.layer.msg(data.message);
+                }
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                var index = top.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                top.layer.close(index);//关闭弹框
+
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $.loading(false);
+                $.modalMsg(errorThrown, "error");
+            }
+        });
+    }
+</script>
+
+<form id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">书刊名称</th>
+                <td class="formValue">
+                    <input id="NickName" name="NickName" type="text" class="form-control required" placeholder="请输入名称" />
+                </td>
+            </tr>
+            @*<tr>
+                <th class="formTitle">书刊所属公司</th>
+                <td class="formValue">
+                    <select id="Company" name="Company" class="form-control required">
+                        <option value="雄智">雄智</option>
+                        <option value="雄智">雄智</option>
+                        <option value="目标">目标</option>
+                    </select>
+                </td>
+            </tr>*@
+            <tr>
+                <th class="formTitle">书刊主题</th>
+                <td class="formValue">
+                    <textarea id="Subject" name="Subject" class="form-control required"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">上传书刊</th>
+                <td class="formValue" id="file">
+                    <input id="FullName" name="FullName" type="file" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">
+                    书刊备注
+                </th>
+                <td class="formValue">
+                    <textarea id="Remark" name="Remark" class="form-control" style="height: 60px;"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>

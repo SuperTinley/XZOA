@@ -1,0 +1,51 @@
+﻿@{
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+
+    $(function () {
+        $("#F_Id").val(keyValue);
+    });
+
+    function submitForm() {
+        var keyValue = $("#F_Id").val();
+        $.submitForm({
+            url: "/LeaveManage/Check/SellOffSubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        });
+    }
+</script>
+<form name="myForm" id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">
+                    批准意见
+                </th>
+                <td class="formValue" colspan="3">
+                    <input type="hidden" id="F_Id" name="F_Id" />
+                    <textarea class="form-control" id="" name="Opinion"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">是否通过</th>
+                <td class="formValue" colspan="3">
+                    <div class="radio-inline">
+                        <label for=""><input id="F_IsSellOff" name="F_IsSellOff" type="radio" value="true">通过</label>
+                    </div>
+                    <div class="radio-inline">
+                        <label for=""><input id="F_IsSellOff" name="F_IsSellOff" type="radio" value="false">不通过</label>
+                    </div>
+                </td>
+            </tr>
+
+        </table>
+    </div>
+</form>
+
+-

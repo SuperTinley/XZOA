@@ -1,0 +1,125 @@
+﻿.price-box {
+    width: 860px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid #ddd;
+    box-shadow: rgb(189, 189, 189) 0px 0px 10px;
+    background: #fff;
+    padding: 50px;
+    padding-top: 20px;
+    margin-top: 25px;
+    padding-bottom: 0px;
+}
+
+.price-title {
+    font-size: 1.4em;
+    text-align: center;
+    line-height: 1.2em;
+    font-weight: normal;
+    font-family: GB2312;
+    font-weight: bold;
+    color: #000 !important;
+}
+ 
+.price-subtitle {
+    text-align: center;
+}
+
+.price-info {
+    /*margin-top: 20px;*/
+    margin-bottom: 20px;
+}
+
+    .price-info table .formTitle {
+        text-align: right;
+        width: 15%;
+        font-size: 0.9em;
+        font-weight: bold;
+        color: #000 !important;
+    }
+
+    .price-info table .formValue {
+        text-align: left;
+        font-size: 0.9em;
+        font-weight: bold;
+        color: #000 !important;
+    }
+
+        .price-info table .formValue input {
+            border-top: none;
+            border-right: none;
+            border-left: none;
+            height: 22px !important;
+            line-height: 22px !important;
+            font-size: 13px;
+            font-weight: bold;
+            color: #000 !important;
+        }
+
+.price-table table {
+    margin: 0px;
+    margin-top: 1px;
+    border-collapse: collapse;
+    width: 100%;
+    border-left: 1px solid #000;
+}
+
+    .price-table table thead tr td {
+        border-top: 1px solid #000;
+        border-bottom: 1px solid #000;
+        border-right: 1px solid #000;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        text-overflow: ellipsis;
+        word-break: keep-all;
+        overflow: hidden;
+        font-weight: normal;
+        padding-left: 2px;
+        padding-right: 2px;
+        font-size: 0.9em;
+        font-weight: bold;
+        color: #000 !important;
+    }
+
+    .price-table table tbody tr td {
+        border-bottom: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        height: auto;
+        line-height: normal;
+        word-break: break-all;
+        padding-left: 2px;
+        padding-right: 2px;
+        font-size: 0.9em;
+        font-weight: bold;
+        color: #000 !important;
+    }
+
+.price-table th {
+    width: auto;
+    height: auto;
+    border: solid 1px #000 !important;
+    text-align: center;
+    font-family: GB2312;
+    font-size: 0.9em;
+    font-weight: normal;
+    font-weight: bold;
+    color: #000 !important;
+}
+
+.price-info th, td {
+    font-family: GB2312;
+    font-size: 0.9em;
+    height: auto;
+    font-weight: bold;
+    color: #000 !important;
+}
+.print-p {
+    font-weight: bold;
+    font-family: GB2312;
+    color: #000 !important;
+}
+    .print-p span {
+        font-weight: bold;
+        font-family: GB2312;
+        color: #000 !important;
+    }
