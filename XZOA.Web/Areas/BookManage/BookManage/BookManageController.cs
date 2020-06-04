@@ -257,7 +257,7 @@ namespace XZOA.Web.Areas.BookManage.Controllers
                                 fileName = fileName.Replace(invalidChar.ToString(), "_");
                             }
                             fileName = fileName.Replace(" ", "");
-                            var filePath = Path.Combine(HttpContext.Server.MapPath("/Uploads/"), fileName);
+                            var filePath = Path.Combine(HttpContext.Server.MapPath("/Uploads/Book/"), fileName);
                             file.SaveAs(filePath);
                             bookEntity.TypeID = ItemId;
                             bookEntity.FullName = file.FileName;

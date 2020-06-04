@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace XZOA.Domain.Entity.SystemManage
 {
    public class ProjectEntity
-    {           
+    {
         public string F_Id { get; set; }
         public string F_ProjectEngineer { get; set; }
         public string F_Customer { get; set; }
@@ -17,7 +17,7 @@ namespace XZOA.Domain.Entity.SystemManage
         public decimal? F_SampleQty { get; set; }
         public string F_OrderNo { get; set; }
         public string F_OrderItem { get; set; }
-        public DateTime? F_OrderItemDate { get; set; }
+        public DateTime? F_OrderItemDate {get;set;}
         public DateTime? F_PlanSendSampleDate { get; set; }
         public DateTime? F_SampleReturnDate { get; set; }
         public string F_Remark { get; set; }
@@ -37,7 +37,10 @@ namespace XZOA.Domain.Entity.SystemManage
         public DateTime? F_AccuracyDate { get; set; }
         public DateTime? F_PublishDate { get; set; }
         public string F_SignSample { get; set; }
-        public bool F_CaseTag { get; set; }
+        public string F_CaseTag { get; set; }
+        public string F_Annex { get; set; }
+        public string F_ProjectRemark { get; set; }
+
         
     }
 }

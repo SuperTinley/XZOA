@@ -328,14 +328,17 @@ $.fn.formSerialize = function (formdate) {
                     break;
                 case "file":
                     break;
-                case "select":
+                case "undefined":
                     $id.val(value).trigger("change");
                     break;
                 case "text":
                     $id.val(value);
                     break;
+                case "hidden":
+                    $id.val(value);
+                    break;
                 default:
-                    $id.html(value);
+                    $id.val(value);
                     break;
             }
         };

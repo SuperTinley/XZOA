@@ -305,8 +305,8 @@ namespace XZOA.Web.Areas.TemplateManage.Controllers
                             }
                             fileName = fileName.Replace(" ", "");
                             var name = fileName.Remove(fileName.LastIndexOf("."), fileName.Length - fileName.LastIndexOf("."));
-                            fileName = name + DateTime.Now.ToString("yyyyMMddHHmmss") + Path.GetExtension(fileName);
-                            var filePath = Path.Combine(HttpContext.Server.MapPath("/Uploads/"), fileName);
+                            fileName = name + Path.GetExtension(fileName);
+                            var filePath = Path.Combine(HttpContext.Server.MapPath("/Uploads/Template/"), fileName);
                             file.SaveAs(filePath);
                             templateEntity.TEM_IMG = fileName;
                         }
@@ -323,7 +323,7 @@ namespace XZOA.Web.Areas.TemplateManage.Controllers
                                 fileName = fileName.Replace(" ", "");
                                 var name = fileName.Remove(fileName.LastIndexOf("."), fileName.Length - fileName.LastIndexOf("."));
                                 fileName = name + DateTime.Now.ToString("yyyyMMddHHmmss") + Path.GetExtension(fileName);
-                                var filePath = Path.Combine(HttpContext.Server.MapPath("/Uploads/"), fileName);
+                                var filePath = Path.Combine(HttpContext.Server.MapPath("/Uploads/Template/"), fileName);
                                 file0.SaveAs(filePath);
                                 if (string.IsNullOrEmpty(templateEntity.DRAWING))
                                 {
@@ -423,7 +423,7 @@ namespace XZOA.Web.Areas.TemplateManage.Controllers
                             fileName = fileName.Replace(invalidChar.ToString(), "_");
                         }
                         fileName = fileName.Replace(" ", "");
-                        var filePath = Path.Combine(HttpContext.Server.MapPath("/Uploads/"), fileName);
+                        var filePath = Path.Combine(HttpContext.Server.MapPath("/Uploads/Template/"), fileName);
                         file.SaveAs(filePath);
                         if (string.IsNullOrEmpty(temp.DRAWING))
                         {
@@ -461,7 +461,7 @@ namespace XZOA.Web.Areas.TemplateManage.Controllers
                                 fileName = fileName.Replace(invalidChar.ToString(), "_");
                             }
                             fileName = fileName.Replace(" ", "");
-                            var filePath = Path.Combine(HttpContext.Server.MapPath("/Uploads/"), fileName);
+                            var filePath = Path.Combine(HttpContext.Server.MapPath("/Uploads/Template/"), fileName);
                             file.SaveAs(filePath);
                             templateEntity.DRAWING = fileName;
                         }
@@ -922,7 +922,7 @@ namespace XZOA.Web.Areas.TemplateManage.Controllers
             try
             {
                 string filename = Server.UrlDecode(keyValue);
-                string filepath = Path.Combine(Server.MapPath("/Uploads/"), keyValue);
+                string filepath = Path.Combine(Server.MapPath("/Uploads/Template/"), keyValue);
                 if (FileDownHelper.FileExists(filepath))
                 {
                     FileDownHelper.DownLoadold(filepath, filename);

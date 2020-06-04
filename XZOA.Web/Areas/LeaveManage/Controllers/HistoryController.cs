@@ -226,7 +226,7 @@ namespace XZOA.Web.Areas.LeaveManage.Controllers
         [HttpPost]
         public void DownloadFile(string keyValue)
         {
-            string filePath = Server.MapPath("~/Uploads/") + keyValue; //文件路径
+            string filePath = Server.MapPath("~/Uploads/Leave/") + keyValue; //文件路径
 
             if (System.IO.File.Exists(filePath))//判断文件是否存在
             {
@@ -248,7 +248,7 @@ namespace XZOA.Web.Areas.LeaveManage.Controllers
                     if (!string.IsNullOrEmpty(file.FileName))
                     {
                         Guid FileID = Guid.NewGuid();
-                        var filePath = Path.Combine(HttpContext.Server.MapPath("/Uploads/"), FileID.ToString() + Path.GetExtension(file.FileName));
+                        var filePath = Path.Combine(HttpContext.Server.MapPath("/Uploads/Leave/"), FileID.ToString() + Path.GetExtension(file.FileName));
                         file.SaveAs(filePath);
                         leaveEntity.F_FileId = FileID;
                         leaveEntity.F_FileName = file.FileName;

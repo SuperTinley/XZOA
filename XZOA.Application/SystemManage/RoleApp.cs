@@ -41,6 +41,14 @@ namespace XZOA.Application.SystemManage
             return service.IQueryable(expression).Select(t => t.F_Id).ToList();
         }
 
+        public List<string> GetProjectList()
+        {
+            var expression = ExtLinq.True<RoleEntity>();
+            expression = expression.And( t => t.F_FullName.Contains("工程师"));
+            return service.IQueryable(expression).Select(t => t.F_Id).ToList();
+        }
+
+
         public List<string> GetKeyGridJson(string keyword)
         {
             return service.IQueryable(t => t.F_FullName==keyword).Select(t => t.F_Id).ToList();

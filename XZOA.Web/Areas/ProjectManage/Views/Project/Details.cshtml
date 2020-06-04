@@ -5,7 +5,6 @@
 <script>
     var keyValue = $.request("keyValue");
     $(function () {
-        
         if (!!keyValue) {
             $.ajax({
                 url: "/ProjectManage/Project/GetFormJson",
@@ -13,12 +12,26 @@
                 dataType: "json",
                 async: false,
                 success: function (data) {
-                    $("#form1").formSerialize(data);
+                    var element = $("#form1");
+                    for (var key in data) {
+                            var $id = element.find('#' + key);
+                            var value = $.trim(data[key]).replace(/&nbsp;/g, '');
+                            $id.html(value);
+                    }
+                    data.F_Choose == 1 ? $("#panel1").hide() : $("#panel2").hide();
+                    $("#F_TypeID").text(top.clients.type[data.F_TypeID] == null ? "" : top.clients.type[data.F_TypeID].fullname);
+                    $("#F_Choose").text(top.clients.dataItems["F_Choose"] == null ? "" : top.clients.dataItems["F_Choose"][data.F_Choose]);
+                    $("#F_SampleReturnDate").text(data.F_SampleReturnDate==null?null:data.F_SampleReturnDate.slice(0, 10));
+                    $("#F_FactSendSampleDate").text(data.F_FactSendSampleDate==null?null:data.F_FactSendSampleDate.slice(0, 10));
+                    $("#F_OrderItemDate").text(data.F_OrderItemDate==null?null:data.F_OrderItemDate.slice(0, 10));
+                    $("#F_PublishDate").text(data.F_PublishDate==null?null:data.F_PublishDate.slice(0, 10));
+                    $("#F_PlanSendSampleDate").text(data.F_PlanSendSampleDate==null?null:data.F_PlanSendSampleDate.slice(0, 10));
+                    $("#F_SampleFinishDate").text(data.F_SampleFinishDate==null?null:data.F_SampleFinishDate.slice(0, 10));
+                    $("#F_FactFinishDate").text(data.F_FactFinishDate==null?null:data.F_FactFinishDate.slice(0, 10));
                 }
             });
         }
     });
-
 </script>
 
 <form name="myForm" id="form1">
@@ -68,13 +81,13 @@
                 <th class="formTitle">样板完成时间</th>
                 <td class="formValue" id="F_SampleFinishDate"></td>
             </tr>
-            <tr>
+            <tr id="panel1">
                 <th class="formTitle">采购员</th>
                 <td class="formValue" id="F_Buyer"></td>
                 <th class="formTitle">供应商</th>
                 <td class="formValue" id="F_Supplier"></td>
             </tr>
-            <tr>
+            <tr id="panel2">
                 <th class="formTitle">工程文员</th>
                 <td class="formValue" id="F_Clerk"></td>
                 <th class="formTitle">车间</th>
@@ -96,7 +109,7 @@
                 <th class="formTitle">是否批准</th>
                 <td class="formValue" id="F_IsAudit"></td>
                 <th class="formTitle">样板准确率</th>
-                <td class="formValue" id="F_AccuracyRate"></td>
+                <td class="formValue" id="F_AccuracyRate" pl></td>
             </tr>
             <tr>
                 <th class="formTitle">样板批准时间</th>

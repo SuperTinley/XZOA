@@ -496,7 +496,7 @@ namespace XZOA.Web.Areas.ProposalManage.Controllers
                                 fileName = fileName.Replace(invalidChar.ToString(), "_");
                             }
                             fileName = fileName.Replace(" ", "");
-                            var filePath = Path.Combine(HttpContext.Server.MapPath("/Uploads/"), fileName);
+                            var filePath = Path.Combine(HttpContext.Server.MapPath("/Uploads/Proposal/"), fileName);
                             proposalEntity.annex = file.FileName;
                             file.SaveAs(filePath);
                         }
@@ -561,7 +561,7 @@ namespace XZOA.Web.Areas.ProposalManage.Controllers
             try
             {
                 string filename = Server.UrlDecode(keyValue);
-                string filepath = Path.Combine(Server.MapPath("/Uploads/"), keyValue);
+                string filepath = Path.Combine(Server.MapPath("/Uploads/Proposal/"), keyValue);
                 if (FileDownHelper.FileExists(filepath))
                 {
                     FileDownHelper.DownLoadold(filepath,filename);

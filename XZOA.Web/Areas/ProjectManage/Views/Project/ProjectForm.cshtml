@@ -3,20 +3,85 @@
     ViewBag.Title = "Form";
     Layout = "~/Views/Shared/_Form.cshtml";
 }
+<style>
+    html {
+    color: -internal-root-color;
+    }
+    fieldset {
+        display: block;
+        margin-inline-start: 6px;
+        margin-inline-end: 6px;
+        padding-block-start: 0.35em;
+        padding-inline-start: 0.75em;
+        padding-inline-end: 0.75em;
+        padding-block-end: 0.625em;
+        min-inline-size: min-content;
+        border-width: 1px;
+        border-style: groove;
+        padding-top: 0;
+        padding-bottom: 0;
+        border-image: initial;
+    }
 
+    legend {
+        display: block;
+        width: unset;
+        padding-inline-start: 2px;
+        padding-inline-end: 2px;
+        border-width: initial;
+        border-style: none;
+        border-color: initial;
+        border-image: initial;
+        font-size: 13px;
+        margin-bottom: 0;
+    }
+    .form .formValue {
+        padding: 1px;
+    }
+    .form .formValue input.form-control {
+        height: 26px;
+        line-height: 26px;
+        padding: 2px;
+    }
+</style>
 <script>
+    var type = $.request("type");
     var keyValue = $.request("keyValue");
+    var roleType=0;
     $(function () {
         initDate();
+        checkRole();
         initSelect();
+        console.log(type);
+        type == 1 ? $("#panel1").hide() : $("#panel2").hide();
+        type == 1 ? $("#label").text("工程文员") : $("#label").text("采购员");
         if (!!keyValue) {
             $.ajax({
-                url: '/ProjectManage/Project/GetFormJson',
+                url: '/ProjectManage/Project/GetFormJson?keyValue=' + keyValue,
                 type: 'GET',
-                dataType:'JSON',
-                success: function () {
-                    $("#form1").formSerialize(keyValue);
+                dataType: 'JSON',
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                    $("#form2").formSerialize(data);
+                    $("#F_SampleReturnDate").val(data.F_SampleReturnDate == null ? null : data.F_SampleReturnDate.slice(0, 10));
+                    $("#F_FactSendSampleDate").val(data.F_FactSendSampleDate == null ? null : data.F_FactSendSampleDate.slice(0, 10));
+                    $("#F_OrderItemDate").val(data.F_OrderItemDate == null ? null : data.F_OrderItemDate.slice(0, 10));
+                    $("#F_PublishDate").val(data.F_PublishDate == null ? null : data.F_PublishDate.slice(0, 10));
+                    $("#F_PlanSendSampleDate").val(data.F_PlanSendSampleDate == null ? null : data.F_PlanSendSampleDate.slice(0, 10));
+                     $("#F_SampleFinishDate").val(data.F_SampleFinishDate==null?null:data.F_SampleFinishDate.slice(0, 10));
+                    $("#F_FactFinishDate").val(data.F_FactFinishDate == null ? null : data.F_FactFinishDate.slice(0, 10));
                 }
+            });
+        }
+        if (roleType == 0) {
+            $("#form2").find('input,file,select,textarea').each(function (r) {
+                $(this).attr("readonly", "readonly");
+            });
+        } else {
+            $("#form1").find('input,file,select,textarea').each(function (r) {
+                if ($(this).attr('type') != "radio") {
+                    $(this).attr("readonly", "readonly");
+                } else {  $(this).attr("disabled", "disabled");}
             });
         }
     });
@@ -57,6 +122,19 @@
             },
             error: function () { }
         });
+        $.ajax({
+            url: "/TemplateManage/Template/GetRATIFY_MANJson",
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var str = '<option value="">==请选择==</option>';
+                for (var i = 0; i < data.length; i++) {
+                    str += "<option value='" + data[i].text + "'>" + data[i].text + "</option>";
+                }
+                $("#F_Workshop").html(str);
+            },
+            error: function () { }
+        });
     }
     function initDate() {
         laydate.render({
@@ -75,22 +153,57 @@
             elem: '#F_FactSendSampleDate',
             trigger: 'click'
         });
+        laydate.render({
+            elem: '#F_PublishDate',
+            trigger: 'click'
+        });
+        laydate.render({
+            elem: '#F_SampleFinishDate',
+            trigger: 'click'
+        });
+        laydate.render({
+            elem: '#F_FactFinishDate',
+            trigger: 'click'
+        });
+    }
+    function checkRole() {
+        $.ajax({
+            url:'/ProjectManage/Project/CheckRole',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                roleType = data;
+            }
+        });
     }
     function submitForm() {
-        var keyValue = $("#F_Id").val();
-        $.submitForm({
-            url: "/ProjectManage/Project/SubmitForm?keyValue=" + keyValue,
-            param: $("#form1").formSerialize(),
+        if (roleType == 0) {
+            $.submitForm({
+                url: "/ProjectManage/Project/SubmitForm?keyValue=" + keyValue,
+                param: $("#form1").formSerialize(),
+                success: function () {
+                    $.currentWindow().$("#gridList").resetSelection();
+                    $.currentWindow().$("#gridList").trigger("reloadGrid");
+                }
+            });
+        } else {
+            $.submitForm({
+            url: "/ProjectManage/Project/SubmitBuyerForm?keyValue=" + keyValue,
+            param: $("#form2").formSerialize(),
             success: function () {
                 $.currentWindow().$("#gridList").resetSelection();
                 $.currentWindow().$("#gridList").trigger("reloadGrid");
             }
         });
+        }
+        
     }
 </script>
 
-<form name="myForm" id="form1">
-    <div style="padding-top: 20px; margin-right: 20px;">
+<fieldset>
+    <legend>项目工程师</legend>
+    <form name="myForm" id="form1">
         <table class="form">
             <tr>
                 <th class="formTitle">项目工程师</th>
@@ -191,7 +304,7 @@
                 </td>
                 <th class="formTitle">样板准确率</th>
                 <td class="formValue">
-                    <input id="F_AccuracyRate" name="F_AccuracyRate" type="text" class="form-control" style="width:100px;display: inline-block;"/>%
+                    <input id="F_AccuracyRate" name="F_AccuracyRate" type="text" class="form-control" style="width:100px;display: inline-block;" />%
                 </td>
             </tr>
             <tr>
@@ -207,10 +320,64 @@
             <tr>
                 <th class="formTitle">签板</th>
                 <td class="formValue">
-                    <select id="F_SignSample" name="F_SignSample" class="form-control" style="width: 100%;"></select>
+                    <select id="F_SignSample" name="F_SignSample" class="form-control" style="width: 100%;">
+                        <option value="T" selected="selected">有</option>
+                        <option value="F">无</option>
+                    </select>
                 </td>
             </tr>
         </table>
-    </div>
-</form>
+    </form>
+</fieldset>
+<fieldset>
+    <legend id="label">采购员</legend>
+    <form name="myForm" id="form2">
+        <table class="form">
+            <tr id="panel1">
+                <th class="formTitle">采购员</th>
+                <td class="formValue">
+                    <input id="F_Buyer" name="F_Buyer" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">供应商</th>
+                <td class="formValue">
+                    <input id="F_Supplier" name="F_Supplier" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr id="panel2">
+                <th class="formTitle">工程文员</th>
+                <td class="formValue">
+                    <input id="F_Clerk" name="F_Clerk" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">车间</th>
+                <td class="formValue">
+                    <input id="F_Workshop" name="F_Workshop" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">样板完成时间</th>
+                <td class="formValue">
+                    <input id="F_SampleFinishDate" name="F_SampleFinishDate" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">实际完成数量</th>
+                <td class="formValue">
+                    <input id="F_FactFinishNum" name="F_FactFinishNum" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">实际完成时间</th>
+                <td class="formValue">
+                    <input id="F_FactFinishDate" name="F_FactFinishDate" type="text" class="form-control" />
+                </td>
+                <th></th>
+                <td></td>
+            </tr>
+            <tr>
+                <th class="formTitle">备注</th>
+                <td class="formValue" colspan="3">
+                    <input id="F_BuyRemark" name="F_BuyRemark" type="text" class="form-control" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</fieldset>
 

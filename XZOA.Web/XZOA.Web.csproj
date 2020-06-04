@@ -964,7 +964,6 @@
     <Content Include="Areas\ProjectManage\Views\Web.config" />
     <Content Include="Areas\ProjectManage\Views\Project\Index.cshtml" />
     <Content Include="Areas\ProjectManage\Views\Project\ProjectForm.cshtml" />
-    <Content Include="Areas\ProjectManage\Views\Project\BuyForm.cshtml" />
     <Content Include="Areas\ProjectManage\Views\Project\Details.cshtml" />
     <None Include="packages.config" />
     <None Include="Properties\PublishProfiles\CustomProfile.pubxml" />

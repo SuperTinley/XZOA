@@ -14,11 +14,9 @@ namespace XZOA.Application.SystemManage
     {
         private IProjectRepository service = new ProjectRepository();
 
-        public List<ProjectEntity> GetList(Pagination pagination)
+        public List<ProjectEntity> GetList()
         {
             var query = service.IQueryable();
-            pagination.records = query.Count();
-            query = query.OrderByDescending(q => q.F_Id).Skip((pagination.page - 1) * pagination.rows).Take(pagination.rows);
             return query.ToList();
         }
 
@@ -26,6 +24,11 @@ namespace XZOA.Application.SystemManage
         {
             var query = service.IQueryable(t => t.F_Id == keyValue);
             return query.FirstOrDefault();
+        }
+
+        public void DeleteForm(string keyValue)
+        {
+            service.Delete(t => t.F_Id == keyValue);
         }
 
         public void SubmitForm(ProjectEntity projectEntity, string keyValue = null)
